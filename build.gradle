@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+group = 'io.github.hee9841.excel'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //poi
+    implementation 'org.apache.poi:poi:5.4.0'
+    implementation 'org.apache.poi:poi-ooxml:5.4.0'
+
+    //logging
+    compileOnly 'org.slf4j:slf4j-api:2.0.17'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.17'
+}
+
+test {
+    useJUnitPlatform()
+}
