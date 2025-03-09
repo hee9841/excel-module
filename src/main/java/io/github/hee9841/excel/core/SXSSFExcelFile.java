@@ -67,7 +67,10 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
             try {
                 Field field = FieldUtils.getField(data.getClass(), columnInfo.getFieldName(), true);
                 Cell cell = row.createCell(colIndex);
-                cell.setCellValue(String.valueOf(field.get(data)));
+                columnInfo.getColumnType().setCellValueByCellType(
+                    field.get(data),
+                    cell
+                );
             } catch (IllegalAccessException e) {
                 throw new ExcelException(
                     String.format("Failed to create body(column:%d, row:%d) : "

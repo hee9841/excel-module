@@ -94,7 +94,7 @@ public enum CellType {
     }
 
     /**
-     * Checks if fieldType matches one of the types in targetCellType,
+     * Checks if fieldType matches one of the allowedTypes in targetCellType,
      *  returns targetCellType if matched, otherwise returns _NONE.
      * @param fieldType The field type
      * @param targetCellType specific cell type
