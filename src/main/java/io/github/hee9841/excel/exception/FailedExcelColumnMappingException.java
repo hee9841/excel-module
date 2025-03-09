@@ -1,20 +1,24 @@
 package io.github.hee9841.excel.exception;
 
-public class FailedExcelColumnMappingException extends ExcelException{
-    private final Class<?> dtoType;
+public class FailedExcelColumnMappingException extends ExcelException {
+
+    public FailedExcelColumnMappingException() {
+        super();
+    }
 
     public FailedExcelColumnMappingException(String message) {
         super(message);
-        this.dtoType = null;
     }
 
-    public FailedExcelColumnMappingException(String message, Class<?> dtoType) {
-        super(String.format("%s (%s)", message, dtoType.getName()));
-        this.dtoType = dtoType;
+    public FailedExcelColumnMappingException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public FailedExcelColumnMappingException(String message,  Class<?> dtoType, Throwable cause) {
-        super(String.format("%s (%s)", message, dtoType.getName()), cause);
-        this.dtoType = dtoType;
+    public FailedExcelColumnMappingException(String message, String dtoTypeName) {
+        super(message, dtoTypeName);
+    }
+
+    public FailedExcelColumnMappingException(String message, String dtoTypeName, Throwable cause) {
+        super(message, dtoTypeName, cause);
     }
 }
