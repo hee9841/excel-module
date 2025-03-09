@@ -4,20 +4,24 @@ public class ColumnInfo {
 
     private final String fieldName;
     private final String headerName;
+    private final CellType columnType;
 
     private ColumnInfo(
         String fieldName,
-        String headerName
+        String headerName,
+        CellType columnType
     ) {
         this.fieldName = fieldName;
         this.headerName = headerName;
+        this.columnType = columnType;
     }
 
     public static ColumnInfo of(
         String fieldName,
-        String headerName
+        String headerName,
+        CellType columnType
     ) {
-        return new ColumnInfo(fieldName, headerName);
+        return new ColumnInfo(fieldName, headerName, columnType);
     }
 
     public String getFieldName() {
@@ -26,5 +30,9 @@ public class ColumnInfo {
 
     public String getHeaderName() {
         return headerName;
+    }
+
+    public CellType getColumnType() {
+        return columnType;
     }
 }
