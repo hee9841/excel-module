@@ -4,71 +4,82 @@ import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.meta.CellType;
 import io.github.hee9841.excel.strategy.CellTypeStrategy;
+import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Excel(
+    columnIndexStrategy = ColumnIndexStrategy.USER_DEFINED,
     cellTypeStrategy = CellTypeStrategy.AUTO
 )
 public class TypeAndFormatCheckForAutoDto {
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 0)
     private int primitiveInt;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 1)
     private Integer wrapperInt;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 2)
     private double primitiveDouble;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 3)
     private Double wrapperDouble;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 4)
     private float primitiveFloat;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 5)
     private Float wrapperFloat;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 6)
     private long primitiveLong;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 7)
     private Long wrapperLong;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 8)
     private short primitiveShort;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 9)
     private Short wrapperShort;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 10)
     private byte primitiveByte;
 
-    @ExcelColumn(headerName = "numberField")
+    @ExcelColumn(headerName = "numberField", columnIndex = 11)
     private Byte wrapperByte;
 
 
-    @ExcelColumn(headerName = "stringField")
+    @ExcelColumn(headerName = "stringField", columnIndex = 12)
     private String stringType;
 
-    @ExcelColumn(headerName = "boolField")
+    @ExcelColumn(headerName = "boolField", columnIndex = 13)
     private boolean primitiveBool;
 
-    @ExcelColumn(headerName = "boolField")
+    @ExcelColumn(headerName = "boolField", columnIndex = 14)
     private Boolean wrapperBool;
 
-    @ExcelColumn(headerName = "dateField")
+    @ExcelColumn(headerName = "dateField", columnIndex = 15)
     private Date date;
 
-    @ExcelColumn(headerName = "localDateField")
+    @ExcelColumn(headerName = "localDateField", columnIndex = 16)
     private LocalDate localDate;
 
-    @ExcelColumn(headerName = "localDateTimeField")
+    @ExcelColumn(headerName = "localDateTimeField", columnIndex = 17)
     private LocalDateTime localDateTime;
 
-    @ExcelColumn(headerName = "formalField", columnCellType = CellType.FORMULA)
+    @ExcelColumn(headerName = "formalField", columnIndex = 18, columnCellType = CellType.FORMULA)
     private String formal;
+
+    public void setPrimitiveInt(int primitiveInt) {
+        this.primitiveInt = primitiveInt;
+    }
+
+    public void setFormal(String formal) {
+        this.formal = formal;
+    }
+
 
 }
