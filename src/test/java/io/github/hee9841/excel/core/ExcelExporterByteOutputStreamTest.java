@@ -235,7 +235,7 @@ class ExcelExporterByteOutputStreamTest {
 
     @Test
     @DisplayName("지정한 cell type에 맞게 엑셀 파일이 생성 된다.")
-    void dddd() throws IOException {
+    void createExcelFileWithSpecifiedCellType() throws IOException {
         List<TypeAndFormatCheckForAutoDto> testData = new ArrayList<>();
         int sum = 0;
         for (int i = 1; i < 11; i++) {
