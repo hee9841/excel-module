@@ -14,7 +14,7 @@ import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
 import io.github.hee9841.excel.strategy.SheetStrategy;
-import io.github.hee9841.excel.test.dto.TypeAndFormatCheckForAutoDto;
+import io.github.hee9841.excel.example.dto.TypeAndFormatCheckForAutoDto;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
