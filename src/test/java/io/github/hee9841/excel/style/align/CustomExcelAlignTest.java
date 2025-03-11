@@ -21,10 +21,10 @@ class CustomExcelAlignTest {
     private CellStyle cellStyle;
 
 
-    @DisplayName("from 메서드로 생성시 horizontal만 설정되어야 한다.")
+    @DisplayName("from(HorizontalAlignment) 메서드는 horizontal만 설정되어야 한다.")
     @ParameterizedTest
-    @MethodSource("generateFromAlignData")
-    void from_ShouldSetOnlyHorizontalAlignment(
+    @MethodSource("generateHorizontalData")
+    void from_HorizontalAlignment(
         HorizontalAlignment horizontal,
         org.apache.poi.ss.usermodel.HorizontalAlignment poiHorizontal
     ) {
@@ -34,6 +34,22 @@ class CustomExcelAlignTest {
         align.applyAlign(cellStyle);
 
         then(cellStyle).should().setAlignment(poiHorizontal);
+        then(cellStyle).shouldHaveNoMoreInteractions();
+    }
+
+    @DisplayName("from(VerticalAlignment) 메서드는 vertical만 설정되어야 한다.")
+    @ParameterizedTest
+    @MethodSource("generateVerticalData")
+    void from_VerticalAlignment(
+        VerticalAlignment vertical,
+        org.apache.poi.ss.usermodel.VerticalAlignment poiVertical
+    ) {
+
+        CustomExcelAlign align = CustomExcelAlign.from(vertical);
+
+        align.applyAlign(cellStyle);
+
+        then(cellStyle).should().setVerticalAlignment(poiVertical);
         then(cellStyle).shouldHaveNoMoreInteractions();
     }
 
@@ -55,7 +71,7 @@ class CustomExcelAlignTest {
         then(cellStyle).should().setVerticalAlignment(poiVertical);
     }
 
-    static Stream<Arguments> generateFromAlignData() {
+    static Stream<Arguments> generateHorizontalData() {
         return Stream.of(
             Arguments.of(
                 HorizontalAlignment.HORIZONTAL_GENERAL,
@@ -88,6 +104,31 @@ class CustomExcelAlignTest {
             Arguments.of(
                 HorizontalAlignment.HORIZONTAL_DISTRIBUTED,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.DISTRIBUTED
+            )
+        );
+    }
+
+    static Stream<Arguments> generateVerticalData() {
+        return Stream.of(
+            Arguments.of(
+                VerticalAlignment.VERTICAL_TOP,
+                org.apache.poi.ss.usermodel.VerticalAlignment.TOP
+            ),
+            Arguments.of(
+                VerticalAlignment.VERTICAL_CENTER,
+                org.apache.poi.ss.usermodel.VerticalAlignment.CENTER
+            ),
+            Arguments.of(
+                VerticalAlignment.VERTICAL_BOTTOM,
+                org.apache.poi.ss.usermodel.VerticalAlignment.BOTTOM
+            ),
+            Arguments.of(
+                VerticalAlignment.VERTICAL_JUSTIFY,
+                org.apache.poi.ss.usermodel.VerticalAlignment.JUSTIFY
+            ),
+            Arguments.of(
+                VerticalAlignment.VERTICAL_DISTRIBUTED,
+                org.apache.poi.ss.usermodel.VerticalAlignment.DISTRIBUTED
             )
         );
     }

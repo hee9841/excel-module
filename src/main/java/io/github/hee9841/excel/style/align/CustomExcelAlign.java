@@ -30,13 +30,21 @@ public class CustomExcelAlign implements ExcelAlign {
         );
     }
 
+    public static CustomExcelAlign from(VerticalAlignment verticalAlignment) {
+        return new CustomExcelAlign(
+            null,
+            verticalAlignment
+        );
+    }
+
 
     @Override
     public void applyAlign(CellStyle cellStyle) {
-        cellStyle.setAlignment(horizontalAlignment.getAlign());
-        if (verticalAlignment == null) {
-            return;
+        if (horizontalAlignment != null) {
+            cellStyle.setAlignment(horizontalAlignment.getAlign());
         }
-        cellStyle.setVerticalAlignment(verticalAlignment.getAlign());
+        if (verticalAlignment != null) {
+            cellStyle.setVerticalAlignment(verticalAlignment.getAlign());
+        }
     }
 }
