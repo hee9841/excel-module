@@ -56,6 +56,7 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
             ColumnInfo columnMappingInfo = columnsMappingInfo.get(colIndex);
             Cell cell = row.createCell(colIndex);
             cell.setCellValue(columnMappingInfo.getHeaderName());
+            cell.setCellStyle(columnMappingInfo.getHeaderStyle());
         }
     }
 
@@ -67,10 +68,8 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
             try {
                 Field field = FieldUtils.getField(data.getClass(), columnInfo.getFieldName(), true);
                 Cell cell = row.createCell(colIndex);
-                columnInfo.getColumnType().setCellValueByCellType(
-                    field.get(data),
-                    cell
-                );
+                columnInfo.getColumnType().setCellValueByCellType(field.get(data), cell);
+                cell.setCellStyle(columnInfo.getBodyStyle());
             } catch (IllegalAccessException e) {
                 throw new ExcelException(
                     String.format("Failed to create body(column:%d, row:%d) : "
