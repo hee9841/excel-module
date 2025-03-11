@@ -8,6 +8,7 @@ import static io.github.hee9841.excel.style.align.alignment.HorizontalAlignment.
 import static io.github.hee9841.excel.style.align.alignment.HorizontalAlignment.HORIZONTAL_JUSTIFY;
 import static io.github.hee9841.excel.style.align.alignment.HorizontalAlignment.HORIZONTAL_LEFT;
 import static io.github.hee9841.excel.style.align.alignment.HorizontalAlignment.HORIZONTAL_RIGHT;
+import static io.github.hee9841.excel.style.align.alignment.VerticalAlignment.VERTICAL_BOTTOM;
 import static io.github.hee9841.excel.style.align.alignment.VerticalAlignment.VERTICAL_CENTER;
 
 import io.github.hee9841.excel.style.align.alignment.HorizontalAlignment;
@@ -23,6 +24,15 @@ public enum DefaultExcelAlign implements ExcelAlign {
     JUSTIFY_CENTER(HORIZONTAL_JUSTIFY, VERTICAL_CENTER),
     CENTER_SELECTION_CENTER(HORIZONTAL_CENTER_SELECTION, VERTICAL_CENTER),
     DISTRIBUTED_CENTER(HORIZONTAL_DISTRIBUTED, VERTICAL_CENTER),
+
+    GENERAL_BOTTOM(HORIZONTAL_GENERAL, VERTICAL_BOTTOM),
+    LEFT_BOTTOM(HORIZONTAL_LEFT, VERTICAL_BOTTOM),
+    CENTER_BOTTOM(HORIZONTAL_CENTER, VERTICAL_BOTTOM),
+    RIGHT_BOTTOM(HORIZONTAL_RIGHT, VERTICAL_BOTTOM),
+    FILL_BOTTOM(HORIZONTAL_FILL, VERTICAL_BOTTOM),
+    JUSTIFY_BOTTOM(HORIZONTAL_JUSTIFY, VERTICAL_BOTTOM),
+    CENTER_SELECTION_BOTTOM(HORIZONTAL_CENTER_SELECTION, VERTICAL_BOTTOM),
+    DISTRIBUTED_BOTTOM(HORIZONTAL_DISTRIBUTED, VERTICAL_BOTTOM),
     ;
 
     private final HorizontalAlignment horizontalAlignment;

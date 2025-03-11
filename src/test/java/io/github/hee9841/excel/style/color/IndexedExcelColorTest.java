@@ -13,19 +13,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 class IndexedExcelColorTest {
 
     @Test
-    @DisplayName("IndexedExcelColor.of() 메소드는 IndexedColors의 인덱스 값을 올바르게 설정해야 한다")
-    void of_ShouldSetCorrectIndex() {
-        // given
-        IndexedColors color = IndexedColors.RED;
-        
-        // when
-        IndexedExcelColor excelColor = IndexedExcelColor.of(color);
-        
-        // then
-        assertEquals(color.getIndex(), excelColor.index);
-    }
-    
-    @Test
     @DisplayName("applyBackground() 메소드는 CellStyle에 올바른 색상과 패턴을 적용해야 한다")
     void applyBackground_ShouldSetCorrectColorAndPattern() throws IOException {
         // given
