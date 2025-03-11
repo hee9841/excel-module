@@ -5,7 +5,7 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 
 public class IndexedExcelColor implements ExcelColor{
 
-    public final short index;
+    private final short index;
 
     private IndexedExcelColor(short index) {
         this.index = index;
