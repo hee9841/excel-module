@@ -10,6 +10,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Excel {
+
     ColumnIndexStrategy columnIndexStrategy() default ColumnIndexStrategy.FIELD_ORDER;
+
     CellTypeStrategy cellTypeStrategy() default CellTypeStrategy.NONE;
+
+    ExcelColumStyle defaultHeaderStyle() default @ExcelColumStyle;
+
+    ExcelColumStyle defaultBodyStyle() default @ExcelColumStyle;
 }

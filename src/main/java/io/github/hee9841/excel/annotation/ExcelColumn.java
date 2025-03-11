@@ -15,4 +15,8 @@ public @interface ExcelColumn {
     int columnIndex() default -1;
 
     CellType columnCellType() default CellType._NONE;
+
+    ExcelColumStyle headerStyle() default @ExcelColumStyle;
+
+    ExcelColumStyle bodyStyle() default @ExcelColumStyle;
 }

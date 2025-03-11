@@ -17,26 +17,22 @@ public class ExcelCellStyleConfigurer {
     public ExcelCellStyleConfigurer() {
     }
 
-
-    public ExcelCellStyleConfigurer excelColor(ExcelColor excelColor) {
+    public void excelColor(ExcelColor excelColor) {
         this.excelColor = excelColor;
-        return this;
     }
 
-    public ExcelCellStyleConfigurer excelBorder(ExcelBorder excelBorder) {
+    public void excelBorder(ExcelBorder excelBorder) {
         this.excelBorder = excelBorder;
-        return this;
     }
 
-    public ExcelCellStyleConfigurer excelAlign(ExcelAlign excelAlign) {
+    public void excelAlign(ExcelAlign excelAlign) {
         this.excelAlign = excelAlign;
-        return this;
     }
 
     public void configure(CellStyle cellStyle) {
         excelColor.applyBackground(cellStyle);
-        excelBorder.applyAllBorder(cellStyle);
         excelAlign.applyAlign(cellStyle);
+        excelBorder.applyAllBorder(cellStyle);
     }
 
 }

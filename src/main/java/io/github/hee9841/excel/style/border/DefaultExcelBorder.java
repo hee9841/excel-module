@@ -9,7 +9,16 @@ public class DefaultExcelBorder implements ExcelBorder {
     private final BorderStyle left;
     private final BorderStyle right;
 
-    DefaultExcelBorder(
+    public static DefaultExcelBorder all(BorderStyle all) {
+        return new DefaultExcelBorder(all, all, all, all);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+
+    private DefaultExcelBorder(
         BorderStyle top,
         BorderStyle bottom,
         BorderStyle left,
@@ -20,53 +29,51 @@ public class DefaultExcelBorder implements ExcelBorder {
         this.right = right;
     }
 
-
-    public static DefaultExcelBorder all(BorderStyle all) {
-        return new DefaultExcelBorder(all, all, all, all);
+    private DefaultExcelBorder(Builder builder) {
+        this.top = builder.top;
+        this.bottom = builder.bottom;
+        this.left = builder.left;
+        this.right = builder.right;
     }
 
-    public static DefaultExcelBorderBuilder builder() {
-        return new DefaultExcelBorderBuilder();
-    }
+    public static class Builder {
 
+        private BorderStyle top;
+        private BorderStyle bottom;
+        private BorderStyle left;
+        private BorderStyle right;
+
+
+        public Builder top(BorderStyle topBorderStyle) {
+            this.top = topBorderStyle;
+            return this;
+        }
+
+        public Builder bottom(BorderStyle bottomBorderStyle) {
+            this.bottom = bottomBorderStyle;
+            return this;
+        }
+
+        public Builder left(BorderStyle leftBorderStyle) {
+            this.left = leftBorderStyle;
+            return this;
+        }
+
+        public Builder right(BorderStyle rightBorderStyle) {
+            this.right = rightBorderStyle;
+            return this;
+        }
+
+        public DefaultExcelBorder build() {
+            return new DefaultExcelBorder(this);
+        }
+    }
 
     @Override
     public void applyAllBorder(CellStyle cellStyle) {
-        applyTop(cellStyle);
-        applyBottom(cellStyle);
-        applyLeft(cellStyle);
-        applyRight(cellStyle);
-    }
-
-
-    private void applyTop(CellStyle cellStyle) {
-        if (top == null) {
-            return;
-        }
-        cellStyle.setBorderTop(top.getBorderStyle());
-    }
-
-
-    private void applyBottom(CellStyle cellStyle) {
-        if (bottom == null) {
-            return;
-        }
-        cellStyle.setBorderBottom(bottom.getBorderStyle());
-    }
-
-
-    private void applyLeft(CellStyle cellStyle) {
-        if (left == null) {
-            return;
-        }
-        cellStyle.setBorderLeft(left.getBorderStyle());
-    }
-
-
-    private void applyRight(CellStyle cellStyle) {
-        if (right == null) {
-            return;
-        }
-        cellStyle.setBorderRight(right.getBorderStyle());
+        if (top != null) cellStyle.setBorderTop(top.getBorderStyle());
+        if (bottom != null) cellStyle.setBorderBottom(bottom.getBorderStyle());
+        if (left != null) cellStyle.setBorderLeft(left.getBorderStyle());
+        if (right != null) cellStyle.setBorderRight(right.getBorderStyle());
     }
 }
