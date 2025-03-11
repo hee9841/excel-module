@@ -1,12 +1,3 @@
----
-name: pull_request_template
-about: pull request template
-title: ''
-labels: ''
-assignees: ''
-
----
-
 ## 🔗 이슈 연결
 
 <!-- 이슈 번호를 적어주세요. -->
