@@ -7,6 +7,7 @@ import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
+import io.github.hee9841.excel.test.dto.TypeAndFormatCheckForAutoDto;
 import java.util.Map;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -215,6 +216,92 @@ class ColumnInfoMapperTest {
 
             }
 
+        }
+    }
+    
+    @Nested
+    @DisplayName("column의 cell type mapping 테스트")
+    class ColumnCellTypeMappingTest{
+
+
+        @DisplayName("필드의 타입과 맞지 않는 타입을 지정했을 경우, 예외 발생")
+        @Test
+        void throwException_WhenIncompatibleCellTypeSpecified() {
+            //given
+            @Excel
+            class TestDto {
+                @ExcelColumn(headerName = "first",
+                    columnCellType = CellType.NUMBER
+                )
+                String firsField;
+            }
+            ColumnInfoMapper columnInfoMapper = ColumnInfoMapper.of(TestDto.class, wb);
+
+            //when
+            ExcelException exception = assertThrows(
+                ExcelException.class, columnInfoMapper::map);
+            //then
+            assertTrue(
+                exception.getMessage().contains("Invalid cell type : The cell type of field"));
+
+        }
+
+        @DisplayName("AUTO: 필드 타입에 따라 자동으로 또는 사용자가 지정한 타입에 맞게 맵핑된다.")
+        @Test
+        void cellTypeStrategyIsAuto_applyAutoType() {
+            //given && when
+            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+                .of(TypeAndFormatCheckForAutoDto.class, wb).map();
+
+            //then
+            assertEquals("primitiveInt", map.get(0).getFieldName());
+            assertEquals("numberField", map.get(0).getHeaderName());
+
+            for (Integer i : map.keySet()) {
+                ColumnInfo columnInfo = map.get(i);
+
+                switch (columnInfo.getHeaderName()) {
+                    case "numberField":
+                        assertEquals(CellType.NUMBER ,columnInfo.getColumnType());
+                        break;
+                    case "stringField":
+                        assertEquals(CellType.STRING ,columnInfo.getColumnType());
+                        break;
+                    case "boolField":
+                        assertEquals(CellType.BOOLEAN ,columnInfo.getColumnType());
+                        break;
+                    case "dateField":
+                        assertEquals(CellType.DATE ,columnInfo.getColumnType());
+                        break;
+                    case "localDateField":
+                        assertEquals(CellType.LOCAL_DATE ,columnInfo.getColumnType());
+                        break;
+                    case "localDateTimeField":
+                        assertEquals(CellType.LOCAL_DATE_TIME ,columnInfo.getColumnType());
+                        break;
+                    case "formalField":
+                        assertEquals(CellType.FORMULA ,columnInfo.getColumnType());
+                        break;
+                }
+            }
+        }
+
+        @DisplayName("cellType 전략과 columnCellType을 지정하지 않았을 경우, None type으로 지정한다.")
+        @Test
+        void  cellTypeStrategyAndColumnType_IsNone_applyNoneType() {
+            //given
+            @Excel
+            class TestDto {
+                @ExcelColumn(headerName = "first")
+                Integer firsField;
+            }
+
+            //when
+            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+                .of(TestDto.class, wb).map();
+
+            //then
+            assertEquals(CellType._NONE ,map.get(0).getColumnType());
         }
     }
 
