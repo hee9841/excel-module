@@ -1,25 +1,18 @@
 package io.github.hee9841.excel.meta;
 
 import static io.github.hee9841.excel.strategy.ColumnIndexStrategy.USER_DEFINED;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.hee9841.excel.annotation.Excel;
-import io.github.hee9841.excel.annotation.ExcelColumStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
-import io.github.hee9841.excel.example.style.EnumCellStyleExample;
+import io.github.hee9841.excel.example.dto.TypeAndFormatCheckForAutoDto;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
-import io.github.hee9841.excel.example.dto.TypeAndFormatCheckForAutoDto;
-import io.github.hee9841.excel.style.CustomExcelCellStyle;
-import io.github.hee9841.excel.style.ExcelCellStyle;
-import io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,7 +32,9 @@ class ColumnInfoMapperTest {
     @Test
     void noExcelAnnotation_throwException() {
         //given
-        class NoExcelAnnotationDto {}
+        class NoExcelAnnotationDto {
+
+        }
 
         String expectedMsg = "Missing the @Excel annotation.";
 
@@ -55,7 +50,7 @@ class ColumnInfoMapperTest {
     }
 
     @Nested
-    class ColumnIndexMappingTest{
+    class ColumnIndexMappingTest {
 
         @DisplayName("FIELD_ORDER 전략일 경우, 필드 순서대로 맵핑된다.")
         @Test
@@ -63,6 +58,7 @@ class ColumnInfoMapperTest {
             //given
             @Excel
             class TestExcelDto {
+
                 @ExcelColumn(headerName = "firstHeader")
                 String firstField;
 
@@ -74,7 +70,6 @@ class ColumnInfoMapperTest {
 
             //when
             Map<Integer, ColumnInfo> map = columnInfoMapper.map();
-
 
             //then
             ColumnInfo firstCol = map.get(0);
@@ -92,6 +87,7 @@ class ColumnInfoMapperTest {
             //given
             @Excel(columnIndexStrategy = USER_DEFINED)
             class TestExcelDto {
+
                 @ExcelColumn(headerName = "firstHeader", columnIndex = 5)
                 String firstField;
 
@@ -103,7 +99,6 @@ class ColumnInfoMapperTest {
 
             //when
             Map<Integer, ColumnInfo> map = columnInfoMapper.map();
-
 
             //then
             ColumnInfo firstCol = map.get(5);
@@ -122,6 +117,7 @@ class ColumnInfoMapperTest {
             //given
             @Excel(columnIndexStrategy = ColumnIndexStrategy.FIELD_ORDER)
             class TestExcelDto {
+
                 @ExcelColumn(headerName = "일", columnIndex = 3)
                 private String firstFiled;
                 @ExcelColumn(headerName = "이", columnIndex = 6)
@@ -153,6 +149,7 @@ class ColumnInfoMapperTest {
                 //given
                 @Excel(columnIndexStrategy = USER_DEFINED)
                 class TestExcelDto {
+
                     @ExcelColumn(headerName = "일")
                     private String firstFiled;
                 }
@@ -178,6 +175,7 @@ class ColumnInfoMapperTest {
                 //given
                 @Excel(columnIndexStrategy = USER_DEFINED)
                 class TestExcelDto {
+
                     @ExcelColumn(headerName = "일", columnIndex = -5)
                     private String firstFiled;
                 }
@@ -203,6 +201,7 @@ class ColumnInfoMapperTest {
                 //given
                 @Excel(columnIndexStrategy = USER_DEFINED)
                 class TestExcelDto {
+
                     @ExcelColumn(headerName = "first", columnIndex = 3)
                     private String firstFiled;
 
@@ -227,9 +226,9 @@ class ColumnInfoMapperTest {
 
         }
     }
-    
+
     @Nested
-    class CellTypeMappingTest{
+    class CellTypeMappingTest {
 
 
         @DisplayName("필드의 타입과 맞지 않는 타입을 지정했을 경우, 예외 발생")
@@ -238,6 +237,7 @@ class ColumnInfoMapperTest {
             //given
             @Excel
             class TestDto {
+
                 @ExcelColumn(headerName = "first",
                     columnCellType = CellType.NUMBER
                 )
@@ -270,25 +270,25 @@ class ColumnInfoMapperTest {
 
                 switch (columnInfo.getHeaderName()) {
                     case "numberField":
-                        assertEquals(CellType.NUMBER ,columnInfo.getColumnType());
+                        assertEquals(CellType.NUMBER, columnInfo.getColumnType());
                         break;
                     case "stringField":
-                        assertEquals(CellType.STRING ,columnInfo.getColumnType());
+                        assertEquals(CellType.STRING, columnInfo.getColumnType());
                         break;
                     case "boolField":
-                        assertEquals(CellType.BOOLEAN ,columnInfo.getColumnType());
+                        assertEquals(CellType.BOOLEAN, columnInfo.getColumnType());
                         break;
                     case "dateField":
-                        assertEquals(CellType.DATE ,columnInfo.getColumnType());
+                        assertEquals(CellType.DATE, columnInfo.getColumnType());
                         break;
                     case "localDateField":
-                        assertEquals(CellType.LOCAL_DATE ,columnInfo.getColumnType());
+                        assertEquals(CellType.LOCAL_DATE, columnInfo.getColumnType());
                         break;
                     case "localDateTimeField":
-                        assertEquals(CellType.LOCAL_DATE_TIME ,columnInfo.getColumnType());
+                        assertEquals(CellType.LOCAL_DATE_TIME, columnInfo.getColumnType());
                         break;
                     case "formalField":
-                        assertEquals(CellType.FORMULA ,columnInfo.getColumnType());
+                        assertEquals(CellType.FORMULA, columnInfo.getColumnType());
                         break;
                 }
             }
@@ -296,10 +296,11 @@ class ColumnInfoMapperTest {
 
         @DisplayName("cellType 전략과 columnCellType을 지정하지 않았을 경우, None type으로 지정한다.")
         @Test
-        void  cellTypeStrategyAndColumnType_IsNone_applyNoneType() {
+        void cellTypeStrategyAndColumnType_IsNone_applyNoneType() {
             //given
             @Excel
             class TestDto {
+
                 @ExcelColumn(headerName = "first")
                 Integer firsField;
             }
@@ -309,7 +310,7 @@ class ColumnInfoMapperTest {
                 .of(TestDto.class, wb).map();
 
             //then
-            assertEquals(CellType._NONE ,map.get(0).getColumnType());
+            assertEquals(CellType._NONE, map.get(0).getColumnType());
         }
     }
 
