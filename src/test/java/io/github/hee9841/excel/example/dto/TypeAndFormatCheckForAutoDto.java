@@ -1,4 +1,4 @@
-package io.github.hee9841.excel.test.dto;
+package io.github.hee9841.excel.example.dto;
 
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
