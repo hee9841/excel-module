@@ -4,17 +4,27 @@ import static io.github.hee9841.excel.strategy.ColumnIndexStrategy.USER_DEFINED;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.hee9841.excel.annotation.Excel;
+import io.github.hee9841.excel.annotation.ExcelColumStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
+import io.github.hee9841.excel.example.style.EnumCellStyleExample;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
 import io.github.hee9841.excel.example.dto.TypeAndFormatCheckForAutoDto;
+import io.github.hee9841.excel.style.CustomExcelCellStyle;
+import io.github.hee9841.excel.style.ExcelCellStyle;
+import io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
 
 class ColumnInfoMapperTest {
 
@@ -25,7 +35,7 @@ class ColumnInfoMapperTest {
         wb = new SXSSFWorkbook();
     }
 
-    @DisplayName("@Excel 어노테이션이 없으면, throw Exception ")
+    @DisplayName("@Excel 어노테이션이 없으면 예외를 발생한다.")
     @Test
     void noExcelAnnotation_throwException() {
         //given
@@ -45,7 +55,6 @@ class ColumnInfoMapperTest {
     }
 
     @Nested
-    @DisplayName("column index mapping 테스트")
     class ColumnIndexMappingTest{
 
         @DisplayName("FIELD_ORDER 전략일 경우, 필드 순서대로 맵핑된다.")
@@ -220,8 +229,7 @@ class ColumnInfoMapperTest {
     }
     
     @Nested
-    @DisplayName("column의 cell type mapping 테스트")
-    class ColumnCellTypeMappingTest{
+    class CellTypeMappingTest{
 
 
         @DisplayName("필드의 타입과 맞지 않는 타입을 지정했을 경우, 예외 발생")
