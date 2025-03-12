@@ -1,6 +1,7 @@
 package io.github.hee9841.excel.meta;
 
 import io.github.hee9841.excel.exception.ExcelException;
+import io.github.hee9841.excel.format.CellFormats;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -23,6 +24,7 @@ public enum CellType {
                 Number.class
             )
         ),
+        CellFormats._NONE,
         true
     ),
     BOOLEAN(
@@ -30,47 +32,55 @@ public enum CellType {
         Collections.unmodifiableList(
             Arrays.asList(Boolean.TYPE, Boolean.class)
         ),
+        CellFormats._NONE,
         true
     ),
     STRING(
         (cell, o) -> cell.setCellValue(String.valueOf(o)),
         Collections.singletonList(String.class),
+        CellFormats._NONE,
         true
     ),
     FORMULA(
         (cell, o) -> cell.setCellFormula(String.valueOf(o)),
         Collections.singletonList(String.class),
+        CellFormats._NONE,
         false
     ),
     //date
     DATE(
         (cell, o) -> cell.setCellValue((Date) o),
         Collections.singletonList(Date.class),
+        CellFormats.DEFAULT_DATE_FORMAT,
         true
     ),
     LOCAL_DATE(
         (cell, o) -> cell.setCellValue((LocalDate) o),
         Collections.singletonList(LocalDate.class),
+        CellFormats.DEFAULT_DATE_FORMAT,
         true
     ),
     LOCAL_DATE_TIME(
         (cell, o) -> cell.setCellValue((LocalDateTime) o),
         Collections.singletonList(LocalDateTime.class),
+        CellFormats.DEFAULT_DATE_TIME_FORMAT,
         true
     );
 
     private final BiConsumer<Cell, Object> cellValueSetter;
     private final List<Class<?>> allowedTypes;
-    //    private final String dataFormatPattern;
+    private final String dataFormatPattern;
     private final boolean hasHighPriority;
 
 
     CellType(
         BiConsumer<Cell, Object> cellValueSetter,
         List<Class<?>> allowedTypes,
+        String dataFormatPattern,
         boolean hasHighPriority
     ) {
         this.cellValueSetter = cellValueSetter;
+        this.dataFormatPattern = dataFormatPattern;
         this.allowedTypes = allowedTypes;
         this.hasHighPriority = hasHighPriority;
     }
@@ -79,6 +89,7 @@ public enum CellType {
         this(
             (cell, o) -> cell.setCellValue(String.valueOf(o)),
             Collections.emptyList(),
+            CellFormats._NONE,
             false
         );
     }
@@ -95,8 +106,9 @@ public enum CellType {
 
     /**
      * Checks if fieldType matches one of the allowedTypes in targetCellType,
-     *  returns targetCellType if matched, otherwise returns _NONE.
-     * @param fieldType The field type
+     * returns targetCellType if matched, otherwise returns _NONE.
+     *
+     * @param fieldType      The field type
      * @param targetCellType specific cell type
      * @return Returns targetCellType if matched, otherwise returns _NONE
      */
@@ -124,6 +136,10 @@ public enum CellType {
 
     public boolean isNone() {
         return this == _NONE;
+    }
+
+    public String getDataFormatPattern() {
+        return dataFormatPattern;
     }
 
 }
