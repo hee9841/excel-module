@@ -7,9 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
-import io.github.hee9841.excel.example.dto.TypeAndFormatCheckForAutoDto;
+import io.github.hee9841.excel.example.dto.TypeAutoDto;
 import io.github.hee9841.excel.exception.ExcelException;
+import io.github.hee9841.excel.format.CellFormats;
+import io.github.hee9841.excel.strategy.CellTypeStrategy;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
+import io.github.hee9841.excel.strategy.DataFormatStrategy;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -230,7 +236,6 @@ class ColumnInfoMapperTest {
     @Nested
     class CellTypeMappingTest {
 
-
         @DisplayName("필드의 타입과 맞지 않는 타입을 지정했을 경우, 예외 발생")
         @Test
         void throwException_WhenIncompatibleCellTypeSpecified() {
@@ -259,7 +264,7 @@ class ColumnInfoMapperTest {
         void cellTypeStrategyIsAuto_applyAutoType() {
             //given && when
             Map<Integer, ColumnInfo> map = ColumnInfoMapper
-                .of(TypeAndFormatCheckForAutoDto.class, wb).map();
+                .of(TypeAutoDto.class, wb).map();
 
             //then
             assertEquals("primitiveInt", map.get(0).getFieldName());
@@ -287,9 +292,6 @@ class ColumnInfoMapperTest {
                     case "localDateTimeField":
                         assertEquals(CellType.LOCAL_DATE_TIME, columnInfo.getColumnType());
                         break;
-                    case "formalField":
-                        assertEquals(CellType.FORMULA, columnInfo.getColumnType());
-                        break;
                 }
             }
         }
@@ -311,6 +313,202 @@ class ColumnInfoMapperTest {
 
             //then
             assertEquals(CellType._NONE, map.get(0).getColumnType());
+        }
+    }
+
+
+    @Nested
+    class DataFormatMappingTest {
+
+        @DisplayName("dataFormat전략이 None: 각 컬럼에 format을 지정 안하면 none으로, 지정한면 지정한 패턴으로 적용된다.")
+        @Test
+        void strategyIsNone_appliedByPattern() {
+            //given
+            @Excel
+            class TestDto {
+
+                //1. _NONE (default) -> general
+                @ExcelColumn(headerName = "noneFormat")
+                private int noneInt;
+
+                @ExcelColumn(headerName = "noneFormat")
+                private String noneString;
+
+                @ExcelColumn(headerName = "noneFormat")
+                private boolean noneBoolean;
+
+                @ExcelColumn(headerName = "noneFormat")
+                private Date noneDate;
+
+                @ExcelColumn(headerName = "noneFormat")
+                private LocalDate noneLocalDate;
+
+                @ExcelColumn(headerName = "noneFormat")
+                private LocalDateTime noneLocalDateTime;
+
+                //2. 지정하면 -> 지정한 값으로
+                @ExcelColumn(headerName = "won",
+                    format = CellFormats.KR_WON_FORMAT
+                )
+                private Integer wonDataFormat;
+
+                @ExcelColumn(headerName = "dateTImeFormat",
+                    format = CellFormats.DEFAULT_DATE_TIME_FORMAT
+                )
+                private LocalDateTime localDateTime;
+            }
+
+            // && when
+            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+                .of(TestDto.class, wb).map();
+
+            //then
+            for (Integer key : map.keySet()) {
+                ColumnInfo columnInfo = map.get(key);
+                String formatString = columnInfo.getBodyStyle().getDataFormatString();
+                assertFormatByHeaderName(columnInfo.getHeaderName(), formatString);
+
+            }
+        }
+
+
+        @DisplayName("dataFormatStrategy: AUTO_BY_CELL_TYPE : 지정한 pattern에 따라 적용되거나, celltype이 지정되면 cellType에 따라 적용된다.")
+        @Test
+        void strategyAutoByCellType_AndNoneCellType() {
+            @Excel(dataFormatStrategy = DataFormatStrategy.AUTO_BY_CELL_TYPE)
+            class TestDto {
+
+                //1. cell type is none and format is none -> is none(general)
+                @ExcelColumn(headerName = "noneFormat")
+                private int noneInt;
+
+                @ExcelColumn(headerName = "noneFormat")
+                private LocalDate noneLocalDate;
+
+                @ExcelColumn(headerName = "noneFormat")
+                private LocalDateTime noneLocalDateTime;
+
+
+                //2. cell type is none and format is specific -> 지정한 값으로
+                @ExcelColumn(headerName = "dateFormat", format = CellFormats.DEFAULT_DATE_FORMAT)
+                private LocalDate noneSpecificLocalDate;
+
+                @ExcelColumn(headerName = "dateTImeFormat", format = CellFormats.DEFAULT_DATE_TIME_FORMAT)
+                private LocalDateTime noneSpecificLocalDateTime;
+
+                @ExcelColumn(headerName = "won",
+                    format = CellFormats.KR_WON_FORMAT
+                )
+                private Integer wonDataFormat1;
+
+
+                //3. cell type is auto and format is none -> cell type의 값으로
+                @ExcelColumn(headerName = "dateFormat", columnCellType = CellType.AUTO)
+                private LocalDate cellAutoNoneFormatLocalDate;
+
+                @ExcelColumn(headerName = "dateTImeFormat", columnCellType = CellType.AUTO)
+                private LocalDateTime cellAutoNoneFormatLocalDateTime;
+
+
+                //4. cell type is auto and format is specific -> 지정한 값으로
+                @ExcelColumn(headerName = "yyyy.MM.dd", columnCellType = CellType.AUTO,
+                    format = "yyyy.MM.dd"
+                )
+                private LocalDate cellAutoSpecificFormatLocalDate;
+
+                @ExcelColumn(headerName = "MM.dd.yy(HH:mm:ss)", columnCellType = CellType.AUTO,
+                    format = "MM.dd.yy(HH:mm:ss)"
+                )
+                private LocalDateTime cellAutoSpecificFormatLocalDateTime;
+
+                @ExcelColumn(headerName = "won", columnCellType = CellType.AUTO,
+                    format = CellFormats.KR_WON_FORMAT
+                )
+                private Integer wonDataFormat2;
+
+            }
+
+            // && when
+            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+                .of(TestDto.class, wb).map();
+
+            //then
+            for (Integer key : map.keySet()) {
+                ColumnInfo columnInfo = map.get(key);
+                String formatString = columnInfo.getBodyStyle().getDataFormatString();
+                assertFormatByHeaderName(columnInfo.getHeaderName(), formatString);
+
+            }
+        }
+
+        @DisplayName("dataFormatStrategy: AUTO_BY_CELL_TYPE, CellType Auto : 기본으로 cellType에 따라 적용되고 지정하면 지정한 pattern이 적용된다.")
+        @Test
+        void strategyAutoByCellType_AndCellTypeisAuto() {
+            //givne
+            @Excel(
+                dataFormatStrategy = DataFormatStrategy.AUTO_BY_CELL_TYPE,
+                cellTypeStrategy = CellTypeStrategy.AUTO
+            )
+            class TestDto {
+
+                //1. cell type is none(오토로 지정이 됨) and format is none -> auto(cell type) 로
+                @ExcelColumn(headerName = "noneFormat")
+                private int noneInt;
+
+                @ExcelColumn(headerName = "dateFormat")
+                private LocalDate noneLocalDate;
+
+                @ExcelColumn(headerName = "dateTImeFormat")
+                private LocalDateTime noneLocalDateTime;
+
+
+                //2. cell type is none(오토로 지정이 됨) and format is specific -> 지정한 값으로
+                @ExcelColumn(headerName = "yyyy.MM.dd", format = "yyyy.MM.dd")
+                private LocalDate cellAutoSpecificFormatLocalDate;
+
+                @ExcelColumn(headerName = "MM.dd.yy(HH:mm:ss)", format = "MM.dd.yy(HH:mm:ss)")
+                private LocalDateTime cellAutoSpecificFormatLocalDateTime;
+
+                @ExcelColumn(headerName = "won", format = CellFormats.KR_WON_FORMAT)
+                private Integer wonDataFormat;
+
+            }
+
+            // && when
+            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+                .of(TestDto.class, wb).map();
+
+            //then
+            for (Integer key : map.keySet()) {
+                ColumnInfo columnInfo = map.get(key);
+                String formatString = columnInfo.getBodyStyle().getDataFormatString();
+                assertFormatByHeaderName(columnInfo.getHeaderName(), formatString);
+
+            }
+        }
+
+
+        private void assertFormatByHeaderName(String headerName, String formatPattern) {
+            switch (headerName) {
+                case "dateFormat":
+                    assertEquals(CellFormats.DEFAULT_DATE_FORMAT, formatPattern);
+                    break;
+                case "dateTImeFormat":
+                    assertEquals(CellFormats.DEFAULT_DATE_TIME_FORMAT, formatPattern);
+                    break;
+                case "won":
+                    assertEquals(CellFormats.KR_WON_FORMAT, formatPattern);
+                    break;
+                case "yyyy.MM.dd":
+                    assertEquals("yyyy.MM.dd", formatPattern);
+                    break;
+                case "MM.dd.yy(HH:mm:ss)":
+                    assertEquals("MM.dd.yy(HH:mm:ss)", formatPattern);
+                    break;
+                default:
+                    assertEquals("General", formatPattern);
+                    break;
+            }
         }
     }
 

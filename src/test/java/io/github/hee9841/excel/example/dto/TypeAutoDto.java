@@ -13,7 +13,7 @@ import java.util.Date;
     columnIndexStrategy = ColumnIndexStrategy.USER_DEFINED,
     cellTypeStrategy = CellTypeStrategy.AUTO
 )
-public class TypeAndFormatCheckForAutoDto {
+public class TypeAutoDto {
 
     @ExcelColumn(headerName = "numberField", columnIndex = 0)
     private int primitiveInt;
@@ -51,7 +51,6 @@ public class TypeAndFormatCheckForAutoDto {
     @ExcelColumn(headerName = "numberField", columnIndex = 11)
     private Byte wrapperByte;
 
-
     @ExcelColumn(headerName = "stringField", columnIndex = 12)
     private String stringType;
 
@@ -80,6 +79,5 @@ public class TypeAndFormatCheckForAutoDto {
     public void setFormal(String formal) {
         this.formal = formal;
     }
-
 
 }

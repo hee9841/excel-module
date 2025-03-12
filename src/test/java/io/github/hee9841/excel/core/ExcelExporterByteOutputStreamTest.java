@@ -12,7 +12,7 @@ import ch.qos.logback.classic.LoggerContext;
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
-import io.github.hee9841.excel.example.dto.TypeAndFormatCheckForAutoDto;
+import io.github.hee9841.excel.example.dto.TypeAutoDto;
 import io.github.hee9841.excel.example.style.EnumCellStyleExample;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
@@ -249,10 +249,10 @@ class ExcelExporterByteOutputStreamTest {
     @Test
     @DisplayName("지정한 cell type에 맞게 엑셀 파일이 생성 된다.")
     void createExcelFileWithSpecifiedCellType() throws IOException {
-        List<TypeAndFormatCheckForAutoDto> testData = new ArrayList<>();
+        List<TypeAutoDto> testData = new ArrayList<>();
         int sum = 0;
         for (int i = 1; i < 11; i++) {
-            TypeAndFormatCheckForAutoDto testDto = new TypeAndFormatCheckForAutoDto();
+            TypeAutoDto testDto = new TypeAutoDto();
             testDto.setPrimitiveInt(i);
             if (i == 10) {
                 testDto.setFormal("SUM(A2:A11)");
@@ -262,7 +262,7 @@ class ExcelExporterByteOutputStreamTest {
         }
 
         //when
-        ExcelExporter.builder(TypeAndFormatCheckForAutoDto.class, testData)
+        ExcelExporter.builder(TypeAutoDto.class, testData)
             .sheetName("TestSheet")
             .build()
             .write(os);
