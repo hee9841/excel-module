@@ -68,7 +68,7 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
             try {
                 Field field = FieldUtils.getField(data.getClass(), columnInfo.getFieldName(), true);
                 Cell cell = row.createCell(colIndex);
-                columnInfo.getColumnType().setCellValueByCellType(field.get(data), cell);
+                columnInfo.getColumnType().setCellValueByCellType(cell, field.get(data));
                 cell.setCellStyle(columnInfo.getBodyStyle());
             } catch (IllegalAccessException e) {
                 throw new ExcelException(

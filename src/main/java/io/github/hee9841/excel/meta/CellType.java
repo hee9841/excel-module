@@ -118,7 +118,7 @@ public enum CellType {
     }
 
 
-    public void setCellValueByCellType(Object value, Cell cell) {
+    public void setCellValueByCellType(Cell cell, Object value) {
         if (value == null) {
             _NONE.cellValueSetter.accept(cell, "");
             return;
