@@ -1,5 +1,6 @@
 package io.github.hee9841.excel.annotation;
 
+import io.github.hee9841.excel.format.CellFormats;
 import io.github.hee9841.excel.meta.CellType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,6 +16,8 @@ public @interface ExcelColumn {
     int columnIndex() default -1;
 
     CellType columnCellType() default CellType._NONE;
+
+    String format() default CellFormats._NONE;
 
     ExcelColumStyle headerStyle() default @ExcelColumStyle;
 

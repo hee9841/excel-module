@@ -12,10 +12,13 @@ import ch.qos.logback.classic.LoggerContext;
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
-import io.github.hee9841.excel.example.dto.TypeAndFormatCheckForAutoDto;
+import io.github.hee9841.excel.example.dto.TypeAutoDto;
 import io.github.hee9841.excel.example.style.EnumCellStyleExample;
 import io.github.hee9841.excel.exception.ExcelException;
+import io.github.hee9841.excel.format.CellFormats;
+import io.github.hee9841.excel.strategy.CellTypeStrategy;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
+import io.github.hee9841.excel.strategy.DataFormatStrategy;
 import io.github.hee9841.excel.strategy.SheetStrategy;
 import io.github.hee9841.excel.style.CustomExcelCellStyle;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
@@ -25,6 +28,7 @@ import io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import junit.log.MemoryAppender;
@@ -43,6 +47,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
@@ -149,110 +154,117 @@ class ExcelExporterByteOutputStreamTest {
         assertTrue(memoryAppender.isPresent("Empty data provided", Level.WARN));
     }
 
-    @Test
-    @DisplayName("multi sheet: 데이터 크기가 최대행을 넘을 때 자동으로 다음 시트를 생성한다.")
-    void multiSheetMaxRowsExceedTest() throws IOException {
-        // given
-        int rowCnt = 18;
-        List<TestDto> testData = new ArrayList<>();
-        for (int i = 0; i < rowCnt; i++) {
-            testData.add(new TestDto("test" + (i + 1), i + 1));
-        }
-        // when
-        ExcelExporter.builder(TestDto.class, testData)
-            .maxRows(10)
-            .build().write(os);
+    @DisplayName("Sheet 관련 테스트")
+    @Nested
+    class SheetTest {
 
-        // then
-        try (Workbook workbook = WorkbookFactory.create(
-            new ByteArrayInputStream(os.toByteArray()))) {
-            assertNotNull(workbook);
-            assertEquals(2, workbook.getNumberOfSheets()); // 시트 수 확인
-            for (int i = 0; i < 2; i++) {
-                Sheet sheet = workbook.getSheetAt(i);
-                //header 값 확인
-                Row headerRow = sheet.getRow(0);
-                assertEquals("이름", headerRow.getCell(0).getStringCellValue());
-                assertEquals("번호", headerRow.getCell(1).getStringCellValue());
-
-                // row 경계 값 null 확인
-                assertNotNull(sheet.getRow(1));
-                assertNotNull(sheet.getRow(9));
-                assertNull(sheet.getRow(10));
+        @Test
+        @DisplayName("multi sheet: 데이터 크기가 최대행을 넘을 때 자동으로 다음 시트를 생성한다.")
+        void multiSheetMaxRowsExceedTest() throws IOException {
+            // given
+            int rowCnt = 18;
+            List<TestDto> testData = new ArrayList<>();
+            for (int i = 0; i < rowCnt; i++) {
+                testData.add(new TestDto("test" + (i + 1), i + 1));
             }
-        }
-
-        assertTrue(memoryAppender
-            .isPresent("Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode:Always",
-                Level.DEBUG)
-        );
-        assertEquals(rowCnt, memoryAppender.search("Add rows data", Level.DEBUG).size());
-        assertEquals(2, memoryAppender.search("Create new Sheet", Level.DEBUG).size());
-
-    }
-
-    @Test
-    @DisplayName("one sheet: 데이터가 최대 행 초과 시 예외을 발생한다.")
-    void throwExceptionWhenOneSheetAndExceedMaxRows() {
-        // given
-        List<TestDto> testData = new ArrayList<>();
-        for (int i = 0; i < 18; i++) {
-            testData.add(new TestDto("test" + (i + 1), i + 1));
-        }
-
-        //when
-        ExcelException exception = assertThrows(ExcelException.class,
-            () -> ExcelExporter.builder(TestDto.class, testData)
+            // when
+            ExcelExporter.builder(TestDto.class, testData)
                 .maxRows(10)
-                .sheetStrategy(SheetStrategy.ONE_SHEET)
+                .build().write(os);
+
+            // then
+            try (Workbook workbook = WorkbookFactory.create(
+                new ByteArrayInputStream(os.toByteArray()))) {
+                assertNotNull(workbook);
+                assertEquals(2, workbook.getNumberOfSheets()); // 시트 수 확인
+                for (int i = 0; i < 2; i++) {
+                    Sheet sheet = workbook.getSheetAt(i);
+                    //header 값 확인
+                    Row headerRow = sheet.getRow(0);
+                    assertEquals("이름", headerRow.getCell(0).getStringCellValue());
+                    assertEquals("번호", headerRow.getCell(1).getStringCellValue());
+
+                    // row 경계 값 null 확인
+                    assertNotNull(sheet.getRow(1));
+                    assertNotNull(sheet.getRow(9));
+                    assertNull(sheet.getRow(10));
+                }
+            }
+
+            assertTrue(memoryAppender
+                .isPresent(
+                    "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode:Always",
+                    Level.DEBUG)
+            );
+            assertEquals(rowCnt, memoryAppender.search("Add rows data", Level.DEBUG).size());
+            assertEquals(2, memoryAppender.search("Create new Sheet", Level.DEBUG).size());
+
+        }
+
+        @Test
+        @DisplayName("one sheet: 데이터가 최대 행 초과 시 예외을 발생한다.")
+        void throwExceptionWhenOneSheetAndExceedMaxRows() {
+            // given
+            List<TestDto> testData = new ArrayList<>();
+            for (int i = 0; i < 18; i++) {
+                testData.add(new TestDto("test" + (i + 1), i + 1));
+            }
+
+            //when
+            ExcelException exception = assertThrows(ExcelException.class,
+                () -> ExcelExporter.builder(TestDto.class, testData)
+                    .maxRows(10)
+                    .sheetStrategy(SheetStrategy.ONE_SHEET)
+                    .build()
+            );
+
+            //then
+            assertTrue(exception.getMessage()
+                .contains("The data size exceeds the maximum number of rows allowed per sheet."));
+
+            //
+            assertEquals(2, memoryAppender.getSize());
+            assertTrue(memoryAppender.isPresent("Initialize", Level.INFO));
+            assertTrue(memoryAppender.isPresent("Mapping DTO", Level.DEBUG));
+        }
+
+        @Test
+        @DisplayName("시트 이름 지정 시 지정한 이름으로 시트 생성한다.")
+        void createSheetWithSpecifiedName() throws IOException {
+            //given
+            List<TestDto> testData = new ArrayList<>();
+            for (int i = 0; i < 18; i++) {
+                testData.add(new TestDto("test" + (i + 1), i + 1));
+            }
+
+            //when
+            ExcelExporter.builder(TestDto.class, testData)
+                .sheetName("TestSheet")
+                .maxRows(10)
                 .build()
-        );
+                .write(os);
 
-        //then
-        assertTrue(exception.getMessage()
-            .contains("The data size exceeds the maximum number of rows allowed per sheet."));
+            //then
+            try (Workbook workbook = WorkbookFactory.create(
+                new ByteArrayInputStream(os.toByteArray()))) {
+                assertEquals("TestSheet0", workbook.getSheetAt(0).getSheetName());
+                assertEquals("TestSheet1", workbook.getSheetAt(1).getSheetName());
+            }
 
-        //
-        assertEquals(2, memoryAppender.getSize());
-        assertTrue(memoryAppender.isPresent("Initialize", Level.INFO));
-        assertTrue(memoryAppender.isPresent("Mapping DTO", Level.DEBUG));
+            assertTrue(memoryAppender.isPresent("Create new Sheet : TestSheet0.", Level.DEBUG));
+            assertTrue(memoryAppender.isPresent("Create new Sheet : TestSheet1.", Level.DEBUG));
+
+        }
     }
 
-    @Test
-    @DisplayName("시트 이름 지정 시 지정한 이름으로 시트 생성한다.")
-    void createSheetWithSpecifiedName() throws IOException {
-        //given
-        List<TestDto> testData = new ArrayList<>();
-        for (int i = 0; i < 18; i++) {
-            testData.add(new TestDto("test" + (i + 1), i + 1));
-        }
-
-        //when
-        ExcelExporter.builder(TestDto.class, testData)
-            .sheetName("TestSheet")
-            .maxRows(10)
-            .build()
-            .write(os);
-
-        //then
-        try (Workbook workbook = WorkbookFactory.create(
-            new ByteArrayInputStream(os.toByteArray()))) {
-            assertEquals("TestSheet0", workbook.getSheetAt(0).getSheetName());
-            assertEquals("TestSheet1", workbook.getSheetAt(1).getSheetName());
-        }
-
-        assertTrue(memoryAppender.isPresent("Create new Sheet : TestSheet0.", Level.DEBUG));
-        assertTrue(memoryAppender.isPresent("Create new Sheet : TestSheet1.", Level.DEBUG));
-
-    }
 
     @Test
     @DisplayName("지정한 cell type에 맞게 엑셀 파일이 생성 된다.")
     void createExcelFileWithSpecifiedCellType() throws IOException {
-        List<TypeAndFormatCheckForAutoDto> testData = new ArrayList<>();
+        List<TypeAutoDto> testData = new ArrayList<>();
         int sum = 0;
         for (int i = 1; i < 11; i++) {
-            TypeAndFormatCheckForAutoDto testDto = new TypeAndFormatCheckForAutoDto();
+            TypeAutoDto testDto = new TypeAutoDto();
             testDto.setPrimitiveInt(i);
             if (i == 10) {
                 testDto.setFormal("SUM(A2:A11)");
@@ -262,7 +274,7 @@ class ExcelExporterByteOutputStreamTest {
         }
 
         //when
-        ExcelExporter.builder(TypeAndFormatCheckForAutoDto.class, testData)
+        ExcelExporter.builder(TypeAutoDto.class, testData)
             .sheetName("TestSheet")
             .build()
             .write(os);
@@ -290,45 +302,100 @@ class ExcelExporterByteOutputStreamTest {
         }
     }
 
+    @DisplayName("cell style 테스트")
+    @Nested
+    class CellStyleTest {
 
-    @DisplayName("지정한 cell의 style에 맞게 엑셀 파일이 생성 된다.")
+        @DisplayName("지정한 cell의 style에 맞게 엑셀 파일이 생성 된다.")
+        @Test
+        void createExcelFileWithSpecifiedCellStyle() throws IOException {
+            //given
+            SXSSFWorkbook wb = new SXSSFWorkbook();
+            // default header : GREY_25_PERCENT, CENTER_CENTER, ALL_BORDER_THICK
+            CellStyle headerStyle = wb.createCellStyle();
+            headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            headerStyle.setBorderTop(BorderStyle.THICK);
+            headerStyle.setBorderBottom(BorderStyle.THICK);
+            headerStyle.setBorderLeft(BorderStyle.THICK);
+            headerStyle.setBorderRight(BorderStyle.THICK);
+
+            //red header : RED, CENTER_CENTER, ALL_BORDER_THICK
+            CellStyle redHeaderStyle = wb.createCellStyle();
+            redHeaderStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+            redHeaderStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            redHeaderStyle.setAlignment(HorizontalAlignment.CENTER);
+            redHeaderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            redHeaderStyle.setBorderTop(BorderStyle.THICK);
+            redHeaderStyle.setBorderBottom(BorderStyle.THICK);
+            redHeaderStyle.setBorderLeft(BorderStyle.THICK);
+            redHeaderStyle.setBorderRight(BorderStyle.THICK);
+
+            //DefaultBodyStyle : WHITE, LEFT_BOTTOM
+            CellStyle bodyStyle = wb.createCellStyle();
+            bodyStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+            bodyStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            bodyStyle.setAlignment(HorizontalAlignment.LEFT);
+            bodyStyle.setVerticalAlignment(VerticalAlignment.BOTTOM);
+
+            wb.close();
+
+            List<TestDto> testData = new ArrayList<>();
+            testData.add(new TestDto("name value", 1));
+
+            //when
+            ExcelExporter.builder(TestDto.class, testData)
+                .build()
+                .write(os);
+
+            //  then
+            try (Workbook workbook = WorkbookFactory
+                .create(new ByteArrayInputStream(os.toByteArray()))) {
+
+                Sheet sheet = workbook.getSheetAt(0);
+
+                //header
+                Row headers = sheet.getRow(0);
+                assertCellStyleEquals(headerStyle, headers.getCell(0).getCellStyle());
+                assertCellStyleEquals(redHeaderStyle, headers.getCell(1).getCellStyle());
+
+                //body
+                Row bodyRow = sheet.getRow(1);
+                assertCellStyleEquals(bodyStyle, bodyRow.getCell(0).getCellStyle());
+                assertCellStyleEquals(bodyStyle, bodyRow.getCell(1).getCellStyle());
+
+            }
+
+
+        }
+
+        private void assertCellStyleEquals(CellStyle expected, CellStyle actual) {
+            //color
+            assertEquals(expected.getFillForegroundColor(), actual.getFillForegroundColor());
+            assertEquals(expected.getFillPattern(), actual.getFillPattern());
+
+            //align
+            assertEquals(expected.getAlignment(), actual.getAlignment());
+            assertEquals(expected.getVerticalAlignment(), actual.getVerticalAlignment());
+
+            //border
+            assertEquals(expected.getBorderTop(), actual.getBorderTop());
+            assertEquals(expected.getBorderBottom(), actual.getBorderBottom());
+            assertEquals(expected.getBorderLeft(), actual.getBorderLeft());
+            assertEquals(expected.getBorderRight(), actual.getBorderRight());
+        }
+    }
+
+    @DisplayName("지정한 dataformat이 적용되엇 엑셀 파일이 생성 되었는지 확인한다.")
     @Test
-    void createExcelFileWithSpecifiedCellStyle() throws IOException {
+    void createExcelFileWithSpecifiedDataFormat() throws IOException {
         //given
-        SXSSFWorkbook wb = new SXSSFWorkbook();
-        // default header : GREY_25_PERCENT, CENTER_CENTER, ALL_BORDER_THICK
-        CellStyle headerStyle = wb.createCellStyle();
-        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        headerStyle.setAlignment(HorizontalAlignment.CENTER);
-        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        headerStyle.setBorderTop(BorderStyle.THICK);
-        headerStyle.setBorderBottom(BorderStyle.THICK);
-        headerStyle.setBorderLeft(BorderStyle.THICK);
-        headerStyle.setBorderRight(BorderStyle.THICK);
-
-        //red header : RED, CENTER_CENTER, ALL_BORDER_THICK
-        CellStyle redHeaderStyle = wb.createCellStyle();
-        redHeaderStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
-        redHeaderStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        redHeaderStyle.setAlignment(HorizontalAlignment.CENTER);
-        redHeaderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        redHeaderStyle.setBorderTop(BorderStyle.THICK);
-        redHeaderStyle.setBorderBottom(BorderStyle.THICK);
-        redHeaderStyle.setBorderLeft(BorderStyle.THICK);
-        redHeaderStyle.setBorderRight(BorderStyle.THICK);
-
-        //DefaultBodyStyle : WHITE, LEFT_BOTTOM
-        CellStyle bodyStyle = wb.createCellStyle();
-        bodyStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-        bodyStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        bodyStyle.setAlignment(HorizontalAlignment.LEFT);
-        bodyStyle.setVerticalAlignment(VerticalAlignment.BOTTOM);
-
-        wb.close();
-
         List<TestDto> testData = new ArrayList<>();
         testData.add(new TestDto("name value", 1));
+
+        String signUpDatePattern = CellFormats.DEFAULT_DATE_FORMAT;
 
         //when
         ExcelExporter.builder(TestDto.class, testData)
@@ -338,38 +405,14 @@ class ExcelExporterByteOutputStreamTest {
         //  then
         try (Workbook workbook = WorkbookFactory
             .create(new ByteArrayInputStream(os.toByteArray()))) {
-
             Sheet sheet = workbook.getSheetAt(0);
 
-            //header
-            Row headers = sheet.getRow(0);
-            assertCellStyleEquals(headerStyle, headers.getCell(0).getCellStyle());
-            assertCellStyleEquals(redHeaderStyle, headers.getCell(1).getCellStyle());
+            Row row1 = sheet.getRow(1);
+            Cell signUpDateCell = row1.getCell(2);
+            String actualFormat = signUpDateCell.getCellStyle().getDataFormatString();
 
-            //body
-            Row bodyRow = sheet.getRow(1);
-            assertCellStyleEquals(bodyStyle, bodyRow.getCell(0).getCellStyle());
-            assertCellStyleEquals(bodyStyle, bodyRow.getCell(1).getCellStyle());
-
+            assertEquals(signUpDatePattern, actualFormat);
         }
-
-
-    }
-
-    private void assertCellStyleEquals(CellStyle expected, CellStyle actual) {
-        //color
-        assertEquals(expected.getFillForegroundColor(), actual.getFillForegroundColor());
-        assertEquals(expected.getFillPattern(), actual.getFillPattern());
-
-        //align
-        assertEquals(expected.getAlignment(), actual.getAlignment());
-        assertEquals(expected.getVerticalAlignment(), actual.getVerticalAlignment());
-
-        //border
-        assertEquals(expected.getBorderTop(), actual.getBorderTop());
-        assertEquals(expected.getBorderBottom(), actual.getBorderBottom());
-        assertEquals(expected.getBorderLeft(), actual.getBorderLeft());
-        assertEquals(expected.getBorderRight(), actual.getBorderRight());
     }
 
 
@@ -379,7 +422,9 @@ class ExcelExporterByteOutputStreamTest {
             cellStyleClass = EnumCellStyleExample.class,
             enumName = "GREY_25_PERCENT_CENTER_CENTER_ALL_BORDER_THICK"
         ),
-        defaultBodyStyle = @ExcelColumStyle(cellStyleClass = DefaultBodyStyle.class)
+        defaultBodyStyle = @ExcelColumStyle(cellStyleClass = DefaultBodyStyle.class),
+        cellTypeStrategy = CellTypeStrategy.AUTO,
+        dataFormatStrategy = DataFormatStrategy.AUTO_BY_CELL_TYPE
     )
     static class TestDto {
 
@@ -394,9 +439,13 @@ class ExcelExporterByteOutputStreamTest {
         )
         private final int number;
 
+        @ExcelColumn(headerName = "가입일", columnIndex = 2, format = CellFormats.DEFAULT_DATE_FORMAT)
+        private final LocalDateTime signUpDate;
+
         public TestDto(String name, int number) {
             this.name = name;
             this.number = number;
+            this.signUpDate = LocalDateTime.now();
         }
     }
 

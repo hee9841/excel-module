@@ -5,8 +5,11 @@ import io.github.hee9841.excel.annotation.ExcelColumStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.exception.ExcelStyleException;
+import io.github.hee9841.excel.format.CellFormats;
+import io.github.hee9841.excel.format.ExcelDataFormater;
 import io.github.hee9841.excel.strategy.CellTypeStrategy;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
+import io.github.hee9841.excel.strategy.DataFormatStrategy;
 import io.github.hee9841.excel.style.ExcelCellStyle;
 import io.github.hee9841.excel.style.NoCellStyle;
 import java.lang.reflect.Field;
@@ -29,6 +32,7 @@ public class ColumnInfoMapper {
 
     private ColumnIndexStrategy columnIndexStrategy;
     private CellTypeStrategy cellTypeStrategy;
+    private DataFormatStrategy dataFormatStrategy;
 
     private ColumnInfoMapper(Class<?> type, Workbook wb) {
         this.wb = wb;
@@ -55,6 +59,7 @@ public class ColumnInfoMapper {
         Excel excel = type.getAnnotation(Excel.class);
         columnIndexStrategy = excel.columnIndexStrategy();
         cellTypeStrategy = excel.cellTypeStrategy();
+        dataFormatStrategy = excel.dataFormatStrategy();
 
         //set default style
         getExcelCellStyle(excel.defaultHeaderStyle()).apply(defaultHeaderStyle);
@@ -119,6 +124,10 @@ public class ColumnInfoMapper {
         CellStyle headerStyle = updateCellStyle(excelColumn.headerStyle(), defaultHeaderStyle);
         CellStyle bodyStyle = updateCellStyle(excelColumn.bodyStyle(), defaultBodyStyle);
 
+        //Set colum cell(body) format
+        ExcelDataFormater dataFormater = getDataFormater(excelColumn.format(), cellType);
+        dataFormater.apply(bodyStyle);
+
         return ColumnInfo.of(
             fieldName,
             excelColumn.headerName(),
@@ -126,6 +135,19 @@ public class ColumnInfoMapper {
             headerStyle,
             bodyStyle
         );
+    }
+
+    private ExcelDataFormater getDataFormater(String pattern, CellType cellType) {
+        // When dataFormatStrategy is "AUTO" and format pattern is "isNone"(empty or null),
+        // apply auto format pattern.
+        if ((dataFormatStrategy.isAutoByCellType() && CellFormats.isNone(pattern))) {
+            pattern = cellType.getDataFormatPattern();
+        }
+
+        // When dataFormatStrategy is "AUTO" and format pattern is not "isNone"
+        // or dataFormatStrategy is "NONE"(format pattern is "isNone" or any value),
+        // apply parameter "pattern" value.
+        return ExcelDataFormater.of(wb.createDataFormat(), pattern);
     }
 
     private CellType getCellType(CellType columnCellType, Class<?> fieldType, String fieldName) {
