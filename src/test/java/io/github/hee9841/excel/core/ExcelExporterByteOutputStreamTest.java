@@ -259,8 +259,8 @@ class ExcelExporterByteOutputStreamTest {
 
 
     @Test
-    @DisplayName("지정한 cell type에 맞게 엑셀 파일이 생성 된다.")
-    void createExcelFileWithSpecifiedCellType() throws IOException {
+    @DisplayName("Formula 타입인 cell는 함수 값이 적용 되어야한다.")
+    void checkFormulaType() throws IOException {
         List<TypeAutoDto> testData = new ArrayList<>();
         int sum = 0;
         for (int i = 1; i < 11; i++) {
@@ -293,12 +293,40 @@ class ExcelExporterByteOutputStreamTest {
 
             Cell formulaCell = lastRow.getCell(18);
 
-            // Formula 계산
+            // Formula 확인
             FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
             evaluator.evaluateFormulaCell(formulaCell);
 
             assertEquals(10, lastRow.getCell(0).getNumericCellValue());
             assertEquals(sum, formulaCell.getNumericCellValue());
+        }
+    }
+
+    @DisplayName("enum 타입인 cell은 toString값이 적용되어야 한다.")
+    @Test
+    void checkEnumType() throws IOException {
+        @Excel
+        class TestDto {
+            @ExcelColumn(headerName = "gender")
+            Gender gender;
+
+            TestDto() {
+                this.gender = Gender.MALE;
+            }
+        }
+        List<TestDto> testData = new ArrayList<>();
+        testData.add(new TestDto());
+
+        //when
+        ExcelExporter.builder(TestDto.class, testData)
+            .build()
+            .write(os);
+
+        //  then
+        try (Workbook workbook = WorkbookFactory
+            .create(new ByteArrayInputStream(os.toByteArray()))) {
+            Cell cell = workbook.getSheetAt(0).getRow(1).getCell(0);
+            assertEquals("M", cell.getStringCellValue());
         }
     }
 
@@ -459,6 +487,23 @@ class ExcelExporterByteOutputStreamTest {
         public void configure(ExcelCellStyleConfigurer configurer) {
             configurer.excelColor(IndexedExcelColor.of(IndexedColors.WHITE));
             configurer.excelAlign(DefaultExcelAlign.LEFT_BOTTOM);
+        }
+    }
+
+    enum Gender {
+        FEMALE("F"),
+        MALE("M"),
+        ;
+        private final String gender;
+
+        Gender(String gender) {
+            this.gender = gender;
+        }
+
+
+        @Override
+        public String toString() {
+            return this.gender;
         }
     }
 
