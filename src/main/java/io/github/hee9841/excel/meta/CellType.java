@@ -37,7 +37,16 @@ public enum CellType {
     ),
     STRING(
         (cell, o) -> cell.setCellValue(String.valueOf(o)),
-        Collections.singletonList(String.class),
+        Collections.unmodifiableList(
+            Arrays.asList(String.class, Character.class, char.class)
+        ),
+        CellFormats._NONE,
+        true
+    ),
+    //enum의 값(name) -> toString() override
+    ENUM(
+        (cell, o) -> cell.setCellValue(o != null ? o.toString() : ""),
+        Collections.singletonList(Enum.class),
         CellFormats._NONE,
         true
     ),
@@ -50,7 +59,9 @@ public enum CellType {
     //date
     DATE(
         (cell, o) -> cell.setCellValue((Date) o),
-        Collections.singletonList(Date.class),
+        Collections.unmodifiableList(
+            Arrays.asList(Date.class, java.sql.Date.class)
+        ),
         CellFormats.DEFAULT_DATE_FORMAT,
         true
     ),
@@ -118,7 +129,7 @@ public enum CellType {
     }
 
 
-    public void setCellValueByCellType(Object value, Cell cell) {
+    public void setCellValueByCellType(Cell cell, Object value) {
         if (value == null) {
             _NONE.cellValueSetter.accept(cell, "");
             return;
