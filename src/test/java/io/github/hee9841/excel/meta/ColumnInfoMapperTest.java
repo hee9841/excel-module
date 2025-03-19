@@ -55,6 +55,28 @@ class ColumnInfoMapperTest {
         assertTrue(exceptionMsg.contains(expectedMsg));
     }
 
+    @DisplayName("@ExcelColumn 어노테이션이 하나라도 없으면 예외를 발생한다.")
+    @Test
+    void noExcelColumnAnnotation_throwException() {
+        //given
+        @Excel
+        class TestDto {
+            String id;
+        }
+
+        String expectedMsg = "No @ExcelColumn annotations found in class";
+
+        ColumnInfoMapper columnInfoMapper = ColumnInfoMapper.of(
+            TestDto.class, wb);
+
+        //when
+        String exceptionMsg = assertThrows(
+            ExcelException.class,
+            columnInfoMapper::map).getMessage();
+
+        assertTrue(exceptionMsg.contains(expectedMsg));
+    }
+
     @Nested
     class ColumnIndexMappingTest {
 

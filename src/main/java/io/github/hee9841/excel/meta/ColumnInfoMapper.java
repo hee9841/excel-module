@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -47,7 +48,11 @@ public class ColumnInfoMapper {
 
     public Map<Integer, ColumnInfo> map() {
         parsingExcelAnnotation();
-        return parsingExcelColumns();
+        return parsingExcelColumns().orElseThrow(() -> new ExcelException(
+                String.format("No @ExcelColumn annotations found in class '%s'."
+                    + " At least one field must be annotated with @ExcelColumn", type.getName())
+            )
+        );
     }
 
     private void parsingExcelAnnotation() {
@@ -66,7 +71,7 @@ public class ColumnInfoMapper {
         getExcelCellStyle(excel.defaultBodyStyle()).apply(defaultBodyStyle);
     }
 
-    private Map<Integer, ColumnInfo> parsingExcelColumns() {
+    private Optional<Map<Integer, ColumnInfo>> parsingExcelColumns() {
         int autoColumnIndexCnt = 0;
         Map<Integer, ColumnInfo> result = new HashMap<>();
 
@@ -89,7 +94,7 @@ public class ColumnInfoMapper {
                 getColumnInfo(excelColumn, field.getType(), field.getName()));
         }
 
-        return result;
+        return result.isEmpty() ? Optional.empty() : Optional.of(result);
     }
 
     private void validateColumnIndex(Map<Integer, ColumnInfo> columnInfoMap, int columnIndex,
@@ -173,7 +178,8 @@ public class ColumnInfoMapper {
     private CellStyle updateCellStyle(ExcelColumStyle style, CellStyle defaultStyle) {
 
         CellStyle cellStyle = wb.createCellStyle();
-        //todo docs NoStyle(default) 같은 경우 우선 순위 나중, NoStyle로 Column에 우선순위로 적요하고 싶으면 default 값이 아닌,
+        //todo docs NoStyle(default) 같은 경우 우선 순위 나중,
+        // NoStyle로 Column에 우선순위로 적요하고 싶으면 default 값이 아닌,
         // 사용자 정의해서 적용해야함
 
         // When cell style is default value of @ExcelColumn,
