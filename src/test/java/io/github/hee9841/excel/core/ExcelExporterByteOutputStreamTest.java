@@ -10,7 +10,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import io.github.hee9841.excel.annotation.Excel;
-import io.github.hee9841.excel.annotation.ExcelColumStyle;
+import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.example.dto.TypeAutoDto;
 import io.github.hee9841.excel.example.style.EnumCellStyleExample;
@@ -446,11 +446,11 @@ class ExcelExporterByteOutputStreamTest {
 
     @Excel(
         columnIndexStrategy = ColumnIndexStrategy.USER_DEFINED,
-        defaultHeaderStyle = @ExcelColumStyle(
+        defaultHeaderStyle = @ExcelColumnStyle(
             cellStyleClass = EnumCellStyleExample.class,
             enumName = "GREY_25_PERCENT_CENTER_CENTER_ALL_BORDER_THICK"
         ),
-        defaultBodyStyle = @ExcelColumStyle(cellStyleClass = DefaultBodyStyle.class),
+        defaultBodyStyle = @ExcelColumnStyle(cellStyleClass = DefaultBodyStyle.class),
         cellTypeStrategy = CellTypeStrategy.AUTO,
         dataFormatStrategy = DataFormatStrategy.AUTO_BY_CELL_TYPE
     )
@@ -460,7 +460,7 @@ class ExcelExporterByteOutputStreamTest {
         private final String name;
 
         @ExcelColumn(headerName = "번호", columnIndex = 1,
-            headerStyle = @ExcelColumStyle(
+            headerStyle = @ExcelColumnStyle(
                 cellStyleClass = EnumCellStyleExample.class,
                 enumName = "RED_CENTER_CENTER_ALL_BORDER_THICK"
             )

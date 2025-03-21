@@ -2,6 +2,15 @@ package io.github.hee9841.excel.style.color;
 
 import io.github.hee9841.excel.exception.ExcelStyleException;
 
+/**
+ * Enumeration of predefined colors for Excel cells, identified by indices.
+ * This enum wraps the standard color palette available in Excel, providing
+ * convenient access to common colors through their index values.
+ * 
+ * <p>The colors are organized by index values (0-64) that correspond to Excel's
+ * built-in color palette. This class enables the use of these colors without
+ * having to remember their numeric index values.</p>
+ */
 public enum IndexedColors {
     BLACK1(0),
     WHITE1(1),
@@ -68,10 +77,22 @@ public enum IndexedColors {
         this.index = (short)idx;
     }
 
+    /**
+     * Returns the index value of this color.
+     *
+     * @return the index of this color
+     */
     public short getIndex() {
         return this.index;
     }
 
+    /**
+     * Retrieves an IndexedColors enum constant by its index value.
+     *
+     * @param index the index value to look up
+     * @return the IndexedColors constant corresponding to the given index
+     * @throws ExcelStyleException if the index is invalid or not mapped to a color
+     */
     public static IndexedColors fromInt(int index) {
         if (index >= 0 && index < _values.length) {
             IndexedColors color = _values[index];

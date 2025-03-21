@@ -1,7 +1,12 @@
 package io.github.hee9841.excel.format;
 
+/**
+ * Utility class that provides predefined Excel cell format patterns.
+ * Contains common formats for dates, numbers, and currencies.
+ */
 public class CellFormats {
 
+    /** General format (no specific formatting applied) */
     public static final String _NONE = "General";
 
     public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
@@ -18,6 +23,12 @@ public class CellFormats {
     private CellFormats() {
     }
 
+    /**
+     * Checks if the given format is empty, default, or null.
+     *
+     * @param format The format string to check
+     * @return true if the format is null, empty, or the default "General" format
+     */
     public static boolean isNone(String format) {
         return format == null || format.equals(_NONE) || format.trim().isEmpty();
     }

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.hee9841.excel.annotation.Excel;
-import io.github.hee9841.excel.annotation.ExcelColumStyle;
+import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.exception.ExcelStyleException;
 import io.github.hee9841.excel.style.CustomExcelCellStyle;
@@ -81,7 +81,7 @@ public class CellStyleMappingTest {
         void enumCellStyle_applySuccess() {
             //given
             @Excel(
-                defaultHeaderStyle = @ExcelColumStyle(
+                defaultHeaderStyle = @ExcelColumnStyle(
                     cellStyleClass = TestEnumCellStyle.class,
                     enumName = "WHITE_GENERAL_CENTER_TOP_THIN"
                 )
@@ -89,7 +89,7 @@ public class CellStyleMappingTest {
             class TestDto {
 
                 @ExcelColumn(headerName = "first",
-                    bodyStyle = @ExcelColumStyle(
+                    bodyStyle = @ExcelColumnStyle(
                         cellStyleClass = TestEnumCellStyle.class,
                         enumName = "BLACK_CENTER_THIN"
                     )
@@ -97,7 +97,7 @@ public class CellStyleMappingTest {
                 private String firstFiled;
 
                 @ExcelColumn(headerName = "second",
-                    headerStyle = @ExcelColumStyle(
+                    headerStyle = @ExcelColumnStyle(
                         cellStyleClass = TestEnumCellStyle.class,
                         enumName = "BLACK_CENTER_THIN"
                     )
@@ -123,17 +123,17 @@ public class CellStyleMappingTest {
         void classCellStyle_applySuccess() {       
             //given
             @Excel(
-                defaultHeaderStyle = @ExcelColumStyle(cellStyleClass = WhiteGeneralCenterTopThin.class)
+                defaultHeaderStyle = @ExcelColumnStyle(cellStyleClass = WhiteGeneralCenterTopThin.class)
             )
             class TestDto {
 
                 @ExcelColumn(headerName = "first",
-                    bodyStyle = @ExcelColumStyle(cellStyleClass = BlackCenterThinStyle.class)
+                    bodyStyle = @ExcelColumnStyle(cellStyleClass = BlackCenterThinStyle.class)
                 )
                 private String firstFiled;
 
                 @ExcelColumn(headerName = "second",
-                    headerStyle = @ExcelColumStyle(cellStyleClass = BlackCenterThinStyle.class)
+                    headerStyle = @ExcelColumnStyle(cellStyleClass = BlackCenterThinStyle.class)
                 )
                 private String secondFiled;
             }
@@ -181,7 +181,7 @@ public class CellStyleMappingTest {
             //given
             String expectedMsg = "Enum value 'NOTHING' not found in style class";
             //"Enum 관련 테스트 classes"
-            @Excel(defaultHeaderStyle = @ExcelColumStyle(
+            @Excel(defaultHeaderStyle = @ExcelColumnStyle(
                 cellStyleClass = TestEnumCellStyle.class,
                 enumName = "NOTHING"
             ))
@@ -209,7 +209,7 @@ public class CellStyleMappingTest {
         void caseOfClass_NoSuchMethodException() {
             //given
             //NoConstructorException test classes
-            @Excel(defaultHeaderStyle = @ExcelColumStyle(
+            @Excel(defaultHeaderStyle = @ExcelColumnStyle(
                 cellStyleClass = NoConstructorStyleClass.class
             ))
             class NoConstructorTestDTO {
@@ -278,7 +278,7 @@ public class CellStyleMappingTest {
 
 
         //IllegalAccessException test classes
-        @Excel(defaultHeaderStyle = @ExcelColumStyle(
+        @Excel(defaultHeaderStyle = @ExcelColumnStyle(
             cellStyleClass = IllegalAccessStyleClass.class
         ))
         class IllegalAccessTestDTO {
@@ -290,7 +290,7 @@ public class CellStyleMappingTest {
 
 
         //InstantiationException test classes
-        @Excel(defaultHeaderStyle = @ExcelColumStyle(
+        @Excel(defaultHeaderStyle = @ExcelColumnStyle(
             cellStyleClass = InstantiationStyleClass.class
         ))
         class InstantiationTestDTO {
@@ -302,7 +302,7 @@ public class CellStyleMappingTest {
 
 
         //InvocationTargetException test classes
-        @Excel(defaultHeaderStyle = @ExcelColumStyle(
+        @Excel(defaultHeaderStyle = @ExcelColumnStyle(
             cellStyleClass = InvocationTargetStyleClass.class
         ))
         class InvocationTargetTestDTO {
