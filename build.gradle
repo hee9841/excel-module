@@ -10,10 +10,10 @@ java {
     targetCompatibility = '1.8'
 }
 
-
 repositories {
     mavenCentral()
 }
+
 dependencies {
     //poi
     implementation 'org.apache.poi:poi:5.4.0'
@@ -37,7 +37,12 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
 }
 
-
 test {
     useJUnitPlatform()
+}
+
+javadoc {
+    options {
+        encoding = 'UTF-8'
+    }
 }

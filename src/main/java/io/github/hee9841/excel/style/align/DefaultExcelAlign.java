@@ -15,7 +15,19 @@ import io.github.hee9841.excel.style.align.alignment.HorizontalAlignment;
 import io.github.hee9841.excel.style.align.alignment.VerticalAlignment;
 import org.apache.poi.ss.usermodel.CellStyle;
 
+/**
+ * Enumeration of predefined Excel cell alignment options.
+ * Provides common combinations of horizontal and vertical alignments
+ * for Excel cells. Each enum constant represents a specific alignment configuration.
+ * 
+ * <pre>
+ * The enum names follow the pattern of "{HORIZONTAL}_{VERTICAL}" to clearly indicate
+ * the alignment combination (e.g. LEFT_CENTER means horizontally left-aligned and
+ * vertically centered).
+ * </pre>
+ */
 public enum DefaultExcelAlign implements ExcelAlign {
+    
     GENERAL_CENTER(HORIZONTAL_GENERAL, VERTICAL_CENTER),
     LEFT_CENTER(HORIZONTAL_LEFT, VERTICAL_CENTER),
     CENTER_CENTER(HORIZONTAL_CENTER, VERTICAL_CENTER),
@@ -45,6 +57,12 @@ public enum DefaultExcelAlign implements ExcelAlign {
         this.verticalAlignment = verticalAlignment;
     }
 
+    /**
+     * Applies both horizontal and vertical alignment to the given cell style.
+     * Unlike CustomExcelAlign, this method always sets both alignment types.
+     *
+     * @param cellStyle the cell style to which alignment will be applied
+     */
     @Override
     public void applyAlign(CellStyle cellStyle) {
         cellStyle.setAlignment(horizontalAlignment.getAlign());

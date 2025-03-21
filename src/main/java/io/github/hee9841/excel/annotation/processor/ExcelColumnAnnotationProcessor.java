@@ -28,6 +28,20 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
+/**
+ * Annotation processor for {@link ExcelColumn} annotation.
+ * This processor validates that the annotation is only applied to supported field types.
+ * 
+ * <p>Supported types include:
+ * <ul>
+ *   <li>String</li>
+ *   <li>Character/char</li>
+ *   <li>Numeric types (Byte, Short, Integer, Long, Float, Double and their primitives)</li>
+ *   <li>Boolean/boolean</li>
+ *   <li>Date/Time types (LocalDate, LocalDateTime, Date, java.sql.Date)</li>
+ *   <li>Enum types</li>
+ * </ul>
+ */
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("io.github.hee9841.excel.annotation.ExcelColumn")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -83,6 +97,14 @@ public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
         return !hasError;
     }
 
+    /**
+     * Checks if the annotated element has an allowed type.
+     * Validates that the element is a field and checks if its type is either an enum
+     * or one of the supported types defined in ALLOWED_TYPES. Array types are not allowed.
+     *
+     * @param element the element to check
+     * @return true if the element has an allowed type, false otherwise
+     */
     private boolean isAllowedType(Element element) {
         // 1.If element is enum type, return true
         if (!element.getKind().isField()) {
@@ -92,7 +114,7 @@ public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
 
         TypeMirror typeMirror = element.asType();
 
-        // 3.Array type check
+        // 3. If element is array type, return false
         if (typeMirror.getKind() == TypeKind.ARRAY) {
             error(element, "@ExcelColumn cannot be applied to array type");
             return false;
@@ -131,11 +153,24 @@ public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
+    /**
+     * Checks if the given TypeMirror represents an enum type.
+     *
+     * @param typeMirror the type to check
+     * @return true if the type is an enum, false otherwise
+     */
     private boolean isEnumType(TypeMirror typeMirror) {
         TypeElement typeElement = (TypeElement) typeUtils.asElement(typeMirror);
         return typeElement != null && typeElement.getKind() == ElementKind.ENUM;
     }
 
+    /**
+     * Reports an error for the given element using the processor's messager.
+     *
+     * @param e the element for which to report the error
+     * @param msg the error message format string
+     * @param args the arguments to be used in the formatted message
+     */
     private void error(Element e, String msg, Object... args) {
         messager.printMessage(
             Diagnostic.Kind.ERROR,

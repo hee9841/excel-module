@@ -1,5 +1,14 @@
 package io.github.hee9841.excel.style.border;
 
+/**
+ * Enumeration of border styles for Excel cells.
+ * Wraps Apache POI's BorderStyle enum to provide API within this library.
+ * 
+ * <pre>
+ * The enum names follow the pattern of "{BORDER_STYLE}" to clearly indicate
+ * the border style (e.g. NONE means no border).
+ * </pre>
+ */
 public enum BorderStyle {
     NONE(org.apache.poi.ss.usermodel.BorderStyle.NONE),
     THIN(org.apache.poi.ss.usermodel.BorderStyle.THIN),
@@ -22,6 +31,11 @@ public enum BorderStyle {
         this.borderStyle = borderStyle;
     }
 
+    /**
+     * Returns the underlying Apache POI BorderStyle.
+     *
+     * @return the Apache POI BorderStyle corresponding to this enum constant
+     */
     public org.apache.poi.ss.usermodel.BorderStyle getBorderStyle() {
         return this.borderStyle;
     }
