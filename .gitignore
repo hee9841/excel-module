@@ -40,3 +40,6 @@ bin/
 
 ### For Test Files ###
 download
+
+### Env Files ###
+gradle.properties
