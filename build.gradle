@@ -1,14 +1,23 @@
+import com.vanniktech.maven.publish.SonatypeHost
 plugins {
     id 'java'
+    id "com.vanniktech.maven.publish" version "0.28.0"
+    id 'signing'
 }
 
 group = 'io.github.hee9841.excel'
-version = '1.0-SNAPSHOT'
+version = '0.0.0'
 
 java {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
 }
+
+compileJava {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+}
+
+
 
 repositories {
     mavenCentral()
@@ -44,5 +53,46 @@ test {
 javadoc {
     options {
         encoding = 'UTF-8'
+    }
+}
+
+
+signing {
+    sign publishing.publications
+}
+
+mavenPublishing {
+    signAllPublications()
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    coordinates("io.github.hee9841", "excel-module", version)
+
+    pom {
+        name = "excel-module"
+        description = "A Java library that helps you work with Excel files easily."
+        inceptionYear = "2025"
+        url = "https://github.com/hee9841/excel-module"
+
+        licenses {
+            license {
+                name = 'Apache License 2.0'
+                url = 'https://github.com/hee9841/excel-module/blob/dev/LICENSE'
+            }
+        }
+
+        developers {
+            developer {
+                id = 'hee9841'
+                name = 'SungHee Lee'
+                email = 'lee98417716@gmail.com'
+            }
+
+        }
+
+        scm {
+            connection = 'scm:git:git://github.com/hee9841/excel-module.git'
+            developerConnection = 'scm:git:ssh://github.com:hee9841/excel-module.git'
+            url = 'https://github.com/hee9841/excel-module/tree/master'
+        }
     }
 }
