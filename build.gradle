@@ -1,19 +1,28 @@
+import com.vanniktech.maven.publish.SonatypeHost
 plugins {
     id 'java'
+    id "com.vanniktech.maven.publish" version "0.28.0"
+    id 'signing'
 }
 
 group = 'io.github.hee9841.excel'
-version = '1.0-SNAPSHOT'
+version = '0.0.0'
 
 java {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
 }
+
+compileJava {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+}
+
 
 
 repositories {
     mavenCentral()
 }
+
 dependencies {
     //poi
     implementation 'org.apache.poi:poi:5.4.0'
@@ -23,11 +32,67 @@ dependencies {
     compileOnly 'org.slf4j:slf4j-api:2.0.17'
     testImplementation 'ch.qos.logback:logback-classic:1.3.15'  //for java 8
 
+
+    //for annotation processor
+    implementation 'com.google.auto.service:auto-service:1.1.1'
+
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter:'
-}
 
+    // mockito
+    testImplementation 'org.mockito:mockito-core:4.11.0'
+    testImplementation 'org.mockito:mockito-inline:4.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
+}
 
 test {
     useJUnitPlatform()
+}
+
+javadoc {
+    options {
+        encoding = 'UTF-8'
+    }
+}
+
+
+signing {
+    sign publishing.publications
+}
+
+mavenPublishing {
+    signAllPublications()
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    coordinates("io.github.hee9841", "excel-module", version)
+
+    pom {
+        name = "excel-module"
+        description = "A Java library that helps you work with Excel files easily."
+        inceptionYear = "2025"
+        url = "https://github.com/hee9841/excel-module"
+
+        licenses {
+            license {
+                name = 'Apache License 2.0'
+                url = 'https://github.com/hee9841/excel-module/blob/dev/LICENSE'
+            }
+        }
+
+        developers {
+            developer {
+                id = 'hee9841'
+                name = 'SungHee Lee'
+                email = 'lee98417716@gmail.com'
+            }
+
+        }
+
+        scm {
+            connection = 'scm:git:git://github.com/hee9841/excel-module.git'
+            developerConnection = 'scm:git:ssh://github.com:hee9841/excel-module.git'
+            url = 'https://github.com/hee9841/excel-module/tree/master'
+        }
+    }
 }
