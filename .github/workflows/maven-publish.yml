@@ -53,8 +53,7 @@ jobs:
           release_name: v${{ env.VERSION }}
           draft: true
 
-
-#      - name: Update version in README
-#        run: |
-#          VERSION=$(./gradlew properties | grep "version:" | awk '{print $2}')
-#          echo "Released version $VERSION"
+      - name: Update version in README
+        if: env.VERSION != ''
+        run: |
+          echo "Released version ${{ env.VERSION }}"
