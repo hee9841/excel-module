@@ -52,8 +52,6 @@ jobs:
           release_name: v${{ env.VERSION }}
 
 
-
-
 #      - name: Update version in README
 #        run: |
 #          VERSION=$(./gradlew properties | grep "version:" | awk '{print $2}')
