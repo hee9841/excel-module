@@ -6,8 +6,7 @@ group = 'io.github.hee9841.excel'
 version = '1.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
 }
 
 repositories {
