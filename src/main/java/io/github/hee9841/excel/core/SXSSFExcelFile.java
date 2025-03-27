@@ -45,7 +45,6 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
     protected Sheet sheet;
 
     protected String dtoTypeName;
-    protected String dtoSimpleTypeName;
 
     /**
      * Constructs a new SXSSFExcelFile with a new SXSSFWorkbook instance.
@@ -63,8 +62,7 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
      */
     protected void initialize(Class<?> type, List<T> data) {
         this.dtoTypeName = type.getName();
-        this.dtoSimpleTypeName = type.getSimpleName();
-        logger.info("Initializing Excel file for DTO: {}.java.", dtoSimpleTypeName);
+        logger.info("Initializing Excel file for DTO: {}.java.", dtoTypeName);
 
         validate(type, data);
 
@@ -146,11 +144,11 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
      */
     @Override
     public void write(OutputStream stream) throws IOException {
-        logger.info("Start to write Excel file for DTO class({}.java).", dtoSimpleTypeName);
+        logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
         try (SXSSFWorkbook autoCloseableWb = this.workbook;
             OutputStream autoCloseableStream = stream) {
             autoCloseableWb.write(autoCloseableStream);
         }
-        logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoSimpleTypeName);
+        logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
     }
 }
