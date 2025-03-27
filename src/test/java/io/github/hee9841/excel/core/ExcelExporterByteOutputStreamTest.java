@@ -113,7 +113,7 @@ class ExcelExporterByteOutputStreamTest {
 
         //then
         assertEquals(8, memoryAppender.getSize());
-        assertTrue(memoryAppender.isPresent(0, "Initialize", Level.INFO));
+        assertTrue(memoryAppender.isPresent(0, "Initializing", Level.INFO));
         assertTrue(memoryAppender.isPresent(1, "Mapping", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(2,
             "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode:Always.",
@@ -224,7 +224,7 @@ class ExcelExporterByteOutputStreamTest {
 
             //
             assertEquals(2, memoryAppender.getSize());
-            assertTrue(memoryAppender.isPresent("Initialize", Level.INFO));
+            assertTrue(memoryAppender.isPresent("Initializing", Level.INFO));
             assertTrue(memoryAppender.isPresent("Mapping DTO", Level.DEBUG));
         }
 
