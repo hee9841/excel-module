@@ -3,6 +3,7 @@ package io.github.hee9841.excel.annotation.processor;
 import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES;
 import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES_STRING;
 
+import com.google.auto.service.AutoService;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import java.util.Objects;
 import java.util.Set;
