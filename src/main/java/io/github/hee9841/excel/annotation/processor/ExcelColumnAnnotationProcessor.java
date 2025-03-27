@@ -1,16 +1,11 @@
 package io.github.hee9841.excel.annotation.processor;
 
-import com.google.auto.service.AutoService;
+import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES;
+import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES_STRING;
+
 import io.github.hee9841.excel.annotation.ExcelColumn;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -46,32 +41,6 @@ import javax.tools.Diagnostic;
 @SupportedAnnotationTypes("io.github.hee9841.excel.annotation.ExcelColumn")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
-
-    private static final Set<Class<?>> ALLOWED_TYPES = Collections.unmodifiableSet(
-        new HashSet<>(Arrays.asList(
-            String.class,
-            Character.class, char.class,
-
-            // numeric
-            Byte.class, byte.class,
-            Short.class, short.class,
-            Integer.class, int.class,
-            Long.class, long.class,
-            Float.class, float.class,
-            Double.class, double.class,
-
-            // boolean
-            Boolean.class, boolean.class,
-
-            // date/time type
-            LocalDate.class,
-            LocalDateTime.class,
-            Date.class,
-            java.sql.Date.class,
-
-            Enum.class
-        ))
-    );
 
     private Messager messager;
     private Types typeUtils;
@@ -132,7 +101,7 @@ public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
 
         //5.Check if type is in allowed types list
         if (typeMirror.getKind() == TypeKind.DECLARED) {
-            boolean isAllowed = ALLOWED_TYPES.stream()
+            boolean isAllowed = ALLOWED_FIELD_TYPES.stream()
                 .map(clazz -> elementUtils.getTypeElement(clazz.getTypeName()))
                 .filter(Objects::nonNull)
                 .map(TypeElement::asType)
@@ -141,9 +110,7 @@ public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
 
             if (!isAllowed) {
                 error(element, "@ExcelColumn can only be applied to allowed types(%s).",
-                    ALLOWED_TYPES.stream()
-                        .map(Class::getSimpleName)
-                        .collect(Collectors.joining(", ")));
+                    ALLOWED_FIELD_TYPES_STRING);
                 return false;
             }
 
