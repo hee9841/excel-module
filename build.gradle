@@ -1,4 +1,7 @@
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     id 'java'
     id "com.vanniktech.maven.publish" version "0.28.0"
@@ -12,6 +15,15 @@ version = '0.0.0'
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+    withSourcesJar() // 소스 코드도 포함
+}
+
+javadoc {
+    options {
+        encoding = 'UTF-8'
+        charSet = 'UTF-8'
+        links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
+    }
 }
 
 compileJava {
@@ -51,12 +63,6 @@ test {
     useJUnitPlatform()
 }
 
-javadoc {
-    options {
-        encoding = 'UTF-8'
-    }
-}
-
 
 signing {
     useInMemoryPgpKeys(
@@ -68,6 +74,7 @@ signing {
 }
 
 mavenPublishing {
+    configure(new JavaLibrary(new JavadocJar.Javadoc(), true))
     signAllPublications()
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
@@ -117,4 +124,3 @@ tasks.jacocoTestReport {
 tasks.coveralls {
     dependsOn tasks.jacocoTestReport // 테스트 리포트가 먼저 실행되도록 설정
 }
-

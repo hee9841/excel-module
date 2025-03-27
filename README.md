@@ -1,6 +1,6 @@
 # Excel Module
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.hee9841.excel/excel-module.svg)](https://search.maven.org/artifact/io.github.hee9841.excel/excel-module)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.hee9841/excel-module.svg)](https://search.maven.org/artifact/io.github.hee9841/excel-module)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build Status](https://github.com/hee9841/excel-module/workflows/Java%20CI%20with%20Gradle/badge.svg)](https://github.com/hee9841/excel-module/actions)
 [![Coverage Status](https://coveralls.io/repos/github/hee9841/excel-module/badge.svg?branch=main)](https://coveralls.io/github/hee9841/excel-module?branch=main)
