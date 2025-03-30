@@ -3,7 +3,7 @@ import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    id 'java'
+    id 'java-library'
     id "com.vanniktech.maven.publish" version "0.28.0"
     id 'signing'
     id 'jacoco' // JaCoCo
@@ -38,8 +38,8 @@ repositories {
 
 dependencies {
     //poi
-    implementation 'org.apache.poi:poi:5.4.0'
-    implementation 'org.apache.poi:poi-ooxml:5.4.0'
+    api 'org.apache.poi:poi:5.4.0'
+    api 'org.apache.poi:poi-ooxml:5.4.0'
 
     //logging
     implementation 'org.slf4j:slf4j-api:2.0.17'
