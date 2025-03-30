@@ -9,10 +9,8 @@ import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -38,7 +36,6 @@ import javax.tools.Diagnostic;
  * </ul>
  */
 @SupportedAnnotationTypes("io.github.hee9841.excel.annotation.ExcelColumn")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
 
     private Messager messager;
@@ -51,6 +48,11 @@ public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
         messager = processingEnv.getMessager();
         typeUtils = processingEnv.getTypeUtils();
         elementUtils = processingEnv.getElementUtils();
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
     }
 
     @Override
@@ -92,7 +94,6 @@ public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
             return true;
         }
 
-
         // 4.Primitive type check
         if (typeMirror.getKind().isPrimitive()) {
             return true;
@@ -133,8 +134,8 @@ public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
     /**
      * Reports an error for the given element using the processor's messager.
      *
-     * @param e the element for which to report the error
-     * @param msg the error message format string
+     * @param e    the element for which to report the error
+     * @param msg  the error message format string
      * @param args the arguments to be used in the formatted message
      */
     private void error(Element e, String msg, Object... args) {

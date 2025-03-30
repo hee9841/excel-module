@@ -5,10 +5,8 @@ import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -28,7 +26,6 @@ import javax.tools.Diagnostic;
  * </ul>
  */
 @SupportedAnnotationTypes("io.github.hee9841.excel.annotation.Excel")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ExcelAnnotationProcessor extends AbstractProcessor {
 
     private Messager messager;
@@ -37,6 +34,11 @@ public class ExcelAnnotationProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         messager = processingEnv.getMessager();
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
     }
 
     @Override
@@ -60,18 +62,19 @@ public class ExcelAnnotationProcessor extends AbstractProcessor {
      *     <li>If it's a regular class, it must not be abstract</li>
      * </ul>
      *
-     * @param element the element to validate, typically a class or record annotated with {@code @Excel}
-     * @return true if the element meets all validation criteria, false if any validation fails 
-     *         (error messages will be reported via {@link #error(Element, String, Object...)})
+     * @param element the element to validate, typically a class or record annotated with
+     *                {@code @Excel}
+     * @return true if the element meets all validation criteria, false if any validation fails
+     * (error messages will be reported via {@link #error(Element, String, Object...)})
      * @see Excel
      */
     private boolean isValidExcelClass(Element element) {
-        
+
         // Check for record class in Java 14 and above
         if (element.getKind().name().equals("RECORD")) {
             return true;
         }
-       
+
         if (element.getKind() != ElementKind.CLASS) {
             error(element,
                 "@%s can only be applied to classes or record classes",
@@ -81,7 +84,7 @@ public class ExcelAnnotationProcessor extends AbstractProcessor {
         }
 
         TypeElement typeElement = (TypeElement) element;
-        
+
         // The class must not be an abstract class.
         if (typeElement.getModifiers().contains(Modifier.ABSTRACT)) {
             error(element,
@@ -97,8 +100,8 @@ public class ExcelAnnotationProcessor extends AbstractProcessor {
     /**
      * Reports an error for the given element.
      *
-     * @param e the element for which to report the error
-     * @param msg the error message with format specifiers
+     * @param e    the element for which to report the error
+     * @param msg  the error message with format specifiers
      * @param args arguments referenced by the format specifiers in the message
      */
     private void error(Element e, String msg, Object... args) {
