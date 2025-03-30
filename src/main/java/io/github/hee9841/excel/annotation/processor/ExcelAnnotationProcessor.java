@@ -1,6 +1,5 @@
 package io.github.hee9841.excel.annotation.processor;
 
-import com.google.auto.service.AutoService;
 import io.github.hee9841.excel.annotation.Excel;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -28,7 +27,6 @@ import javax.tools.Diagnostic;
  *     <li>Target class must not be abstract</li>
  * </ul>
  */
-@AutoService(Processor.class)
 @SupportedAnnotationTypes("io.github.hee9841.excel.annotation.Excel")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ExcelAnnotationProcessor extends AbstractProcessor {

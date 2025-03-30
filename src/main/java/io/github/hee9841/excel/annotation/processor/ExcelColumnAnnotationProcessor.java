@@ -3,7 +3,6 @@ package io.github.hee9841.excel.annotation.processor;
 import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES;
 import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES_STRING;
 
-import com.google.auto.service.AutoService;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import java.util.Objects;
 import java.util.Set;
@@ -27,7 +26,7 @@ import javax.tools.Diagnostic;
 /**
  * Annotation processor for {@link ExcelColumn} annotation.
  * This processor validates that the annotation is only applied to supported field types.
- * 
+ *
  * <p>Supported types include:
  * <ul>
  *   <li>String</li>
@@ -38,7 +37,6 @@ import javax.tools.Diagnostic;
  *   <li>Enum types</li>
  * </ul>
  */
-@AutoService(Processor.class)
 @SupportedAnnotationTypes("io.github.hee9841.excel.annotation.ExcelColumn")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ExcelColumnAnnotationProcessor extends AbstractProcessor {
