@@ -45,7 +45,7 @@ class ExcelDataFormaterTest {
 
 
         @Test
-        @DisplayName("패턴이 none이 아닐 때 셀 스타일에 데이터 포맷을 적용한다")
+        @DisplayName("패턴이 있을 때, 셀 스타일에 데이터 포맷을 적용한다")
         void apply_format_when_pattern_is_not_none() {
             // given
             String pattern = "yyyy-MM-dd";

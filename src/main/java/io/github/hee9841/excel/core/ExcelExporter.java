@@ -99,7 +99,7 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
      */
     @Override
     protected void createExcelFile(List<T> data) {
-        // 1. If data is empty, create sheet and createHeader.
+        // 1. If data is empty, create createHeader only.
         if (data.isEmpty()) {
             createNewSheetWithHeader();
             logger.warn("Empty data provided - Excel file will be created with headers only.");
