@@ -14,21 +14,22 @@ group = 'io.github.hee9841.excel'
 version = '0.0.0'
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
     withSourcesJar() // 소스 코드도 포함
+}
+
+compileJava {
+    options.release = 8
 }
 
 javadoc {
     options {
         encoding = 'UTF-8'
         charSet = 'UTF-8'
-        links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
+        addStringOption('Xdoclint:none', '-quiet')
     }
-}
-
-compileJava {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
 }
 
 
