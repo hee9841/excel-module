@@ -230,7 +230,7 @@ public class ColumnInfoMapper {
         //1. Check columnIndex value is negative.
         if (columnIndex < 0) {
             throw new ExcelException(String.format(
-                "Invalid column index : The column index of field '%s' is negative or "
+                "Invalid column index : The column index of '%s' field is negative or "
                     + "column index value was not specified when column index strategy is USER_DEFINED.\n"
                     + "Please Change index value to non-negative or Use 'FIELD_ORDER' strategy."
                 , fieldName),
@@ -241,7 +241,7 @@ public class ColumnInfoMapper {
         // 2. Check the columnIndex contains in columnInfoMap
         if (columnInfoMap.containsKey(columnIndex)) {
             throw new ExcelException(String.format(
-                "Invalid column index : Duplicate value(%d) detected in fields (%s, %s). "
+                "Invalid column index : Duplicate value(%d) detected in fields (%s, %s)."
                 , columnIndex, fieldName, columnInfoMap.get(columnIndex).getFieldName()),
                 type.getName()
             );
@@ -324,7 +324,7 @@ public class ColumnInfoMapper {
         // When the specified column cell type is not compatible with the field type, throw an exception.
         if (!columnCellType.equals(CellType.findMatchingCellType(fieldType, columnCellType))) {
             throw new ExcelException(String.format(
-                "Invalid cell type : The cell type of field '%s' is not compatible with the specified cell type(%s).",
+                "Invalid cell type : The cell type of '%s' field is not compatible with the specified cell type(%s).",
                 fieldName,
                 columnCellType.name()
             ), type.getName());
@@ -387,7 +387,7 @@ public class ColumnInfoMapper {
             } catch (IllegalArgumentException e) {
                 throw new ExcelStyleException(
                     String.format(
-                        "Failed to convert Enum cell style to cellStyle : "
+                        "Failed to convert Enum constant to ExcelCellStyle instance : "
                             + "Enum value '%s' not found in style class '%s'.",
                         excelColumnStyle.enumName(), cellStyleClass.getName()), type.getName(), e);
             }
@@ -400,7 +400,7 @@ public class ColumnInfoMapper {
                  InstantiationException | InvocationTargetException e
         ) {
             throw new ExcelStyleException(
-                String.format("Failed to instantiate cellStyle class of %s.",
+                String.format("Failed to instantiate cellStyle class of '%s'.",
                     cellStyleClass.getName()), type.getName(), e);
         }
     }

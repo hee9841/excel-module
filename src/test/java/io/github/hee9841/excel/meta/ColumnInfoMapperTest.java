@@ -277,7 +277,10 @@ class ColumnInfoMapperTest {
                 ExcelException.class, columnInfoMapper::map);
             //then
             assertTrue(
-                exception.getMessage().contains("Invalid cell type : The cell type of field"));
+                exception.getMessage().contains("Invalid cell type : The cell type of "));
+
+            assertTrue(
+                exception.getMessage().contains("is not compatible with the specified cell type"));
 
         }
 
