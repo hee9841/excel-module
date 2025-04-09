@@ -10,8 +10,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import io.github.hee9841.excel.annotation.Excel;
-import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
+import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.example.dto.TypeAutoDto;
 import io.github.hee9841.excel.example.style.EnumCellStyleExample;
 import io.github.hee9841.excel.exception.ExcelException;
@@ -79,6 +79,31 @@ class ExcelExporterByteOutputStreamTest {
         os.close();
     }
 
+    @DisplayName("data의 크기가 maxRows를 넘기고 ONE_SHEET 전략일 경우, build 시 오류를 발생한다.")
+    @Test
+    void dataSizeExceedMaxRowsThrowsException() {
+        // given
+        List<TestDto> data = new ArrayList<>();
+        // Create more data items than the maxRows limit
+        for (int i = 0; i < 11; i++) {
+            data.add(new TestDto("test" + (i + 1), i + 1));
+        }
+        int maxRows = 10; // Set maxRows to 10, which is less than the data size
+
+        // when & then
+        ExcelException exception = assertThrows(ExcelException.class, () ->
+            ExcelExporter.builder(TestDto.class, data)
+                .maxRows(maxRows)
+                .sheetStrategy(
+                    SheetStrategy.ONE_SHEET) // Force ONE_SHEET strategy to ensure exception is thrown
+                .build()
+        );
+
+        // Verify the exception message
+        assertTrue(exception.getMessage()
+            .contains("The data size exceeds the maximum number of rows allowed per sheet"));
+    }
+
 
     @Test
     @DisplayName("엑셀 시트 버전의 최대 행을 넘는 max row 값을 설정할 수 없다.")
@@ -113,11 +138,11 @@ class ExcelExporterByteOutputStreamTest {
 
         //then
         assertEquals(8, memoryAppender.getSize());
-        assertTrue(memoryAppender.isPresent(0, "Initializing", Level.INFO));
-        assertTrue(memoryAppender.isPresent(1, "Mapping", Level.DEBUG));
-        assertTrue(memoryAppender.isPresent(2,
-            "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode:Always.",
+        assertTrue(memoryAppender.isPresent(0,
+            "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode: Always.",
             Level.DEBUG));
+        assertTrue(memoryAppender.isPresent(1, "Initializing", Level.INFO));
+        assertTrue(memoryAppender.isPresent(2, "Mapping", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(3, "Create new Sheet", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(4, "Add rows data - row:1", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(5, "Add rows data - row:2", Level.DEBUG));
@@ -193,7 +218,7 @@ class ExcelExporterByteOutputStreamTest {
 
             assertTrue(memoryAppender
                 .isPresent(
-                    "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode:Always",
+                    "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode: Always",
                     Level.DEBUG)
             );
             assertEquals(rowCnt, memoryAppender.search("Add rows data", Level.DEBUG).size());
@@ -225,7 +250,9 @@ class ExcelExporterByteOutputStreamTest {
             //
             assertEquals(2, memoryAppender.getSize());
             assertTrue(memoryAppender.isPresent("Initializing", Level.INFO));
-            assertTrue(memoryAppender.isPresent("Mapping DTO", Level.DEBUG));
+            assertTrue(memoryAppender.isPresent(
+                "Set sheet strategy and Zip64Mode - strategy: ONE_SHEET, Zip64Mode: AsNeeded.",
+                Level.DEBUG));
         }
 
         @Test
@@ -307,7 +334,9 @@ class ExcelExporterByteOutputStreamTest {
     void checkEnumType() throws IOException {
         @Excel
         class TestDto {
+
             @ExcelColumn(headerName = "gender")
+            final
             Gender gender;
 
             TestDto() {
