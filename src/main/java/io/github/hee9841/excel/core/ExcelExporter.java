@@ -29,8 +29,8 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
 
     private static final String EXCEED_MAX_ROW_MSG_2ARGS =
         "The data size exceeds the maximum number of rows allowed per sheet. "
-            + "The sheet strategy is set to ONE_SHEET but the data size ({0} rows) is larger than "
-            + "the maximum rows per sheet ({1} rows).\n"
+            + "The sheet strategy is set to ONE_SHEET but the data size is larger than "
+            + "the maximum rows per sheet (data size: {0}, maximum rows: {1} ).\n"
             + "Please change the sheet strategy to MULTI_SHEET or reduce the data size.";
 
     private static final int ROW_START_INDEX = 0;
@@ -49,10 +49,10 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
      * <p>This constructor is not meant to be called directly. Use {@link ExcelExporterBuilder}
      * to create instances of ExcelExporter.</p>
      *
-     * @param type           The class type of the data to be exported
-     * @param data           The list of data objects to be exported
-     * @param sheetStrategy  The strategy for sheet management (ONE_SHEET or MULTI_SHEET)
-     * @param sheetName      Base name for sheets (null for default names)
+     * @param type            The class type of the data to be exported
+     * @param data            The list of data objects to be exported
+     * @param sheetStrategy   The strategy for sheet management (ONE_SHEET or MULTI_SHEET)
+     * @param sheetName       Base name for sheets (null for default names)
      * @param maxRowsPerSheet Maximum number of rows allowed per sheet
      */
     ExcelExporter(
@@ -66,9 +66,9 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
         this.maxRowsPerSheet = maxRowsPerSheet;
         this.sheetName = sheetName;
         this.currentSheetIndex = 0;
+        setSheetStrategy(sheetStrategy);
 
         this.initialize(type, data);
-        setSheetStrategy(sheetStrategy, data.size());
         this.createExcelFile(data);
     }
 
@@ -85,6 +85,26 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
         return new ExcelExporterBuilder<>(type, data, supplyExcelVersion.getMaxRows());
     }
 
+
+    /**
+     * Validates the data size against the maximum rows per sheet limit.
+     *
+     * <p>This method checks if the data size exceeds the maximum allowed rows per sheet
+     * when using ONE_SHEET strategy. If the limit is exceeded, an ExcelException is thrown.</p>
+     *
+     * @param type The class type of the data being validated
+     * @param data The list of data objects to be validated
+     * @throws ExcelException if data size exceeds max rows limit with ONE_SHEET strategy
+     */
+    @Override
+    protected void validate(Class<?> type, List<T> data) {
+        if (SheetStrategy.isOneSheet(sheetStrategy) && data.size() > maxRowsPerSheet - 1) {
+            throw new ExcelException(
+                MessageFormat.format(EXCEED_MAX_ROW_MSG_2ARGS,
+                    data.size(), maxRowsPerSheet
+                ), dtoTypeName);
+        }
+    }
 
     /**
      * Creates the Excel file with the provided data.
@@ -134,7 +154,7 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
                 if (SheetStrategy.isOneSheet(sheetStrategy)) {
                     throw new ExcelException(
                         MessageFormat.format(EXCEED_MAX_ROW_MSG_2ARGS,
-                            currentRowIndex + data.size(), maxRowsPerSheet), dtoTypeName);
+                            data.size(), maxRowsPerSheet), dtoTypeName);
                 }
 
                 //If multi sheet strategy, create new sheet
@@ -144,26 +164,18 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
     }
 
     /**
-     * Sets the sheet strategy for this exporter and validates that it is compatible with the data size.
-     * 
+     * Sets the sheet strategy for this exporter.
+     *
      * <p>This method also configures the workbook's Zip64 mode based on the selected strategy.</p>
      *
-     * @param strategy The sheet strategy to use (ONE_SHEET or MULTI_SHEET)
-     * @param dataSize The size of the data to be exported
-     * @throws ExcelException if ONE_SHEET strategy is used and data size exceeds max rows limit
+     * @param strategy The sheet strategy to use (ONE_SHEET or MULTI_SHEET)-
      */
-    private void setSheetStrategy(SheetStrategy strategy, int dataSize) {
-        
-        if (dataSize > maxRowsPerSheet && SheetStrategy.isOneSheet(strategy)) {
-            throw new ExcelException(
-                MessageFormat.format(EXCEED_MAX_ROW_MSG_2ARGS, dataSize, maxRowsPerSheet),
-                dtoTypeName);
-        }
+    private void setSheetStrategy(SheetStrategy strategy) {
 
         this.sheetStrategy = strategy;
         workbook.setZip64Mode(sheetStrategy.getZip64Mode());
 
-        logger.debug("Set sheet strategy and Zip64Mode - strategy: {}, Zip64Mode:{}.",
+        logger.debug("Set sheet strategy and Zip64Mode - strategy: {}, Zip64Mode: {}.",
             strategy.name(), sheetStrategy.getZip64Mode().name());
     }
 
