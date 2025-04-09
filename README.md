@@ -238,12 +238,12 @@ public enum MyStyles implements ExcelCellStyle {
     HEADER_STYLE(
         PaletteExcelColor.of(ColorPalette.GREY_25_PERCENT),
         DefaultExcelAlign.CENTER_CENTER,
-        DefaultExcelBorder.all(BorderStyle.THICK)
+        DefaultExcelBorder.all(ExcelBorderStyle.THICK)
     ),
     BODY_STYLE(
         RgbExcelColor.rgb(255, 255, 255),
         DefaultExcelAlign.GENERAL_CENTER,
-        DefaultExcelBorder.all(BorderStyle.THIN)
+        DefaultExcelBorder.all(ExcelBorderStyle.THIN)
     );
 
     private final ExcelColor backgroundColor;
@@ -273,7 +273,7 @@ public class MyCustomStyle extends CustomExcelCellStyle {
     public void configure(ExcelCellStyleConfigurer configurer) {
         configurer.excelColor(PaletteExcelColor.of(ColorPalette.GREY_25_PERCENT));
         configurer.excelAlign(DefaultExcelAlign.CENTER_CENTER);
-        configurer.excelBorder(DefaultExcelBorder.all(BorderStyle.THIN));
+        configurer.excelBorder(DefaultExcelBorder.all(ExcelBorderStyle.THIN));
     }
 }
 ```

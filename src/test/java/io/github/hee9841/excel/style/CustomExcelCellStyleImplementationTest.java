@@ -8,7 +8,7 @@ import io.github.hee9841.excel.style.align.CustomExcelAlign;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
 import io.github.hee9841.excel.style.align.alignment.ExcelHorizontalAlignment;
 import io.github.hee9841.excel.style.align.alignment.ExcelVerticalAlignment;
-import io.github.hee9841.excel.style.border.BorderStyle;
+import io.github.hee9841.excel.style.border.ExcelBorderStyle;
 import io.github.hee9841.excel.style.border.DefaultExcelBorder;
 import io.github.hee9841.excel.style.color.ColorPalette;
 import io.github.hee9841.excel.style.color.PaletteExcelColor;
@@ -36,7 +36,7 @@ class CustomExcelCellStyleImplementationTest {
         //given
         ColorPalette grey25PercentColor = ColorPalette.GREY_25_PERCENT;
         DefaultExcelAlign align = DefaultExcelAlign.GENERAL_CENTER;
-        BorderStyle borderThin = BorderStyle.THIN;
+        ExcelBorderStyle borderThin = ExcelBorderStyle.THIN;
 
         class IndexedColorDefaultAlignAllBorder extends CustomExcelCellStyle {
 
@@ -44,7 +44,7 @@ class CustomExcelCellStyleImplementationTest {
             public void configure(ExcelCellStyleConfigurer configurer) {
                 configurer.excelColor(PaletteExcelColor.of(grey25PercentColor));
                 configurer.excelAlign(align);
-                configurer.excelBorder(DefaultExcelBorder.all(BorderStyle.THIN));
+                configurer.excelBorder(DefaultExcelBorder.all(ExcelBorderStyle.THIN));
             }
         }
 
@@ -79,7 +79,7 @@ class CustomExcelCellStyleImplementationTest {
         int red = 100, green = 100, blue = 100;
         ExcelHorizontalAlignment horizontal = HORIZONTAL_GENERAL;
         ExcelVerticalAlignment vertical = VERTICAL_CENTER;
-        BorderStyle borderThin = BorderStyle.THIN;
+        ExcelBorderStyle borderThin = ExcelBorderStyle.THIN;
 
         class RgbColorCustomAlignBuilderBorder extends CustomExcelCellStyle {
 

@@ -15,7 +15,7 @@ import io.github.hee9841.excel.style.align.CustomExcelAlign;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
 import io.github.hee9841.excel.style.align.ExcelAlign;
 import io.github.hee9841.excel.style.align.alignment.ExcelHorizontalAlignment;
-import io.github.hee9841.excel.style.border.BorderStyle;
+import io.github.hee9841.excel.style.border.ExcelBorderStyle;
 import io.github.hee9841.excel.style.border.DefaultExcelBorder;
 import io.github.hee9841.excel.style.border.ExcelBorder;
 import io.github.hee9841.excel.style.color.ColorPalette;
@@ -325,12 +325,12 @@ public class CellStyleMappingTest {
         BLACK_CENTER_THIN(
             PaletteExcelColor.of(ColorPalette.BLACK),
             CustomExcelAlign.from(ExcelHorizontalAlignment.HORIZONTAL_CENTER),
-            DefaultExcelBorder.all(BorderStyle.THIN)
+            DefaultExcelBorder.all(ExcelBorderStyle.THIN)
         ),
         WHITE_GENERAL_CENTER_TOP_THIN(
             PaletteExcelColor.of(ColorPalette.WHITE),
             DefaultExcelAlign.GENERAL_CENTER,
-            DefaultExcelBorder.builder().top(BorderStyle.THIN).build()
+            DefaultExcelBorder.builder().top(ExcelBorderStyle.THIN).build()
         ),
         ;
 
@@ -362,7 +362,7 @@ public class CellStyleMappingTest {
         public void configure(ExcelCellStyleConfigurer configurer) {
             configurer.excelColor(PaletteExcelColor.of(ColorPalette.BLACK));
             configurer.excelAlign(CustomExcelAlign.from(ExcelHorizontalAlignment.HORIZONTAL_CENTER));
-            configurer.excelBorder(DefaultExcelBorder.all(BorderStyle.THIN));
+            configurer.excelBorder(DefaultExcelBorder.all(ExcelBorderStyle.THIN));
         }
     }
 
@@ -376,7 +376,7 @@ public class CellStyleMappingTest {
         public void configure(ExcelCellStyleConfigurer configurer) {
             configurer.excelColor(PaletteExcelColor.of(ColorPalette.WHITE));
             configurer.excelAlign(DefaultExcelAlign.GENERAL_CENTER);
-            configurer.excelBorder(DefaultExcelBorder.builder().top(BorderStyle.THIN).build());
+            configurer.excelBorder(DefaultExcelBorder.builder().top(ExcelBorderStyle.THIN).build());
         }
     }
 
