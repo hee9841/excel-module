@@ -8,10 +8,10 @@ import io.github.hee9841.excel.style.border.BorderStyle;
 import io.github.hee9841.excel.style.border.DefaultExcelBorder;
 import io.github.hee9841.excel.style.border.ExcelBorder;
 import io.github.hee9841.excel.style.border.NoExcelBorder;
+import io.github.hee9841.excel.style.color.ColorPalette;
 import io.github.hee9841.excel.style.color.ExcelColor;
-import io.github.hee9841.excel.style.color.IndexedColors;
-import io.github.hee9841.excel.style.color.IndexedExcelColor;
 import io.github.hee9841.excel.style.color.NoExcelColor;
+import io.github.hee9841.excel.style.color.PaletteExcelColor;
 import io.github.hee9841.excel.style.color.RgbExcelColor;
 import org.apache.poi.ss.usermodel.CellStyle;
 
@@ -22,7 +22,7 @@ public enum EnumCellStyleExample implements ExcelCellStyle {
         new NoExcelBorder()
     ),
     GREY_25_PERCENT_CENTER_CENTER_ALL_BORDER_THICK(
-        IndexedExcelColor.of(IndexedColors.GREY_25_PERCENT),
+        PaletteExcelColor.of(ColorPalette.GREY_25_PERCENT),
         DefaultExcelAlign.CENTER_CENTER,
         DefaultExcelBorder.all(BorderStyle.THICK)
     ),
@@ -32,7 +32,7 @@ public enum EnumCellStyleExample implements ExcelCellStyle {
         new NoExcelBorder()
     ),
     RED_CENTER_CENTER_ALL_BORDER_THICK(
-        IndexedExcelColor.of(IndexedColors.RED),
+        PaletteExcelColor.of(ColorPalette.RED),
         DefaultExcelAlign.CENTER_CENTER,
         DefaultExcelBorder.all(BorderStyle.THICK)
     ),

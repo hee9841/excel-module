@@ -6,12 +6,12 @@ import io.github.hee9841.excel.exception.ExcelStyleException;
  * Enumeration of predefined colors for Excel cells, identified by indices.
  * This enum wraps the standard color palette available in Excel, providing
  * convenient access to common colors through their index values.
- * 
+ *
  * <p>The colors are organized by index values (0-64) that correspond to Excel's
  * built-in color palette. This class enables the use of these colors without
  * having to remember their numeric index values.</p>
  */
-public enum IndexedColors {
+public enum ColorPalette {
     BLACK1(0),
     WHITE1(1),
     RED1(2),
@@ -70,11 +70,11 @@ public enum IndexedColors {
     GREY_80_PERCENT(63),
     AUTOMATIC(64);
 
-    private static final IndexedColors[] _values = new IndexedColors[65];
+    private static final ColorPalette[] _values = new ColorPalette[65];
     private final short index;
 
-    IndexedColors(int idx) {
-        this.index = (short)idx;
+    ColorPalette(int idx) {
+        this.index = (short) idx;
     }
 
     /**
@@ -93,9 +93,9 @@ public enum IndexedColors {
      * @return the IndexedColors constant corresponding to the given index
      * @throws ExcelStyleException if the index is invalid or not mapped to a color
      */
-    public static IndexedColors fromInt(int index) {
+    public static ColorPalette fromInt(int index) {
         if (index >= 0 && index < _values.length) {
-            IndexedColors color = _values[index];
+            ColorPalette color = _values[index];
             if (color == null) {
                 throw new ExcelStyleException("Illegal IndexedColor index: " + index);
             } else {
@@ -107,7 +107,7 @@ public enum IndexedColors {
     }
 
     static {
-        for(IndexedColors color : values()) {
+        for (ColorPalette color : values()) {
             _values[color.index] = color;
         }
     }

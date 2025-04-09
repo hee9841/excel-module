@@ -10,8 +10,8 @@ import io.github.hee9841.excel.style.align.alignment.HorizontalAlignment;
 import io.github.hee9841.excel.style.align.alignment.VerticalAlignment;
 import io.github.hee9841.excel.style.border.BorderStyle;
 import io.github.hee9841.excel.style.border.DefaultExcelBorder;
-import io.github.hee9841.excel.style.color.IndexedColors;
-import io.github.hee9841.excel.style.color.IndexedExcelColor;
+import io.github.hee9841.excel.style.color.ColorPalette;
+import io.github.hee9841.excel.style.color.PaletteExcelColor;
 import io.github.hee9841.excel.style.color.RgbExcelColor;
 import io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -34,7 +34,7 @@ class CustomExcelCellStyleImplementationTest {
     @Test
     void IndexColor_DefaultAlign_DefaultBorder_Test() {
         //given
-        IndexedColors grey25PercentColor = IndexedColors.GREY_25_PERCENT;
+        ColorPalette grey25PercentColor = ColorPalette.GREY_25_PERCENT;
         DefaultExcelAlign align = DefaultExcelAlign.GENERAL_CENTER;
         BorderStyle borderThin = BorderStyle.THIN;
 
@@ -42,7 +42,7 @@ class CustomExcelCellStyleImplementationTest {
 
             @Override
             public void configure(ExcelCellStyleConfigurer configurer) {
-                configurer.excelColor(IndexedExcelColor.of(grey25PercentColor));
+                configurer.excelColor(PaletteExcelColor.of(grey25PercentColor));
                 configurer.excelAlign(align);
                 configurer.excelBorder(DefaultExcelBorder.all(BorderStyle.THIN));
             }

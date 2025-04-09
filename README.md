@@ -236,7 +236,7 @@ You can define cell styles in two ways:
 ```java
 public enum MyStyles implements ExcelCellStyle {
     HEADER_STYLE(
-        IndexedExcelColor.of(IndexedColors.GREY_25_PERCENT),
+        PaletteExcelColor.of(ColorPalette.GREY_25_PERCENT),
         DefaultExcelAlign.CENTER_CENTER,
         DefaultExcelBorder.all(BorderStyle.THICK)
     ),
@@ -271,7 +271,7 @@ public enum MyStyles implements ExcelCellStyle {
 public class MyCustomStyle extends CustomExcelCellStyle {
     @Override
     public void configure(ExcelCellStyleConfigurer configurer) {
-        configurer.excelColor(IndexedExcelColor.of(IndexedColors.GREY_25_PERCENT));
+        configurer.excelColor(PaletteExcelColor.of(ColorPalette.GREY_25_PERCENT));
         configurer.excelAlign(DefaultExcelAlign.CENTER_CENTER);
         configurer.excelBorder(DefaultExcelBorder.all(BorderStyle.THIN));
     }
