@@ -29,11 +29,11 @@ import org.apache.poi.ss.usermodel.Workbook;
  * Maps Java class fields to Excel columns using reflection and annotations.
  * This class processes the {@link io.github.hee9841.excel.annotation.Excel} and
  * {@link io.github.hee9841.excel.annotation.ExcelColumn} annotations to generate column information
- * for Excel export/import operations. It handles column indexing, cell type determination,
+ * for Excel export operations. It handles column indexing, cell data types of column determination,
  * and style application based on the annotation configurations.
  *
  * @see ColumnInfo
- * @see CellType
+ * @see ColumnDataType
  * @see Excel
  * @see ExcelColumn
  * @see ExcelColumnStyle
@@ -255,25 +255,25 @@ public class ColumnInfoMapper {
      * @param fieldType   The type of the field
      * @param fieldName   The name of the field
      * @return A {@link ColumnInfo} object with the appropriate settings
-     * @throws ExcelException If the {@link CellType} is not compatible with the field type
+     * @throws ExcelException If the {@link ColumnDataType} is not compatible with the field type
      */
     private ColumnInfo getColumnInfo(ExcelColumn excelColumn, Class<?> fieldType,
         String fieldName) {
-        //Get cell type
-        CellType cellType = getCellType(excelColumn.columnCellType(), fieldType, fieldName);
+        //Get cell type for column
+        ColumnDataType columnDataType = getcolumnDataType(excelColumn.columnCellType(), fieldType, fieldName);
 
         //Set Cell style
         CellStyle headerStyle = updateCellStyle(excelColumn.headerStyle(), defaultHeaderStyle);
         CellStyle bodyStyle = updateCellStyle(excelColumn.bodyStyle(), defaultBodyStyle);
 
         //Set colum cell(body) format
-        ExcelDataFormater dataFormater = getDataFormater(excelColumn.format(), cellType);
+        ExcelDataFormater dataFormater = getDataFormater(excelColumn.format(), columnDataType);
         dataFormater.apply(bodyStyle);
 
         return ColumnInfo.of(
             fieldName,
             excelColumn.headerName(),
-            cellType,
+            columnDataType,
             headerStyle,
             bodyStyle
         );
@@ -281,19 +281,19 @@ public class ColumnInfoMapper {
 
     /**
      * Creates a {@link ExcelDataFormater} for a cell based on the format pattern and
-     * {@link CellType}.
+     * {@link ColumnDataType}.
      * Applies automatic formatting if the {@link DataFormatStrategy} is
-     * {@link DataFormatStrategy#AUTO_BY_CELL_TYPE} by {@link CellType}.
+     * {@link DataFormatStrategy#AUTO_BY_CELL_TYPE} by {@link ColumnDataType}.
      *
      * @param pattern  The format pattern specified in the annotation
-     * @param cellType The {@link CellType}
+     * @param columnDataType The {@link ColumnDataType}
      * @return An {@link ExcelDataFormater} for the cell
      */
-    private ExcelDataFormater getDataFormater(String pattern, CellType cellType) {
+    private ExcelDataFormater getDataFormater(String pattern, ColumnDataType columnDataType) {
         // When dataFormatStrategy is "AUTO" and format pattern is "isNone"(empty or null),
         // apply auto format pattern.
-        if ((dataFormatStrategy.isAutoByCellType() && CellFormats.isNone(pattern))) {
-            pattern = cellType.getDataFormatPattern();
+        if ((dataFormatStrategy.isAutoByColumnDataType() && CellFormats.isNone(pattern))) {
+            pattern = columnDataType.getDataFormatPattern();
         }
 
         // When dataFormatStrategy is "AUTO" and format pattern is not "isNone"
@@ -303,34 +303,36 @@ public class ColumnInfoMapper {
     }
 
     /**
-     * Determines the appropriate {@link CellType} for a field based on the column cell type
+     * Determines the appropriate {@link ColumnDataType} for a field based on the column cell type
      * and the {@link CellTypeStrategy}.
      *
-     * @param columnCellType The {@link CellType} specified in the annotation
+     * @param columnColumnDataType The {@link ColumnDataType} specified in the annotation
      * @param fieldType      The type of the field
      * @param fieldName      The name of the field
-     * @return The appropriate {@link CellType}
-     * @throws ExcelException If the specified {@link CellType} is not compatible with the field
+     * @return The appropriate {@link ColumnDataType}
+     * @throws ExcelException If the specified {@link ColumnDataType} is not compatible with the field
      *                        type
      */
-    private CellType getCellType(CellType columnCellType, Class<?> fieldType, String fieldName) {
+    private ColumnDataType getcolumnDataType(ColumnDataType columnColumnDataType,
+        Class<?> fieldType, String fieldName) {
         // When cell type strategy is AUTO and column cell type is not specified
         // or when column cell type is AUTO,
         // the column's cell type is automatically determined based on the field type.
-        if ((cellTypeStrategy.isAuto() && columnCellType.isNone()) || columnCellType.isAuto()) {
-            return CellType.from(fieldType);
+        if ((cellTypeStrategy.isAuto() && columnColumnDataType.isNone()) || columnColumnDataType.isAuto()) {
+            return ColumnDataType.from(fieldType);
         }
 
         // When the specified column cell type is not compatible with the field type, throw an exception.
-        if (!columnCellType.equals(CellType.findMatchingCellType(fieldType, columnCellType))) {
+        if (!columnColumnDataType.equals(
+            ColumnDataType.findMatchingCellType(fieldType, columnColumnDataType))) {
             throw new ExcelException(String.format(
                 "Invalid cell type : The cell type of '%s' field is not compatible with the specified cell type(%s).",
                 fieldName,
-                columnCellType.name()
+                columnColumnDataType.name()
             ), type.getName());
         }
 
-        return columnCellType;
+        return columnColumnDataType;
     }
 
     /**

@@ -24,7 +24,7 @@ import org.apache.poi.ss.usermodel.Cell;
  * @see ExcelColumnStyle
  * @see CellFormats
  */
-public enum CellType {
+public enum ColumnDataType {
     /** Automatically determine the cell type based on the field type */
     AUTO,
     /** No specific cell type (default) */
@@ -109,7 +109,7 @@ public enum CellType {
     private final boolean hasHighPriority;
 
 
-    CellType(
+    ColumnDataType(
         BiConsumer<Cell, Object> cellValueSetter,
         List<Class<?>> allowedTypes,
         String dataFormatPattern,
@@ -122,11 +122,11 @@ public enum CellType {
     }
 
     /**
-     * Default constructor for special {@link CellType} (AUTO and {@link CellType#_NONE}).
+     * Default constructor for special {@link ColumnDataType} (AUTO and {@link ColumnDataType#_NONE}).
      * Uses a default string value setter, empty allowed types list, 
      * and no specific format pattern.
      */
-    CellType() {
+    ColumnDataType() {
         this(
             (cell, o) -> cell.setCellValue(String.valueOf(o)),
             Collections.emptyList(),
@@ -136,14 +136,14 @@ public enum CellType {
     }
 
     /**
-     * Determines the appropriate {@link CellType} based on the given field type.
-     * Searches through all {@link CellType} that have high priority and
+     * Determines the appropriate {@link ColumnDataType} based on the given field type.
+     * Searches through all {@link ColumnDataType} that have high priority and
      * finds the first one where the field type is assignable to one of the allowed types.
      *
      * @param fieldType The Java type to match against cell types
-     * @return The matching {@link CellType}, or {@link CellType#_NONE} if no match is found
+     * @return The matching {@link ColumnDataType}, or {@link ColumnDataType#_NONE} if no match is found
      */
-    public static CellType from(Class<?> fieldType) {
+    public static ColumnDataType from(Class<?> fieldType) {
         return Arrays.stream(values())
             .filter(
                 cellType -> cellType.hasHighPriority &&
@@ -155,19 +155,19 @@ public enum CellType {
 
     /**
      * Checks if fieldType matches one of the allowedTypes in targetCellType,
-     * returns targetCellType if matched, otherwise returns {@link CellType#_NONE}.
+     * returns targetCellType if matched, otherwise returns {@link ColumnDataType#_NONE}.
      *
      * @param fieldType      The field type
-     * @param targetCellType specific {@link CellType}
-     * @return Returns targetCellType if matched, otherwise returns {@link CellType#_NONE}
+     * @param targetColumnDataType specific {@link ColumnDataType}
+     * @return Returns targetCellType if matched, otherwise returns {@link ColumnDataType#_NONE}
      */
-    public static CellType findMatchingCellType(Class<?> fieldType, CellType targetCellType) {
-        return targetCellType.allowedTypes.stream()
-            .anyMatch(c -> c.isAssignableFrom(fieldType)) ? targetCellType : _NONE;
+    public static ColumnDataType findMatchingCellType(Class<?> fieldType, ColumnDataType targetColumnDataType) {
+        return targetColumnDataType.allowedTypes.stream()
+            .anyMatch(c -> c.isAssignableFrom(fieldType)) ? targetColumnDataType : _NONE;
     }
 
     /**
-     * Sets a cell's value according to this {@link CellType}.
+     * Sets a cell's value according to this {@link ColumnDataType}.
      * If the value is null, an empty string will be set.
      *
      * @param cell The Excel cell to set the value for

@@ -1,11 +1,13 @@
 package io.github.hee9841.excel.strategy;
 
+import io.github.hee9841.excel.meta.ColumnDataType;
+
 /**
  * Strategy enum that determines how cell types are assigned in Excel sheets.
  * <p>
  * This enum defines strategies for determining the data type and format of cells
  * when exporting data to Excel. It works in conjunction with the 
- * {@link io.github.hee9841.excel.meta.CellType} enum to control how different Java types
+ * {@link ColumnDataType} enum to control how different Java types
  * are represented in Excel.
  * </p>
  * The available strategies are:
@@ -24,7 +26,7 @@ package io.github.hee9841.excel.strategy;
  * 
  * @see io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()
  * @see io.github.hee9841.excel.annotation.ExcelColumn#columnCellType()
- * @see io.github.hee9841.excel.meta.CellType
+ * @see ColumnDataType
  * @see io.github.hee9841.excel.meta.ColumnInfoMapper
  * @see DataFormatStrategy
  */ 
@@ -34,7 +36,7 @@ public enum CellTypeStrategy {
      * <p>
      * With this strategy, you can explicitly specify the cell type for each column
      * using the {@link io.github.hee9841.excel.annotation.ExcelColumn#columnCellType()} parameter
-     * or if not specified, cell type will be {@link io.github.hee9841.excel.meta.CellType#_NONE}.
+     * or if not specified, cell type will be {@link ColumnDataType#_NONE}.
      * </p>
      */
     NONE,

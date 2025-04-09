@@ -82,7 +82,7 @@ public class Product {
 
     @ExcelColumn(headerName = "dateTime", 
         columnIndex = 3,
-        columnCellType = CellType.LOCAL_DATE_TIME
+        columnColumnDataType = ColumnDataType.LOCAL_DATE_TIME
     )
     private LocalDateTime dateTime;
 
@@ -181,7 +181,7 @@ The `@ExcelColumn` annotation maps class fields to Excel columns:
 @ExcelColumn(
     headerName = "User ID",
     columnIndex = 0,
-    columnCellType = CellType.NUMBER,
+    columnColumnDataType = ColumnDataType.NUMBER,
     format = "#,##0",
     headerStyle = @ExcelColumnStyle(cellStyleClass = CustomHeaderStyle.class),
     bodyStyle = @ExcelColumnStyle(cellStyleClass = CustomBodyStyle.class)
@@ -191,14 +191,14 @@ private Long id;
 
 **Key parameters:**
 
-| Parameter        | Description                        | Required?                                          | **Notes**                                                                                                                                                               |
-|------------------|------------------------------------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `headerName`     | Column header text                 | Yes                                                |                                                                                                                                                                         |
-| `columnIndex`    | Position of the column             | Only when using `ColumnIndexStrategy.USER_DEFINED` |                                                                                                                                                                         |
-| `columnCellType` | Excel cell type for the column     | No                                                 | **If specified, this overrides any `cellTypeStrategy` setting - even if `cellTypeStrategy` is set to `AUTO`, the explicitly defined type will be used for this column** |
-| `format`         | Format pattern for cell values     | No                                                 | **If specified, this format takes precedence over any automatic formatting from `dataFormatStrategy`, even when `dataFormatStrategy` is set to `AUTO_BY_CELL_TYPE`**    |
-| `headerStyle`    | Style for this column's header     | No                                                 | overrides class-level style                                                                                                                                             |
-| `bodyStyle`      | Style for this column's data cells | No                                                 | overrides class-level style                                                                                                                                             |
+| Parameter              | Description                        | Required?                                          | **Notes**                                                                                                                                                               |
+|------------------------|------------------------------------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `headerName`           | Column header text                 | Yes                                                |                                                                                                                                                                         |
+| `columnIndex`          | Position of the column             | Only when using `ColumnIndexStrategy.USER_DEFINED` |                                                                                                                                                                         |
+| `columnColumnDataType` | Excel cell type for the column     | No                                                 | **If specified, this overrides any `cellTypeStrategy` setting - even if `cellTypeStrategy` is set to `AUTO`, the explicitly defined type will be used for this column** |
+| `format`               | Format pattern for cell values     | No                                                 | **If specified, this format takes precedence over any automatic formatting from `dataFormatStrategy`, even when `dataFormatStrategy` is set to `AUTO_BY_CELL_TYPE`**    |
+| `headerStyle`          | Style for this column's header     | No                                                 | overrides class-level style                                                                                                                                             |
+| `bodyStyle`            | Style for this column's data cells | No                                                 | overrides class-level style                                                                                                                                             |
 
 **Supported field types:**
 - String, Character, char
@@ -316,7 +316,7 @@ Controls how sheets are created when exporting data:
 
 **Q: Numbers are stored as text in Excel instead of numeric values**  
 A: You can fix this in two ways:
-1. Use `@ExcelColumn(columnCellType = CellType.NUMBER)` to explicitly set the column type
+1. Use `@ExcelColumn(columnColumnDataType = ColumnDataType.NUMBER)` to explicitly set the column type
 2. Use `CellTypeStrategy.AUTO` in the class-level `@Excel` annotation to automatically detect numeric types
 
 **Q: My dates are not formatting correctly in the Excel file**  

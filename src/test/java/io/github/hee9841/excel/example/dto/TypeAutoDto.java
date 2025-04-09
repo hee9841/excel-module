@@ -2,7 +2,7 @@ package io.github.hee9841.excel.example.dto;
 
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
-import io.github.hee9841.excel.meta.CellType;
+import io.github.hee9841.excel.meta.ColumnDataType;
 import io.github.hee9841.excel.strategy.CellTypeStrategy;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
 import java.time.LocalDate;
@@ -69,7 +69,7 @@ public class TypeAutoDto {
     @ExcelColumn(headerName = "localDateTimeField", columnIndex = 17)
     private LocalDateTime localDateTime;
 
-    @ExcelColumn(headerName = "formalField", columnIndex = 18, columnCellType = CellType.FORMULA)
+    @ExcelColumn(headerName = "formalField", columnIndex = 18, columnCellType = ColumnDataType.FORMULA)
     private String formal;
 
     public void setPrimitiveInt(int primitiveInt) {
