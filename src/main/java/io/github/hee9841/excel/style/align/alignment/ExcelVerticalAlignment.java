@@ -6,7 +6,7 @@ import static org.apache.poi.ss.usermodel.VerticalAlignment.DISTRIBUTED;
 import static org.apache.poi.ss.usermodel.VerticalAlignment.JUSTIFY;
 import static org.apache.poi.ss.usermodel.VerticalAlignment.TOP;
 
-public enum VerticalAlignment {
+public enum ExcelVerticalAlignment {
     VERTICAL_TOP(TOP),
     VERTICAL_CENTER(CENTER),
     VERTICAL_BOTTOM(BOTTOM),
@@ -15,7 +15,7 @@ public enum VerticalAlignment {
 
     private final org.apache.poi.ss.usermodel.VerticalAlignment verticalAlign;
 
-    VerticalAlignment(org.apache.poi.ss.usermodel.VerticalAlignment verticalAlign) {
+    ExcelVerticalAlignment(org.apache.poi.ss.usermodel.VerticalAlignment verticalAlign) {
         this.verticalAlign = verticalAlign;
     }
 

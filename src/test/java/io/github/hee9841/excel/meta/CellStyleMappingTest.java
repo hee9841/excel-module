@@ -14,7 +14,7 @@ import io.github.hee9841.excel.style.ExcelCellStyle;
 import io.github.hee9841.excel.style.align.CustomExcelAlign;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
 import io.github.hee9841.excel.style.align.ExcelAlign;
-import io.github.hee9841.excel.style.align.alignment.HorizontalAlignment;
+import io.github.hee9841.excel.style.align.alignment.ExcelHorizontalAlignment;
 import io.github.hee9841.excel.style.border.BorderStyle;
 import io.github.hee9841.excel.style.border.DefaultExcelBorder;
 import io.github.hee9841.excel.style.border.ExcelBorder;
@@ -324,7 +324,7 @@ public class CellStyleMappingTest {
     enum TestEnumCellStyle implements ExcelCellStyle {
         BLACK_CENTER_THIN(
             PaletteExcelColor.of(ColorPalette.BLACK),
-            CustomExcelAlign.from(HorizontalAlignment.HORIZONTAL_CENTER),
+            CustomExcelAlign.from(ExcelHorizontalAlignment.HORIZONTAL_CENTER),
             DefaultExcelBorder.all(BorderStyle.THIN)
         ),
         WHITE_GENERAL_CENTER_TOP_THIN(
@@ -361,7 +361,7 @@ public class CellStyleMappingTest {
         @Override
         public void configure(ExcelCellStyleConfigurer configurer) {
             configurer.excelColor(PaletteExcelColor.of(ColorPalette.BLACK));
-            configurer.excelAlign(CustomExcelAlign.from(HorizontalAlignment.HORIZONTAL_CENTER));
+            configurer.excelAlign(CustomExcelAlign.from(ExcelHorizontalAlignment.HORIZONTAL_CENTER));
             configurer.excelBorder(DefaultExcelBorder.all(BorderStyle.THIN));
         }
     }

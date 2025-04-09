@@ -1,13 +1,13 @@
 package io.github.hee9841.excel.style;
 
-import static io.github.hee9841.excel.style.align.alignment.HorizontalAlignment.HORIZONTAL_GENERAL;
-import static io.github.hee9841.excel.style.align.alignment.VerticalAlignment.VERTICAL_CENTER;
+import static io.github.hee9841.excel.style.align.alignment.ExcelHorizontalAlignment.HORIZONTAL_GENERAL;
+import static io.github.hee9841.excel.style.align.alignment.ExcelVerticalAlignment.VERTICAL_CENTER;
 import static org.mockito.BDDMockito.then;
 
 import io.github.hee9841.excel.style.align.CustomExcelAlign;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
-import io.github.hee9841.excel.style.align.alignment.HorizontalAlignment;
-import io.github.hee9841.excel.style.align.alignment.VerticalAlignment;
+import io.github.hee9841.excel.style.align.alignment.ExcelHorizontalAlignment;
+import io.github.hee9841.excel.style.align.alignment.ExcelVerticalAlignment;
 import io.github.hee9841.excel.style.border.BorderStyle;
 import io.github.hee9841.excel.style.border.DefaultExcelBorder;
 import io.github.hee9841.excel.style.color.ColorPalette;
@@ -77,8 +77,8 @@ class CustomExcelCellStyleImplementationTest {
     void RGB_CustomAlign_BuilderBorder_Test() {
         //given
         int red = 100, green = 100, blue = 100;
-        HorizontalAlignment horizontal = HORIZONTAL_GENERAL;
-        VerticalAlignment vertical = VERTICAL_CENTER;
+        ExcelHorizontalAlignment horizontal = HORIZONTAL_GENERAL;
+        ExcelVerticalAlignment vertical = VERTICAL_CENTER;
         BorderStyle borderThin = BorderStyle.THIN;
 
         class RgbColorCustomAlignBuilderBorder extends CustomExcelCellStyle {
