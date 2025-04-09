@@ -5,7 +5,7 @@ import io.github.hee9841.excel.style.align.alignment.VerticalAlignment;
 import org.apache.poi.ss.usermodel.CellStyle;
 
 /**
- * Implementation of ExcelAlign that allows for custom configuration of 
+ * Implementation of ExcelAlign that allows for custom configuration of
  * horizontal and vertical alignment settings for Excel cells.
  * This class provides flexibility by allowing either or both alignment types to be specified.
  */
@@ -24,7 +24,7 @@ public class CustomExcelAlign implements ExcelAlign {
      * Creates a CustomExcelAlign instance with both horizontal and vertical alignment settings.
      *
      * @param horizontalAlignment the horizontal alignment to apply
-     * @param verticalAlignment the vertical alignment to apply
+     * @param verticalAlignment   the vertical alignment to apply
      * @return a new CustomExcelAlign instance
      */
     public static CustomExcelAlign of(HorizontalAlignment horizontalAlignment,
@@ -37,7 +37,7 @@ public class CustomExcelAlign implements ExcelAlign {
 
     /**
      * Creates a CustomExcelAlign instance with only horizontal alignment specified.
-     * Vertical alignment will remain null.
+     * Vertical alignment will be set to VERTICAL_CENTER by default.
      *
      * @param horizontalAlignment the horizontal alignment to apply
      * @return a new CustomExcelAlign instance
@@ -45,7 +45,7 @@ public class CustomExcelAlign implements ExcelAlign {
     public static CustomExcelAlign from(HorizontalAlignment horizontalAlignment) {
         return new CustomExcelAlign(
             horizontalAlignment,
-            null
+            VerticalAlignment.VERTICAL_CENTER
         );
     }
 

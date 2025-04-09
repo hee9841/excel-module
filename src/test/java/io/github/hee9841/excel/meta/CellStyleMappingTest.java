@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.hee9841.excel.annotation.Excel;
-import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
+import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.exception.ExcelStyleException;
 import io.github.hee9841.excel.style.CustomExcelCellStyle;
 import io.github.hee9841.excel.style.ExcelCellStyle;
@@ -56,6 +56,8 @@ public class CellStyleMappingTest {
             blackCenterThin.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
             blackCenterThin.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
+            blackCenterThin.setVerticalAlignment(
+                org.apache.poi.ss.usermodel.VerticalAlignment.CENTER);
 
             blackCenterThin.setBorderTop(org.apache.poi.ss.usermodel.BorderStyle.THIN);
             blackCenterThin.setBorderBottom(org.apache.poi.ss.usermodel.BorderStyle.THIN);
@@ -120,7 +122,7 @@ public class CellStyleMappingTest {
 
         @DisplayName("class cell style 경우 지정한 cell style이 적용되어야한다.(@ExcelColumn이 @Excel 보다 우선 적용됨)")
         @Test
-        void classCellStyle_applySuccess() {       
+        void classCellStyle_applySuccess() {
             //given
             @Excel(
                 defaultHeaderStyle = @ExcelColumnStyle(cellStyleClass = WhiteGeneralCenterTopThin.class)

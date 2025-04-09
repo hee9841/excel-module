@@ -34,7 +34,8 @@ class CustomExcelAlignTest {
         align.applyAlign(cellStyle);
 
         then(cellStyle).should().setAlignment(poiHorizontal);
-        then(cellStyle).shouldHaveNoMoreInteractions();
+        then(cellStyle).should()
+            .setVerticalAlignment(org.apache.poi.ss.usermodel.VerticalAlignment.CENTER);
     }
 
     @DisplayName("from(VerticalAlignment) 메서드는 vertical만 설정되어야 한다.")
