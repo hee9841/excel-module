@@ -5,6 +5,8 @@ import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES_ST
 
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -76,9 +78,14 @@ public class ExcelAnnotationProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         boolean hasError = false;
 
+        // Map to track Excel-annotated classes and their ExcelColumn fields
+        Map<TypeElement, Boolean> excelClasses = new HashMap<>();
 
         // First pass: collect all Excel-annotated classes
         for (Element element : roundEnv.getElementsAnnotatedWith(Excel.class)) {
+            TypeElement typeElement = (TypeElement) element;
+            excelClasses.put(typeElement, false);
+
             if (!isValidExcelClass(element)) {
                 hasError = true;
             }
@@ -87,6 +94,30 @@ public class ExcelAnnotationProcessor extends AbstractProcessor {
         // Second pass: validate ExcelColumn annotations
         for (Element element : roundEnv.getElementsAnnotatedWith(ExcelColumn.class)) {
             if (!isAllowedType(element)) {
+                hasError = true;
+            }
+
+            TypeElement enclosingClass = (TypeElement) element.getEnclosingElement();
+
+            // Check if the enclosing class has @Excel annotation
+            if (!excelClasses.containsKey(enclosingClass)) {
+                error(element,
+                    "Field %s annotated with @ExcelColumn must be in a class annotated with @Excel",
+                    element.getSimpleName());
+                hasError = true;
+                continue;
+            }
+
+            // Add the ExcelColumn field to the class's set
+            excelClasses.put(enclosingClass, true);
+        }
+
+        // Third pass: check if Excel-annotated classes have at least one ExcelColumn
+        for (Map.Entry<TypeElement, Boolean> entry : excelClasses.entrySet()) {
+            if (!entry.getValue()) {
+                error(entry.getKey(),
+                    "Class %s annotated with @Excel must have at least one field annotated with @ExcelColumn",
+                    entry.getKey().getSimpleName());
                 hasError = true;
             }
         }
