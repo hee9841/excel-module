@@ -9,7 +9,7 @@ import static org.apache.poi.ss.usermodel.HorizontalAlignment.JUSTIFY;
 import static org.apache.poi.ss.usermodel.HorizontalAlignment.LEFT;
 import static org.apache.poi.ss.usermodel.HorizontalAlignment.RIGHT;
 
-public enum HorizontalAlignment {
+public enum ExcelHorizontalAlignment {
     HORIZONTAL_GENERAL(GENERAL),
     HORIZONTAL_LEFT(LEFT),
     HORIZONTAL_CENTER(CENTER),
@@ -21,7 +21,7 @@ public enum HorizontalAlignment {
 
     private final org.apache.poi.ss.usermodel.HorizontalAlignment horizontalAlignment;
 
-    HorizontalAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment horizontalAlignment) {
+    ExcelHorizontalAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment horizontalAlignment) {
         this.horizontalAlignment = horizontalAlignment;
     }
 

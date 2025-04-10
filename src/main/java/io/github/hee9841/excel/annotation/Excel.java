@@ -9,7 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation used to configure Excel export/import settings for a class.
+ * Annotation used to configure Excel export settings for a class.
  * This annotation should be applied at the class level to specify how the class
  * should be processed when converting to/from Excel format.
  *
@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  * <pre><code>
  * {@literal @}Excel(
  *     cellTypeStrategy = CellTypeStrategy.AUTO,
- *     columnIndexStrategy = ColumnIndexStrategy.DECLARED
+ *     columnIndexStrategy = ColumnIndexStrategy.USER_DEFINED
  * )
  * public class UserData {
  *     {@literal @}ExcelColumn(headerName = "User ID", columnIndex = 0)

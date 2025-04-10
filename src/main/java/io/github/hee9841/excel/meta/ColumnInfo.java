@@ -9,7 +9,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
  * including styling for header and body cells.
  * 
  * @see ColumnInfoMapper
- * @see CellType
+ * @see ColumnDataType
  * @see io.github.hee9841.excel.annotation.Excel
  * @see io.github.hee9841.excel.annotation.ExcelColumn
  * @see ExcelColumnStyle
@@ -20,8 +20,8 @@ public class ColumnInfo {
     private final String fieldName;
     /** The display name to use in the Excel header */
     private final String headerName;
-    /** The cell type to use for this column */
-    private final CellType columnType;
+    /** The column data type(body) to use for this column */
+    private final ColumnDataType columnType;
     /** The cell style to apply to the header cell */
     private final CellStyle headerStyle;
     /** The cell style to apply to body cells in this column */
@@ -31,7 +31,7 @@ public class ColumnInfo {
     private ColumnInfo(
         String fieldName,
         String headerName,
-        CellType columnType,
+        ColumnDataType columnType,
         CellStyle headerStyle,
         CellStyle bodyStyle
     ) {
@@ -47,7 +47,7 @@ public class ColumnInfo {
      *
      * @param fieldName The name of the Java field
      * @param headerName The display name for the Excel header
-     * @param columnType The {@link CellType} for this column
+     * @param columnType The cell type for this column
      * @param headerStyle The style for the header cell
      * @param bodyStyle The style for the body cells
      * @return A new {@link ColumnInfo} instance
@@ -55,7 +55,7 @@ public class ColumnInfo {
     public static ColumnInfo of(
         String fieldName,
         String headerName,
-        CellType columnType,
+        ColumnDataType columnType,
         CellStyle headerStyle,
         CellStyle bodyStyle
     ) {
@@ -72,7 +72,7 @@ public class ColumnInfo {
     }
 
 
-    public CellType getColumnType() {
+    public ColumnDataType getColumnType() {
         return columnType;
     }
 

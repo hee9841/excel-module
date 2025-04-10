@@ -22,8 +22,8 @@ import io.github.hee9841.excel.strategy.DataFormatStrategy;
 import io.github.hee9841.excel.strategy.SheetStrategy;
 import io.github.hee9841.excel.style.CustomExcelCellStyle;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
-import io.github.hee9841.excel.style.color.IndexedColors;
-import io.github.hee9841.excel.style.color.IndexedExcelColor;
+import io.github.hee9841.excel.style.color.ColorPalette;
+import io.github.hee9841.excel.style.color.PaletteExcelColor;
 import io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -370,7 +370,7 @@ class ExcelExporterByteOutputStreamTest {
             SXSSFWorkbook wb = new SXSSFWorkbook();
             // default header : GREY_25_PERCENT, CENTER_CENTER, ALL_BORDER_THICK
             CellStyle headerStyle = wb.createCellStyle();
-            headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            headerStyle.setFillForegroundColor(ColorPalette.GREY_25_PERCENT.getIndex());
             headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             headerStyle.setAlignment(HorizontalAlignment.CENTER);
             headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -381,7 +381,7 @@ class ExcelExporterByteOutputStreamTest {
 
             //red header : RED, CENTER_CENTER, ALL_BORDER_THICK
             CellStyle redHeaderStyle = wb.createCellStyle();
-            redHeaderStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+            redHeaderStyle.setFillForegroundColor(ColorPalette.RED.getIndex());
             redHeaderStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             redHeaderStyle.setAlignment(HorizontalAlignment.CENTER);
             redHeaderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -392,7 +392,7 @@ class ExcelExporterByteOutputStreamTest {
 
             //DefaultBodyStyle : WHITE, LEFT_BOTTOM
             CellStyle bodyStyle = wb.createCellStyle();
-            bodyStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+            bodyStyle.setFillForegroundColor(ColorPalette.WHITE.getIndex());
             bodyStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             bodyStyle.setAlignment(HorizontalAlignment.LEFT);
             bodyStyle.setVerticalAlignment(VerticalAlignment.BOTTOM);
@@ -514,7 +514,7 @@ class ExcelExporterByteOutputStreamTest {
 
         @Override
         public void configure(ExcelCellStyleConfigurer configurer) {
-            configurer.excelColor(IndexedExcelColor.of(IndexedColors.WHITE));
+            configurer.excelColor(PaletteExcelColor.of(ColorPalette.WHITE));
             configurer.excelAlign(DefaultExcelAlign.LEFT_BOTTOM);
         }
     }

@@ -1,7 +1,7 @@
 package io.github.hee9841.excel.style.align;
 
-import io.github.hee9841.excel.style.align.alignment.HorizontalAlignment;
-import io.github.hee9841.excel.style.align.alignment.VerticalAlignment;
+import io.github.hee9841.excel.style.align.alignment.ExcelHorizontalAlignment;
+import io.github.hee9841.excel.style.align.alignment.ExcelVerticalAlignment;
 import org.apache.poi.ss.usermodel.CellStyle;
 
 /**
@@ -11,27 +11,27 @@ import org.apache.poi.ss.usermodel.CellStyle;
  */
 public class CustomExcelAlign implements ExcelAlign {
 
-    private final HorizontalAlignment horizontalAlignment;
-    private final VerticalAlignment verticalAlignment;
+    private final ExcelHorizontalAlignment excelHorizontalAlignment;
+    private final ExcelVerticalAlignment excelVerticalAlignment;
 
-    private CustomExcelAlign(HorizontalAlignment horizontalAlignment,
-        VerticalAlignment verticalAlignment) {
-        this.horizontalAlignment = horizontalAlignment;
-        this.verticalAlignment = verticalAlignment;
+    private CustomExcelAlign(ExcelHorizontalAlignment excelHorizontalAlignment,
+        ExcelVerticalAlignment excelVerticalAlignment) {
+        this.excelHorizontalAlignment = excelHorizontalAlignment;
+        this.excelVerticalAlignment = excelVerticalAlignment;
     }
 
     /**
      * Creates a CustomExcelAlign instance with both horizontal and vertical alignment settings.
      *
-     * @param horizontalAlignment the horizontal alignment to apply
-     * @param verticalAlignment   the vertical alignment to apply
+     * @param excelHorizontalAlignment the horizontal alignment to apply
+     * @param excelVerticalAlignment   the vertical alignment to apply
      * @return a new CustomExcelAlign instance
      */
-    public static CustomExcelAlign of(HorizontalAlignment horizontalAlignment,
-        VerticalAlignment verticalAlignment) {
+    public static CustomExcelAlign of(ExcelHorizontalAlignment excelHorizontalAlignment,
+        ExcelVerticalAlignment excelVerticalAlignment) {
         return new CustomExcelAlign(
-            horizontalAlignment,
-            verticalAlignment
+            excelHorizontalAlignment,
+            excelVerticalAlignment
         );
     }
 
@@ -39,13 +39,13 @@ public class CustomExcelAlign implements ExcelAlign {
      * Creates a CustomExcelAlign instance with only horizontal alignment specified.
      * Vertical alignment will be set to VERTICAL_CENTER by default.
      *
-     * @param horizontalAlignment the horizontal alignment to apply
+     * @param excelHorizontalAlignment the horizontal alignment to apply
      * @return a new CustomExcelAlign instance
      */
-    public static CustomExcelAlign from(HorizontalAlignment horizontalAlignment) {
+    public static CustomExcelAlign from(ExcelHorizontalAlignment excelHorizontalAlignment) {
         return new CustomExcelAlign(
-            horizontalAlignment,
-            VerticalAlignment.VERTICAL_CENTER
+            excelHorizontalAlignment,
+            ExcelVerticalAlignment.VERTICAL_CENTER
         );
     }
 
@@ -53,13 +53,13 @@ public class CustomExcelAlign implements ExcelAlign {
      * Creates a CustomExcelAlign instance with only vertical alignment specified.
      * Horizontal alignment will remain null.
      *
-     * @param verticalAlignment the vertical alignment to apply
+     * @param excelVerticalAlignment the vertical alignment to apply
      * @return a new CustomExcelAlign instance
      */
-    public static CustomExcelAlign from(VerticalAlignment verticalAlignment) {
+    public static CustomExcelAlign from(ExcelVerticalAlignment excelVerticalAlignment) {
         return new CustomExcelAlign(
             null,
-            verticalAlignment
+            excelVerticalAlignment
         );
     }
 
@@ -72,11 +72,11 @@ public class CustomExcelAlign implements ExcelAlign {
      */
     @Override
     public void applyAlign(CellStyle cellStyle) {
-        if (horizontalAlignment != null) {
-            cellStyle.setAlignment(horizontalAlignment.getAlign());
+        if (excelHorizontalAlignment != null) {
+            cellStyle.setAlignment(excelHorizontalAlignment.getAlign());
         }
-        if (verticalAlignment != null) {
-            cellStyle.setVerticalAlignment(verticalAlignment.getAlign());
+        if (excelVerticalAlignment != null) {
+            cellStyle.setVerticalAlignment(excelVerticalAlignment.getAlign());
         }
     }
 }

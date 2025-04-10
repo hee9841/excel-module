@@ -6,23 +6,23 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 /**
  * Implementation of ExcelColor that uses Excel's built-in indexed color palette
  * to apply background colors to cell styles.
- * 
+ *
  * <p>This class works with both HSSF (XLS) and XSSF (XLSX) formats, as it uses
  * the standard indexed color palette that is compatible with all Excel versions.</p>
- * 
- * @see io.github.hee9841.excel.style.color.IndexedColors
+ *
+ * @see ColorPalette
  */
-public class IndexedExcelColor implements ExcelColor{
+public class PaletteExcelColor implements ExcelColor {
 
     private final short index;
 
-    private IndexedExcelColor(short index) {
+    private PaletteExcelColor(short index) {
         this.index = index;
     }
 
-    
-    public static IndexedExcelColor of(IndexedColors indexedColors) {
-        return new IndexedExcelColor(indexedColors.getIndex());
+
+    public static PaletteExcelColor of(ColorPalette colorPalette) {
+        return new PaletteExcelColor(colorPalette.getIndex());
     }
 
     /**

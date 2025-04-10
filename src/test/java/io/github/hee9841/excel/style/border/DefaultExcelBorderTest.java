@@ -23,7 +23,7 @@ class DefaultExcelBorderTest {
     @Test
     void allMethod_ShouldApplyAllBorder() {
         //given
-        DefaultExcelBorder border = DefaultExcelBorder.all(BorderStyle.THIN);
+        DefaultExcelBorder border = DefaultExcelBorder.all(ExcelBorderStyle.THIN);
 
         //when
         border.applyAllBorder(cellStyle);
@@ -70,10 +70,10 @@ class DefaultExcelBorderTest {
         return Stream.of(
             Arguments.of(
                 DefaultExcelBorder.builder()
-                    .top(BorderStyle.THIN)
-                    .bottom(BorderStyle.MEDIUM)
-                    .left(BorderStyle.DASHED)
-                    .right(BorderStyle.DOTTED).build(),
+                    .top(ExcelBorderStyle.THIN)
+                    .bottom(ExcelBorderStyle.MEDIUM)
+                    .left(ExcelBorderStyle.DASHED)
+                    .right(ExcelBorderStyle.DOTTED).build(),
                 org.apache.poi.ss.usermodel.BorderStyle.THIN,
                 org.apache.poi.ss.usermodel.BorderStyle.MEDIUM,
                 org.apache.poi.ss.usermodel.BorderStyle.DASHED,
@@ -81,9 +81,9 @@ class DefaultExcelBorderTest {
             ),
             Arguments.of(
                 DefaultExcelBorder.builder()
-                    .bottom(BorderStyle.MEDIUM)
-                    .left(BorderStyle.DASHED)
-                    .right(BorderStyle.DOTTED).build(),
+                    .bottom(ExcelBorderStyle.MEDIUM)
+                    .left(ExcelBorderStyle.DASHED)
+                    .right(ExcelBorderStyle.DOTTED).build(),
                 null,
                 org.apache.poi.ss.usermodel.BorderStyle.MEDIUM,
                 org.apache.poi.ss.usermodel.BorderStyle.DASHED,
@@ -91,9 +91,9 @@ class DefaultExcelBorderTest {
             ),
             Arguments.of(
                 DefaultExcelBorder.builder()
-                    .top(BorderStyle.THIN)
-                    .left(BorderStyle.DASHED)
-                    .right(BorderStyle.DOTTED).build(),
+                    .top(ExcelBorderStyle.THIN)
+                    .left(ExcelBorderStyle.DASHED)
+                    .right(ExcelBorderStyle.DOTTED).build(),
                 org.apache.poi.ss.usermodel.BorderStyle.THIN,
                 null,
                 org.apache.poi.ss.usermodel.BorderStyle.DASHED,
@@ -101,9 +101,9 @@ class DefaultExcelBorderTest {
             ),
             Arguments.of(
                 DefaultExcelBorder.builder()
-                    .top(BorderStyle.THIN)
-                    .bottom(BorderStyle.MEDIUM)
-                    .right(BorderStyle.DOTTED).build(),
+                    .top(ExcelBorderStyle.THIN)
+                    .bottom(ExcelBorderStyle.MEDIUM)
+                    .right(ExcelBorderStyle.DOTTED).build(),
                 org.apache.poi.ss.usermodel.BorderStyle.THIN,
                 org.apache.poi.ss.usermodel.BorderStyle.MEDIUM,
                 null,
@@ -111,9 +111,9 @@ class DefaultExcelBorderTest {
             ),
             Arguments.of(
                 DefaultExcelBorder.builder()
-                    .top(BorderStyle.THIN)
-                    .bottom(BorderStyle.MEDIUM)
-                    .left(BorderStyle.DASHED).build(),
+                    .top(ExcelBorderStyle.THIN)
+                    .bottom(ExcelBorderStyle.MEDIUM)
+                    .left(ExcelBorderStyle.DASHED).build(),
                 org.apache.poi.ss.usermodel.BorderStyle.THIN,
                 org.apache.poi.ss.usermodel.BorderStyle.MEDIUM,
                 org.apache.poi.ss.usermodel.BorderStyle.DASHED,

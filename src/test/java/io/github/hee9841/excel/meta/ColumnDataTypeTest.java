@@ -19,86 +19,86 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 @ExtendWith(MockitoExtension.class)
-class CellTypeTest {
+class ColumnDataTypeTest {
 
 
     @Test
     @DisplayName("from 메서드는 필드 타입에 맞는 CellType을 반환해야 한다")
     void from_ShouldReturnMatchingCellType() {
         //NUMBER
-        assertEquals(CellType.NUMBER, CellType.from(Integer.class));
-        assertEquals(CellType.NUMBER, CellType.from(int.class));
-        assertEquals(CellType.NUMBER, CellType.from(Double.class));
-        assertEquals(CellType.NUMBER, CellType.from(double.class));
-        assertEquals(CellType.NUMBER, CellType.from(Float.class));
-        assertEquals(CellType.NUMBER, CellType.from(float.class));
-        assertEquals(CellType.NUMBER, CellType.from(Long.class));
-        assertEquals(CellType.NUMBER, CellType.from(long.class));
-        assertEquals(CellType.NUMBER, CellType.from(Short.class));
-        assertEquals(CellType.NUMBER, CellType.from(short.class));
-        assertEquals(CellType.NUMBER, CellType.from(Byte.class));
-        assertEquals(CellType.NUMBER, CellType.from(byte.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(Integer.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(int.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(Double.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(double.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(Float.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(float.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(Long.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(long.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(Short.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(short.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(Byte.class));
+        assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(byte.class));
 
         //BOOLEAN
-        assertEquals(CellType.BOOLEAN, CellType.from(Boolean.class));
-        assertEquals(CellType.BOOLEAN, CellType.from(boolean.class));
+        assertEquals(ColumnDataType.BOOLEAN, ColumnDataType.from(Boolean.class));
+        assertEquals(ColumnDataType.BOOLEAN, ColumnDataType.from(boolean.class));
 
         //STRING
-        assertEquals(CellType.STRING, CellType.from(String.class));
-        assertEquals(CellType.STRING, CellType.from(Character.class));
-        assertEquals(CellType.STRING, CellType.from(char.class));
+        assertEquals(ColumnDataType.STRING, ColumnDataType.from(String.class));
+        assertEquals(ColumnDataType.STRING, ColumnDataType.from(Character.class));
+        assertEquals(ColumnDataType.STRING, ColumnDataType.from(char.class));
 
         //Enum
-        assertEquals(CellType.ENUM, CellType.from(MyEnum.class));
+        assertEquals(ColumnDataType.ENUM, ColumnDataType.from(MyEnum.class));
 
         //날짜 관련
-        assertEquals(CellType.DATE, CellType.from(Date.class));
-        assertEquals(CellType.LOCAL_DATE, CellType.from(LocalDate.class));
-        assertEquals(CellType.LOCAL_DATE_TIME, CellType.from(LocalDateTime.class));
+        assertEquals(ColumnDataType.DATE, ColumnDataType.from(Date.class));
+        assertEquals(ColumnDataType.LOCAL_DATE, ColumnDataType.from(LocalDate.class));
+        assertEquals(ColumnDataType.LOCAL_DATE_TIME, ColumnDataType.from(LocalDateTime.class));
     }
 
     @Test
     @DisplayName("지원하지 않는 타입에 대해 from 메서드는 _NONE을 반환해야 한다")
     void from_ShouldReturnNoneForUnsupportedType() {
         // given & when & then
-        assertEquals(CellType._NONE, CellType.from(Object.class));
+        assertEquals(ColumnDataType._NONE, ColumnDataType.from(Object.class));
     }
 
     @Test
     @DisplayName("CellType의 허용된 타입에 필드 타입이 있을경우, 해당 CellType을 반환해야한다.")
     void shouldReturnTargetCellTypeWhenMatched() {
-        assertEquals(CellType.NUMBER,
-            CellType.findMatchingCellType(Integer.class, CellType.NUMBER));
-        assertEquals(CellType.STRING,
-            CellType.findMatchingCellType(String.class, CellType.STRING));
-        assertEquals(CellType.BOOLEAN,
-            CellType.findMatchingCellType(Boolean.class, CellType.BOOLEAN));
+        assertEquals(ColumnDataType.NUMBER,
+            ColumnDataType.findMatchingCellType(Integer.class, ColumnDataType.NUMBER));
+        assertEquals(ColumnDataType.STRING,
+            ColumnDataType.findMatchingCellType(String.class, ColumnDataType.STRING));
+        assertEquals(ColumnDataType.BOOLEAN,
+            ColumnDataType.findMatchingCellType(Boolean.class, ColumnDataType.BOOLEAN));
         //formal 타입
-        assertEquals(CellType.FORMULA,
-            CellType.findMatchingCellType(String.class, CellType.FORMULA));
+        assertEquals(ColumnDataType.FORMULA,
+            ColumnDataType.findMatchingCellType(String.class, ColumnDataType.FORMULA));
     }
 
     @Test
     @DisplayName("필드 타입과 CellType이 일치하지 않으면 _NONE을 반환해야 한다")
     void shouldReturnNoneWhenNotMatched() {
         // given & when & then
-        assertEquals(CellType._NONE,
-            CellType.findMatchingCellType(String.class, CellType.NUMBER));
-        assertEquals(CellType._NONE,
-            CellType.findMatchingCellType(Integer.class, CellType.STRING));
+        assertEquals(ColumnDataType._NONE,
+            ColumnDataType.findMatchingCellType(String.class, ColumnDataType.NUMBER));
+        assertEquals(ColumnDataType._NONE,
+            ColumnDataType.findMatchingCellType(Integer.class, ColumnDataType.STRING));
     }
 
     @DisplayName("CellType에 맞게 cell 값을 set해야한다.")
     @ParameterizedTest
     @MethodSource("cellValueData")
-    void shouldSetCellValueByCellType(CellType cellType, Object value) {
+    void shouldSetCellValueByCellType(ColumnDataType columnDataType, Object value) {
         Cell cell = Mockito.mock(Cell.class);
 
         //when
-        cellType.setCellValueByCellType(cell, value);
+        columnDataType.setCellValueByCellType(cell, value);
 
         //then
-        switch (cellType) {
+        switch (columnDataType) {
             case NUMBER:
                 then(cell).should().setCellValue(Double.parseDouble(String.valueOf(value)));
                 break;
@@ -131,47 +131,47 @@ class CellTypeTest {
     static Stream<Arguments> cellValueData() {
         return Stream.of(
             Arguments.of(
-                CellType.NUMBER,
+                ColumnDataType.NUMBER,
                 1
             ),
             Arguments.of(
-                CellType.NUMBER,
+                ColumnDataType.NUMBER,
                 1.0f
             ),
             Arguments.of(
-                CellType.NUMBER,
+                ColumnDataType.NUMBER,
                 1L
             ),
             Arguments.of(
-                CellType.BOOLEAN,
+                ColumnDataType.BOOLEAN,
                 true
             ),
             Arguments.of(
-                CellType.STRING,
+                ColumnDataType.STRING,
                 "String"
             ),
             Arguments.of(
-                CellType.STRING,
+                ColumnDataType.STRING,
                 'C'
             ),
             Arguments.of(
-                CellType.FORMULA,
+                ColumnDataType.FORMULA,
                 "SUM(A1:A7)"
             ),
             Arguments.of(
-                CellType.ENUM,
+                ColumnDataType.ENUM,
                 MyEnum.FEMALE
             ),
             Arguments.of(
-                CellType.DATE,
+                ColumnDataType.DATE,
                 new Date()
             ),
             Arguments.of(
-                CellType.LOCAL_DATE,
+                ColumnDataType.LOCAL_DATE,
                 LocalDate.now()
             ),
             Arguments.of(
-                CellType.LOCAL_DATE_TIME,
+                ColumnDataType.LOCAL_DATE_TIME,
                 LocalDateTime.now()
             )
         );

@@ -14,13 +14,13 @@ import io.github.hee9841.excel.style.ExcelCellStyle;
 import io.github.hee9841.excel.style.align.CustomExcelAlign;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
 import io.github.hee9841.excel.style.align.ExcelAlign;
-import io.github.hee9841.excel.style.align.alignment.HorizontalAlignment;
-import io.github.hee9841.excel.style.border.BorderStyle;
+import io.github.hee9841.excel.style.align.alignment.ExcelHorizontalAlignment;
+import io.github.hee9841.excel.style.border.ExcelBorderStyle;
 import io.github.hee9841.excel.style.border.DefaultExcelBorder;
 import io.github.hee9841.excel.style.border.ExcelBorder;
+import io.github.hee9841.excel.style.color.ColorPalette;
 import io.github.hee9841.excel.style.color.ExcelColor;
-import io.github.hee9841.excel.style.color.IndexedColors;
-import io.github.hee9841.excel.style.color.IndexedExcelColor;
+import io.github.hee9841.excel.style.color.PaletteExcelColor;
 import io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -323,14 +323,14 @@ public class CellStyleMappingTest {
 
     enum TestEnumCellStyle implements ExcelCellStyle {
         BLACK_CENTER_THIN(
-            IndexedExcelColor.of(IndexedColors.BLACK),
-            CustomExcelAlign.from(HorizontalAlignment.HORIZONTAL_CENTER),
-            DefaultExcelBorder.all(BorderStyle.THIN)
+            PaletteExcelColor.of(ColorPalette.BLACK),
+            CustomExcelAlign.from(ExcelHorizontalAlignment.HORIZONTAL_CENTER),
+            DefaultExcelBorder.all(ExcelBorderStyle.THIN)
         ),
         WHITE_GENERAL_CENTER_TOP_THIN(
-            IndexedExcelColor.of(IndexedColors.WHITE),
+            PaletteExcelColor.of(ColorPalette.WHITE),
             DefaultExcelAlign.GENERAL_CENTER,
-            DefaultExcelBorder.builder().top(BorderStyle.THIN).build()
+            DefaultExcelBorder.builder().top(ExcelBorderStyle.THIN).build()
         ),
         ;
 
@@ -360,9 +360,9 @@ public class CellStyleMappingTest {
 
         @Override
         public void configure(ExcelCellStyleConfigurer configurer) {
-            configurer.excelColor(IndexedExcelColor.of(IndexedColors.BLACK));
-            configurer.excelAlign(CustomExcelAlign.from(HorizontalAlignment.HORIZONTAL_CENTER));
-            configurer.excelBorder(DefaultExcelBorder.all(BorderStyle.THIN));
+            configurer.excelColor(PaletteExcelColor.of(ColorPalette.BLACK));
+            configurer.excelAlign(CustomExcelAlign.from(ExcelHorizontalAlignment.HORIZONTAL_CENTER));
+            configurer.excelBorder(DefaultExcelBorder.all(ExcelBorderStyle.THIN));
         }
     }
 
@@ -374,9 +374,9 @@ public class CellStyleMappingTest {
 
         @Override
         public void configure(ExcelCellStyleConfigurer configurer) {
-            configurer.excelColor(IndexedExcelColor.of(IndexedColors.WHITE));
+            configurer.excelColor(PaletteExcelColor.of(ColorPalette.WHITE));
             configurer.excelAlign(DefaultExcelAlign.GENERAL_CENTER);
-            configurer.excelBorder(DefaultExcelBorder.builder().top(BorderStyle.THIN).build());
+            configurer.excelBorder(DefaultExcelBorder.builder().top(ExcelBorderStyle.THIN).build());
         }
     }
 
