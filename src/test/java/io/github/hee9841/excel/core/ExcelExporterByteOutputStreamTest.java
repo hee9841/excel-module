@@ -105,8 +105,8 @@ class ExcelExporterByteOutputStreamTest {
     }
 
 
-    @Test
     @DisplayName("엑셀 시트 버전의 최대 행을 넘는 max row 값을 설정할 수 없다.")
+    @Test
     void cannotExceedMaxRowOfImplementation() {
         //given
         List<TestDto> data = new ArrayList<>();
@@ -123,8 +123,8 @@ class ExcelExporterByteOutputStreamTest {
             .contains("cannot exceed the supplied Excel sheet version's maximum row"));
     }
 
-    @Test
     @DisplayName("엑셀 파일 생성 성공 시, log가 순서대로 생성되어야한다.")
+    @Test
     void validateLogSequence() throws IOException {
         // given
         List<TestDto> data = new ArrayList<>();
@@ -151,8 +151,8 @@ class ExcelExporterByteOutputStreamTest {
     }
 
 
-    @Test
     @DisplayName("빈 데이터로 엑셀 파일 생성시, 해더만 있는 빈 엑셀 파일을 생성한다.")
+    @Test
     void createEmptyExcelFile() throws IOException {
         // given
         List<TestDto> emptyData = new ArrayList<>();
@@ -183,8 +183,8 @@ class ExcelExporterByteOutputStreamTest {
     @Nested
     class SheetTest {
 
-        @Test
         @DisplayName("multi sheet: 데이터 크기가 최대행을 넘을 때 자동으로 다음 시트를 생성한다.")
+        @Test
         void multiSheetMaxRowsExceedTest() throws IOException {
             // given
             int rowCnt = 18;
@@ -226,8 +226,8 @@ class ExcelExporterByteOutputStreamTest {
 
         }
 
-        @Test
         @DisplayName("one sheet: 데이터가 최대 행 초과 시 예외을 발생한다.")
+        @Test
         void throwExceptionWhenOneSheetAndExceedMaxRows() {
             // given
             List<TestDto> testData = new ArrayList<>();
@@ -255,8 +255,8 @@ class ExcelExporterByteOutputStreamTest {
                 Level.DEBUG));
         }
 
-        @Test
         @DisplayName("시트 이름 지정 시 지정한 이름으로 시트 생성한다.")
+        @Test
         void createSheetWithSpecifiedName() throws IOException {
             //given
             List<TestDto> testData = new ArrayList<>();
@@ -284,9 +284,8 @@ class ExcelExporterByteOutputStreamTest {
         }
     }
 
-
-    @Test
     @DisplayName("Formula 타입인 cell는 함수 값이 적용 되어야한다.")
+    @Test
     void checkFormulaType() throws IOException {
         List<TypeAutoDto> testData = new ArrayList<>();
         int sum = 0;

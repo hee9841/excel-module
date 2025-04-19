@@ -41,8 +41,8 @@ public class ExcelExporterBuilder<T> {
     /**
      * Constructs a new ExcelExporterBuilder with the specified type and data.
      *
-     * @param type The class type of the data to be exported
-     * @param data The list of data objects to be exported
+     * @param type               The class type of the data to be exported
+     * @param data               The list of data objects to be exported
      * @param supplyExcelMaxRows The maximum number of rows supported by the Excel version
      */
     ExcelExporterBuilder(
@@ -89,7 +89,7 @@ public class ExcelExporterBuilder<T> {
     /**
      * Sets the base name for sheets in the Excel file.
      * If set, each sheet will be named using this base name with an index suffix.
-     * 
+     *
      * <pre>
      * Example:
      * sheetName = "MySheet"

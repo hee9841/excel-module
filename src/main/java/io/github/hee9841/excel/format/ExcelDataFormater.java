@@ -9,9 +9,13 @@ import org.apache.poi.ss.usermodel.DataFormat;
  */
 public class ExcelDataFormater {
 
-    /** The format pattern string */
+    /**
+     * The format pattern string
+     */
     private final String pattern;
-    /** The Apache POI DataFormat object */
+    /**
+     * The Apache POI DataFormat object
+     */
     private final DataFormat dataFormat;
 
 
@@ -24,7 +28,7 @@ public class ExcelDataFormater {
      * Factory method to create a new ExcelDataFormater instance.
      *
      * @param dataFormat The Apache POI DataFormat object
-     * @param pattern The format pattern string to apply
+     * @param pattern    The format pattern string to apply
      * @return A new ExcelDataFormater instance
      */
     public static ExcelDataFormater of(DataFormat dataFormat, String pattern) {

@@ -260,7 +260,8 @@ public class ColumnInfoMapper {
     private ColumnInfo getColumnInfo(ExcelColumn excelColumn, Class<?> fieldType,
         String fieldName) {
         //Get cell type for column
-        ColumnDataType columnDataType = getcolumnDataType(excelColumn.columnCellType(), fieldType, fieldName);
+        ColumnDataType columnDataType = getcolumnDataType(excelColumn.columnCellType(), fieldType,
+            fieldName);
 
         //Set Cell style
         CellStyle headerStyle = updateCellStyle(excelColumn.headerStyle(), defaultHeaderStyle);
@@ -285,7 +286,7 @@ public class ColumnInfoMapper {
      * Applies automatic formatting if the {@link DataFormatStrategy} is
      * {@link DataFormatStrategy#AUTO_BY_CELL_TYPE} by {@link ColumnDataType}.
      *
-     * @param pattern  The format pattern specified in the annotation
+     * @param pattern        The format pattern specified in the annotation
      * @param columnDataType The {@link ColumnDataType}
      * @return An {@link ExcelDataFormater} for the cell
      */
@@ -307,10 +308,11 @@ public class ColumnInfoMapper {
      * and the {@link CellTypeStrategy}.
      *
      * @param columnColumnDataType The {@link ColumnDataType} specified in the annotation
-     * @param fieldType      The type of the field
-     * @param fieldName      The name of the field
+     * @param fieldType            The type of the field
+     * @param fieldName            The name of the field
      * @return The appropriate {@link ColumnDataType}
-     * @throws ExcelException If the specified {@link ColumnDataType} is not compatible with the field
+     * @throws ExcelException If the specified {@link ColumnDataType} is not compatible with the
+     *                        field
      *                        type
      */
     private ColumnDataType getcolumnDataType(ColumnDataType columnColumnDataType,
@@ -318,7 +320,8 @@ public class ColumnInfoMapper {
         // When cell type strategy is AUTO and column cell type is not specified
         // or when column cell type is AUTO,
         // the column's cell type is automatically determined based on the field type.
-        if ((cellTypeStrategy.isAuto() && columnColumnDataType.isNone()) || columnColumnDataType.isAuto()) {
+        if ((cellTypeStrategy.isAuto() && columnColumnDataType.isNone())
+            || columnColumnDataType.isAuto()) {
             return ColumnDataType.from(fieldType);
         }
 

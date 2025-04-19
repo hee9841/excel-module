@@ -7,20 +7,20 @@ import java.util.List;
 
 /**
  * ExcelExporter is a concrete implementation of {@link SXSSFExcelFile} that provides functionality
- * for exporting data to Excel files. This class uses the SXSSFWorkbook from Apache POI for efficient
+ * for exporting data to Excel files. This class uses the SXSSFWorkbook from Apache POI for
+ * efficient
  * handling of large datasets by streaming data to disk.
- * 
+ *
  * <p>The ExcelExporter supports two sheet management strategies:</p>
  * <ul>
  *     <li>ONE_SHEET - All data is exported to a single sheet (limited by max rows per sheet)</li>
  *     <li>MULTI_SHEET - Data is split across multiple sheets when exceeding max rows per sheet</li>
  * </ul>
- * 
+ *
  * <p>Use the {@link ExcelExporterBuilder} to configure and instantiate this class.</p>
- * 
+ *
  * @param <T> The type of data to be exported to Excel. The type must be annotated appropriately
- *           for Excel column mapping using the library's annotation system.
- * 
+ *            for Excel column mapping using the library's annotation system.
  * @see SXSSFExcelFile
  * @see ExcelExporterBuilder
  * @see SheetStrategy
@@ -45,7 +45,7 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
 
     /**
      * Constructs an ExcelExporter with the specified configuration.
-     * 
+     *
      * <p>This constructor is not meant to be called directly. Use {@link ExcelExporterBuilder}
      * to create instances of ExcelExporter.</p>
      *
@@ -108,7 +108,7 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
 
     /**
      * Creates the Excel file with the provided data.
-     * 
+     *
      * <p>This method handles the creation of sheets and rows based on the data:</p>
      * <ul>
      *   <li>If the data is empty, it creates a sheet with headers only</li>
@@ -133,10 +133,10 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
 
     /**
      * Adds rows to the current sheet for the provided data list.
-     * 
+     *
      * <p>If the number of rows exceeds the maximum allowed per sheet and the sheet strategy
      * is MULTI_SHEET, a new sheet will be created to continue adding rows.</p>
-     * 
+     *
      * <p>If the sheet strategy is ONE_SHEET and the data size exceeds the maximum rows per sheet,
      * an ExcelException will be thrown.</p>
      *
@@ -181,9 +181,10 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
 
     /**
      * Creates a new sheet with headers.
-     * 
+     *
      * <p>This method resets the current row index, creates a new sheet, and adds headers to it.
-     * If a sheet name is provided, it will be used as a base name with an index(index starts from 0) suffix.</p>
+     * If a sheet name is provided, it will be used as a base name with an index(index starts from
+     * 0) suffix.</p>
      */
     private void createNewSheetWithHeader() {
         currentRowIndex = ROW_START_INDEX;

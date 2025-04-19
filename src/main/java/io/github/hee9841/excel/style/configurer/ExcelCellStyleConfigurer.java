@@ -11,14 +11,14 @@ import org.apache.poi.ss.usermodel.CellStyle;
 /**
  * A configurer class that aggregates different style components (color, alignment, border)
  * and applies them to an Excel cell style.
- * 
+ *
  * <p>This class follows the builder pattern, allowing clients to set individual style
  * components separately. Each component defaults to a no-option implementation if not
  * explicitly set.</p>
- * 
+ *
  * <p>The configurer acts as a central point for applying multiple style components
  * to an Apache POI CellStyle in a consistent manner.</p>
- * 
+ *
  * @see io.github.hee9841.excel.style.CustomExcelCellStyle
  * @see io.github.hee9841.excel.style.color.ExcelColor
  * @see io.github.hee9841.excel.style.align.ExcelAlign
@@ -30,7 +30,7 @@ public class ExcelCellStyleConfigurer {
     private ExcelAlign excelAlign = new NoExcelAlign();
     private ExcelBorder excelBorder = new NoExcelBorder();
 
-    
+
     public ExcelCellStyleConfigurer() {
     }
 

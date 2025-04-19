@@ -61,6 +61,7 @@ class ColumnInfoMapperTest {
         //given
         @Excel
         class TestDto {
+
             String id;
         }
 
@@ -166,8 +167,8 @@ class ColumnInfoMapperTest {
             assertEquals("삼", map.get(2).getHeaderName());
         }
 
-        @Nested
         @DisplayName("column index mapping 예외")
+        @Nested
         class ColumnIdxMappingException {
 
 

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MemoryAppender extends ListAppender<ILoggingEvent> {
+
     public void reset() {
         this.list.clear();
     }
@@ -49,7 +50,7 @@ public class MemoryAppender extends ListAppender<ILoggingEvent> {
     }
 
     public boolean isPresent(int sequence, String string, Level level) {
-        if (list.size() -1 < sequence) {
+        if (list.size() - 1 < sequence) {
             return false;
         }
 

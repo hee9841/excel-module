@@ -5,7 +5,8 @@ import io.github.hee9841.excel.meta.ColumnDataType;
 /**
  * Strategy enum that determines how data formatting is applied to Excel cells.
  * <p>
- * This enum defines strategies for controlling how cell formatting patterns are determined and applied during
+ * This enum defines strategies for controlling how cell formatting patterns are determined and
+ * applied during
  * Excel export operations. It works in conjunction with the {@link ColumnDataType}
  * to apply appropriate formatting to different types of data.
  * <p>
@@ -21,7 +22,7 @@ import io.github.hee9841.excel.meta.ColumnDataType;
  * <p>
  * This strategy is typically configured at the class level using the {@link io.github.hee9841.excel.annotation.Excel}
  * annotation and affects all columns unless overridden at the column level.
- * 
+ *
  * @see io.github.hee9841.excel.annotation.Excel#dataFormatStrategy()
  * @see ColumnDataType
  * @see io.github.hee9841.excel.format.ExcelDataFormater
@@ -33,11 +34,12 @@ public enum DataFormatStrategy {
      * <p>
      * With this strategy, the format pattern must be explicitly specified in the
      * {@link io.github.hee9841.excel.annotation.ExcelColumn} annotation using the
-     * {@code format} parameter. If no format is specified, the default format({@link io.github.hee9841.excel.format.CellFormats#_NONE}) for
+     * {@code format} parameter. If no format is specified, the default
+     * format({@link io.github.hee9841.excel.format.CellFormats#_NONE}) for
      * the data type will be used.
      */
     NONE,
-    
+
     /**
      * Automatic formatting is applied based on the cell type.
      * <p>
@@ -46,7 +48,8 @@ public enum DataFormatStrategy {
      * pattern defined for each {@link ColumnDataType} to format
      * the cell appropriately for its data type.
      * <p>
-     * Note: If a format pattern is explicitly specified in the {@link io.github.hee9841.excel.annotation.ExcelColumn}
+     * Note: If a format pattern is explicitly specified in the
+     * {@link io.github.hee9841.excel.annotation.ExcelColumn}
      * annotation, it will take precedence over the automatic format.
      */
     AUTO_BY_CELL_TYPE,

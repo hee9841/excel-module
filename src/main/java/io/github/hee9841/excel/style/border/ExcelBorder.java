@@ -6,7 +6,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
  * Interface defining border behavior for Excel cells.
  * Implementations of this interface provide different strategies for
  * applying border styles to Excel cell styles.
- * 
+ *
  * @see io.github.hee9841.excel.style.border.DefaultExcelBorder
  */
 public interface ExcelBorder {

@@ -32,7 +32,8 @@ public @interface ExcelColumnStyle {
 
     /**
      * Specifies the enum constant name to be used for cell styling.
-     * This is only used when {@link #cellStyleClass()} is an enum class that implements ExcelCellStyle.
+     * This is only used when {@link #cellStyleClass()} is an enum class
+     * that implements ExcelCellStyle.
      * The enum constant with this name will determine the cell style.
      * Default is an empty string which means no enum-based styling is applied.
      *

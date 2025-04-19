@@ -6,7 +6,9 @@ package io.github.hee9841.excel.format;
  */
 public class CellFormats {
 
-    /** General format (no specific formatting applied) */
+    /**
+     * General format (no specific formatting applied)
+     */
     public static final String _NONE = "General";
 
     public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
