@@ -144,11 +144,16 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
      */
     @Override
     public void write(OutputStream stream) throws IOException {
+        if (stream == null) {
+            throw new ExcelException("Output stream is null.");
+        }
         logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
+        
         try (SXSSFWorkbook autoCloseableWb = this.workbook;
             OutputStream autoCloseableStream = stream) {
             autoCloseableWb.write(autoCloseableStream);
+            logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName); 
         }
-        logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
     }
+
 }
