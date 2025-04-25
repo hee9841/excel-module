@@ -19,7 +19,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
  * Enumeration of predefined Excel cell alignment options.
  * Provides common combinations of horizontal and vertical alignments
  * for Excel cells. Each enum constant represents a specific alignment configuration.
- * 
+ *
  * <pre>
  * The enum names follow the pattern of "{HORIZONTAL}_{VERTICAL}" to clearly indicate
  * the alignment combination (e.g. LEFT_CENTER means horizontally left-aligned and
@@ -27,7 +27,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
  * </pre>
  */
 public enum DefaultExcelAlign implements ExcelAlign {
-    
+
     GENERAL_CENTER(HORIZONTAL_GENERAL, VERTICAL_CENTER),
     LEFT_CENTER(HORIZONTAL_LEFT, VERTICAL_CENTER),
     CENTER_CENTER(HORIZONTAL_CENTER, VERTICAL_CENTER),

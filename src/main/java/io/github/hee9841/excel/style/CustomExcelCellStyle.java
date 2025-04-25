@@ -5,13 +5,13 @@ import org.apache.poi.ss.usermodel.CellStyle;
 
 /**
  * Abstract base class implementing the ExcelCellStyle interface using the Template Method pattern.
- * 
+ *
  * <p>This class provides a structured approach to define cell styles by delegating
  * the configuration details to subclasses while handling the common application logic.</p>
- * 
+ *
  * <p>Subclasses need to implement the {@link #configure(ExcelCellStyleConfigurer)} method
  * to define specific style configurations (colors, borders, alignment, etc.).</p>
- * 
+ *
  * @see io.github.hee9841.excel.style.ExcelCellStyle
  * @see io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer
  */

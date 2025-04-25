@@ -5,7 +5,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 /**
  * Implementation of ExcelBorder that allows for configuring individual border styles
  * for each side of an Excel cell (top, bottom, left, right).
- * 
+ *
  * <pre>
  * This class provides multiple ways to create border configurations:
  * - Static factory method for applying the same border style to all sides
@@ -130,9 +130,17 @@ public class DefaultExcelBorder implements ExcelBorder {
      */
     @Override
     public void applyAllBorder(CellStyle cellStyle) {
-        if (top != null) cellStyle.setBorderTop(top.getBorderStyle());
-        if (bottom != null) cellStyle.setBorderBottom(bottom.getBorderStyle());
-        if (left != null) cellStyle.setBorderLeft(left.getBorderStyle());
-        if (right != null) cellStyle.setBorderRight(right.getBorderStyle());
+        if (top != null) {
+            cellStyle.setBorderTop(top.getBorderStyle());
+        }
+        if (bottom != null) {
+            cellStyle.setBorderBottom(bottom.getBorderStyle());
+        }
+        if (left != null) {
+            cellStyle.setBorderLeft(left.getBorderStyle());
+        }
+        if (right != null) {
+            cellStyle.setBorderRight(right.getBorderStyle());
+        }
     }
 }

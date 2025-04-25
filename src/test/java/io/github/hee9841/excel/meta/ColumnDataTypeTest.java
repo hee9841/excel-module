@@ -22,8 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ColumnDataTypeTest {
 
 
-    @Test
     @DisplayName("from 메서드는 필드 타입에 맞는 CellType을 반환해야 한다")
+    @Test
     void from_ShouldReturnMatchingCellType() {
         //NUMBER
         assertEquals(ColumnDataType.NUMBER, ColumnDataType.from(Integer.class));
@@ -57,15 +57,15 @@ class ColumnDataTypeTest {
         assertEquals(ColumnDataType.LOCAL_DATE_TIME, ColumnDataType.from(LocalDateTime.class));
     }
 
-    @Test
     @DisplayName("지원하지 않는 타입에 대해 from 메서드는 _NONE을 반환해야 한다")
+    @Test
     void from_ShouldReturnNoneForUnsupportedType() {
         // given & when & then
         assertEquals(ColumnDataType._NONE, ColumnDataType.from(Object.class));
     }
 
-    @Test
     @DisplayName("CellType의 허용된 타입에 필드 타입이 있을경우, 해당 CellType을 반환해야한다.")
+    @Test
     void shouldReturnTargetCellTypeWhenMatched() {
         assertEquals(ColumnDataType.NUMBER,
             ColumnDataType.findMatchingCellType(Integer.class, ColumnDataType.NUMBER));
@@ -78,8 +78,8 @@ class ColumnDataTypeTest {
             ColumnDataType.findMatchingCellType(String.class, ColumnDataType.FORMULA));
     }
 
-    @Test
     @DisplayName("필드 타입과 CellType이 일치하지 않으면 _NONE을 반환해야 한다")
+    @Test
     void shouldReturnNoneWhenNotMatched() {
         // given & when & then
         assertEquals(ColumnDataType._NONE,

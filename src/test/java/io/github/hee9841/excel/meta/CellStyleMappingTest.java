@@ -15,9 +15,9 @@ import io.github.hee9841.excel.style.align.CustomExcelAlign;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
 import io.github.hee9841.excel.style.align.ExcelAlign;
 import io.github.hee9841.excel.style.align.alignment.ExcelHorizontalAlignment;
-import io.github.hee9841.excel.style.border.ExcelBorderStyle;
 import io.github.hee9841.excel.style.border.DefaultExcelBorder;
 import io.github.hee9841.excel.style.border.ExcelBorder;
+import io.github.hee9841.excel.style.border.ExcelBorderStyle;
 import io.github.hee9841.excel.style.color.ColorPalette;
 import io.github.hee9841.excel.style.color.ExcelColor;
 import io.github.hee9841.excel.style.color.PaletteExcelColor;
@@ -173,8 +173,8 @@ public class CellStyleMappingTest {
     }
 
 
-    @Nested
     @DisplayName("CellStyle Mapping 예외 테스트")
+    @Nested
     class CellStyleExceptionTest {
 
         @DisplayName("CellStyle이 Enum class일때, enum 값이 존재하지 않으면 예외 발생")
@@ -361,7 +361,8 @@ public class CellStyleMappingTest {
         @Override
         public void configure(ExcelCellStyleConfigurer configurer) {
             configurer.excelColor(PaletteExcelColor.of(ColorPalette.BLACK));
-            configurer.excelAlign(CustomExcelAlign.from(ExcelHorizontalAlignment.HORIZONTAL_CENTER));
+            configurer.excelAlign(
+                CustomExcelAlign.from(ExcelHorizontalAlignment.HORIZONTAL_CENTER));
             configurer.excelBorder(DefaultExcelBorder.all(ExcelBorderStyle.THIN));
         }
     }

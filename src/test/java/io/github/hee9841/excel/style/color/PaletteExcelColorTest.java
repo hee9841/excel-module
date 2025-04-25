@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 
 class PaletteExcelColorTest {
 
-    @Test
     @DisplayName("applyBackground() 메소드는 CellStyle에 올바른 색상과 패턴을 적용해야 한다")
+    @Test
     void applyBackground_ShouldSetCorrectColorAndPattern() throws IOException {
         // given
         ColorPalette color = ColorPalette.BLUE;

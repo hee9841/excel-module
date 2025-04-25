@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -21,6 +22,7 @@ class DefaultExcelAlignTest {
     private CellStyle cellStyle;
 
 
+    @DisplayName("DefaultExcelAlign 클래스의 applyAlign 메서드는 주어진 정렬 타입에 따라 CellStyle의 정렬 방식을 설정한다.")
     @ParameterizedTest
     @MethodSource("generateAlignData")
     void alignApplyShouldSetCorrectAlignment(

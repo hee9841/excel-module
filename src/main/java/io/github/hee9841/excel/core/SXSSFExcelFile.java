@@ -18,8 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract base class for Excel file operations using Apache POI's SXSSF (Streaming XML Spreadsheet Format).
- * This class provides the core functionality for handling Excel files with streaming support for large datasets.
+ * Abstract base class for Excel file operations using Apache POI's SXSSF (Streaming XML Spreadsheet
+ * Format).
+ * This class provides the core functionality for handling Excel files with streaming support for
+ * large datasets.
  *
  * <p>Key features:</p>
  * <ul>
@@ -83,7 +85,8 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
 
     /**
      * Creates the Excel file with the provided data.
-     * This method must be implemented by subclasses to define their specific sheet management strategy.
+     * This method must be implemented by subclasses to define their specific sheet management
+     * strategy.
      *
      * @param data The list of data objects to be exported
      */
@@ -92,7 +95,7 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
     /**
      * Creates headers for a new sheet using the column mapping information.
      *
-     * @param newSheet The sheet to add headers to
+     * @param newSheet      The sheet to add headers to
      * @param startRowIndex The row index where headers should start
      */
     protected void createHeaderWithNewSheet(Sheet newSheet, Integer startRowIndex) {
@@ -110,7 +113,7 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
      * Creates a row in the Excel sheet for the given data object.
      * This method handles field access and cell value setting based on column mapping information.
      *
-     * @param data The data object to create a row for
+     * @param data     The data object to create a row for
      * @param rowIndex The index of the row to create
      * @throws ExcelException if field access fails
      */
@@ -144,11 +147,16 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
      */
     @Override
     public void write(OutputStream stream) throws IOException {
+        if (stream == null) {
+            throw new ExcelException("Output stream is null.");
+        }
         logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
+
         try (SXSSFWorkbook autoCloseableWb = this.workbook;
             OutputStream autoCloseableStream = stream) {
             autoCloseableWb.write(autoCloseableStream);
+            logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
         }
-        logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
     }
+
 }

@@ -6,7 +6,7 @@ import io.github.hee9841.excel.meta.ColumnDataType;
  * Strategy enum that determines how cell types are assigned in Excel sheets.
  * <p>
  * This enum defines strategies for determining the data type and format of cells
- * when exporting data to Excel. It works in conjunction with the 
+ * when exporting data to Excel. It works in conjunction with the
  * {@link ColumnDataType} enum to control how different Java types
  * are represented in Excel.
  * </p>
@@ -16,20 +16,20 @@ import io.github.hee9841.excel.meta.ColumnDataType;
  *   <li>{@code AUTO}: Cell types are automatically determined based on the Java type of each field.</li>
  * </ul>
  * <p>
- * This strategy is typically configured at the class level using the 
+ * This strategy is typically configured at the class level using the
  * {@link io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()} annotation parameter and
- * can be overridden at the column level using 
+ * can be overridden at the column level using
  * {@link io.github.hee9841.excel.annotation.ExcelColumn#columnCellType()}.
  * </p>
  * When used with {@link DataFormatStrategy#AUTO_BY_CELL_TYPE}, it also affects how data formatting
  * is applied to cells.
- * 
+ *
  * @see io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()
  * @see io.github.hee9841.excel.annotation.ExcelColumn#columnCellType()
  * @see ColumnDataType
  * @see io.github.hee9841.excel.meta.ColumnInfoMapper
  * @see DataFormatStrategy
- */ 
+ */
 public enum CellTypeStrategy {
     /**
      * Strategy that does not apply any cell type.
@@ -40,7 +40,7 @@ public enum CellTypeStrategy {
      * </p>
      */
     NONE,
-    
+
     /**
      * Strategy that automatically determines cell types based on field types.
      * <p>
@@ -49,7 +49,7 @@ public enum CellTypeStrategy {
      * representation, especially for complex types or when specific formatting is required.
      * </p>
      * <p>
-     * The automatic cell type determination is performed by the 
+     * The automatic cell type determination is performed by the
      * {@link io.github.hee9841.excel.meta.ColumnInfoMapper} class.
      * If you want to specify the cell type for a specific column, you can use the
      * {@link io.github.hee9841.excel.annotation.ExcelColumn#columnCellType()} parameter.
