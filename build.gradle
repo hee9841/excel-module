@@ -11,7 +11,11 @@ plugins {
 }
 
 group = 'io.github.hee9841.excel'
-version = '0.0.0'
+version = '0.0.1'
+
+repositories {
+    mavenCentral()
+}
 
 java {
     toolchain {
@@ -22,20 +26,9 @@ java {
 
 compileJava {
     options.release = 8
+    options.compilerArgs += ["-Xlint:-options"]
 }
 
-javadoc {
-    options {
-        encoding = 'UTF-8'
-        charSet = 'UTF-8'
-        addStringOption('Xdoclint:none', '-quiet')
-    }
-}
-
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     //poi
@@ -61,6 +54,15 @@ test {
 }
 
 
+javadoc {
+    options {
+        encoding = 'UTF-8'
+        charSet = 'UTF-8'
+        addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
+
 signing {
     useInMemoryPgpKeys(
             System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKey"),
@@ -70,15 +72,18 @@ signing {
     sign publishing.publications
 }
 
+var groupId = "io.github.hee9841"
+var artifactId = "excel-module"
+
 mavenPublishing {
     configure(new JavaLibrary(new JavadocJar.Javadoc(), true))
     signAllPublications()
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-    coordinates("io.github.hee9841", "excel-module", version)
+    coordinates(groupId, artifactId, version)
 
     pom {
-        name = "excel-module"
+        name = artifactId
         description = "A Java library that helps you work with Excel files easily."
         inceptionYear = "2025"
         url = "https://github.com/hee9841/excel-module"
@@ -119,5 +124,5 @@ tasks.jacocoTestReport {
 }
 
 tasks.coveralls {
-    dependsOn tasks.jacocoTestReport // 테스트 리포트가 먼저 실행되도록 설정
+    dependsOn tasks.jacocoTestReport // Ensure test report runs first
 }
