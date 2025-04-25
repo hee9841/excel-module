@@ -9,12 +9,17 @@ A Java library that helps you work with Excel files easily.
 
 ## Table of Contents
 - [Excel Module](#excel-module)
+  - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Requirements](#requirements)
   - [Installation](#installation)
     - [Gradle](#gradle)
   - [Quick Start](#quick-start)
   - [Features \& Specifications](#features--specifications)
+    - [Core Features](#core-features)
+    - [Annotations](#annotations)
+    - [Custom Cell Styling Options\*\*](#custom-cell-styling-options)
+    - [Strategies](#strategies)
   - [Annotations](#annotations-1)
     - [@Excel (Class Level)](#excel-class-level)
     - [@ExcelColumn (Field Level)](#excelcolumn-field-level)
@@ -46,7 +51,7 @@ This library is based on Apache POI and helps you to easily map Java DTO (Data T
 
 ## Requirements
 
-- Java 11 or higher recommended (Java 8 compatible)
+- Java 8 or higher (Java 23 supported)
 
 ## Installation
 
@@ -54,7 +59,10 @@ This library is based on Apache POI and helps you to easily map Java DTO (Data T
 
 ```gradle
 dependencies {
-    implementation 'io.github.hee9841.excel:excel-module:0.0.0'
+    implementation 'io.github.hee9841.excel:excel-module:0.0.1'
+    
+    // Using annotationProcessor allows you to detect Excel annotation-related errors at compile time
+    annotationProcessor 'io.github.hee9841.excel:excel-module:0.0.1'
 }
 ```
 
@@ -99,7 +107,7 @@ List<Product> products = Arrays.asList(
 // 3. Export to Excel
 ExcelExporter<Product> exporter = ExcelExporter.builder(Product.class, products)
     .sheetStrategy(SheetStrategy.MULTI_SHEET) // Optional, MULTI_SHEET is default
-    .maxRows(100)   // Optional, Mas row of SpreadsheetVersion.EXCEL2007 is default
+    .maxRows(100)   // Optional, Max row of SpreadsheetVersion.EXCEL2007 is default
     .sheetName("Products") // Optional, if not specified sheets will be named Sheet0, Sheet1, etc.
     .build();
 
@@ -330,7 +338,8 @@ A: Only if you're using `ColumnIndexStrategy.USER_DEFINED`. If you use `FIELD_OR
 
 ## API Documentation
 
-The complete API documentation is available at [Javadoc](https://hee9841.github.io/excel-module/javadoc/).
+The complete API documentation is available at [Javadoc](https://hee9841.github.io/excel-module/javadoc/).</br>
+For the latest version, please check the [GitHub repository](https://github.com/hee9841/excel-module).
 
 ## License
 
@@ -340,4 +349,6 @@ This project is licensed under the Apache License 2.0.
 
 Project Maintainer - [@hee9841](https://github.com/hee9841)
 
-Project Link: [https://github.com/hee9841/excel-module](https://github.com/hee9841/excel-module) 
+Project Link: [https://github.com/hee9841/excel-module](https://github.com/hee9841/excel-module)
+
+Issues and Pull Requests: [https://github.com/hee9841/excel-module/issues](https://github.com/hee9841/excel-module/issues) 
