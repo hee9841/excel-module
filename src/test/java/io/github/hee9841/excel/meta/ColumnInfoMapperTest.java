@@ -61,6 +61,7 @@ class ColumnInfoMapperTest {
         //given
         @Excel
         class TestDto {
+
             String id;
         }
 
@@ -166,8 +167,8 @@ class ColumnInfoMapperTest {
             assertEquals("삼", map.get(2).getHeaderName());
         }
 
-        @Nested
         @DisplayName("column index mapping 예외")
+        @Nested
         class ColumnIdxMappingException {
 
 
@@ -256,7 +257,7 @@ class ColumnInfoMapperTest {
     }
 
     @Nested
-    class CellTypeMappingTest {
+    class ColumnDataTypeMappingTest {
 
         @DisplayName("필드의 타입과 맞지 않는 타입을 지정했을 경우, 예외 발생")
         @Test
@@ -266,7 +267,7 @@ class ColumnInfoMapperTest {
             class TestDto {
 
                 @ExcelColumn(headerName = "first",
-                    columnCellType = CellType.NUMBER
+                    columnCellType = ColumnDataType.NUMBER
                 )
                 String firsField;
             }
@@ -277,7 +278,10 @@ class ColumnInfoMapperTest {
                 ExcelException.class, columnInfoMapper::map);
             //then
             assertTrue(
-                exception.getMessage().contains("Invalid cell type : The cell type of field"));
+                exception.getMessage().contains("Invalid cell type : The cell type of "));
+
+            assertTrue(
+                exception.getMessage().contains("is not compatible with the specified cell type"));
 
         }
 
@@ -297,22 +301,22 @@ class ColumnInfoMapperTest {
 
                 switch (columnInfo.getHeaderName()) {
                     case "numberField":
-                        assertEquals(CellType.NUMBER, columnInfo.getColumnType());
+                        assertEquals(ColumnDataType.NUMBER, columnInfo.getColumnType());
                         break;
                     case "stringField":
-                        assertEquals(CellType.STRING, columnInfo.getColumnType());
+                        assertEquals(ColumnDataType.STRING, columnInfo.getColumnType());
                         break;
                     case "boolField":
-                        assertEquals(CellType.BOOLEAN, columnInfo.getColumnType());
+                        assertEquals(ColumnDataType.BOOLEAN, columnInfo.getColumnType());
                         break;
                     case "dateField":
-                        assertEquals(CellType.DATE, columnInfo.getColumnType());
+                        assertEquals(ColumnDataType.DATE, columnInfo.getColumnType());
                         break;
                     case "localDateField":
-                        assertEquals(CellType.LOCAL_DATE, columnInfo.getColumnType());
+                        assertEquals(ColumnDataType.LOCAL_DATE, columnInfo.getColumnType());
                         break;
                     case "localDateTimeField":
-                        assertEquals(CellType.LOCAL_DATE_TIME, columnInfo.getColumnType());
+                        assertEquals(ColumnDataType.LOCAL_DATE_TIME, columnInfo.getColumnType());
                         break;
                 }
             }
@@ -334,7 +338,7 @@ class ColumnInfoMapperTest {
                 .of(TestDto.class, wb).map();
 
             //then
-            assertEquals(CellType._NONE, map.get(0).getColumnType());
+            assertEquals(ColumnDataType._NONE, map.get(0).getColumnType());
         }
     }
 
@@ -425,25 +429,25 @@ class ColumnInfoMapperTest {
 
 
                 //3. cell type is auto and format is none -> cell type의 값으로
-                @ExcelColumn(headerName = "dateFormat", columnCellType = CellType.AUTO)
+                @ExcelColumn(headerName = "dateFormat", columnCellType = ColumnDataType.AUTO)
                 private LocalDate cellAutoNoneFormatLocalDate;
 
-                @ExcelColumn(headerName = "dateTImeFormat", columnCellType = CellType.AUTO)
+                @ExcelColumn(headerName = "dateTImeFormat", columnCellType = ColumnDataType.AUTO)
                 private LocalDateTime cellAutoNoneFormatLocalDateTime;
 
 
                 //4. cell type is auto and format is specific -> 지정한 값으로
-                @ExcelColumn(headerName = "yyyy.MM.dd", columnCellType = CellType.AUTO,
+                @ExcelColumn(headerName = "yyyy.MM.dd", columnCellType = ColumnDataType.AUTO,
                     format = "yyyy.MM.dd"
                 )
                 private LocalDate cellAutoSpecificFormatLocalDate;
 
-                @ExcelColumn(headerName = "MM.dd.yy(HH:mm:ss)", columnCellType = CellType.AUTO,
+                @ExcelColumn(headerName = "MM.dd.yy(HH:mm:ss)", columnCellType = ColumnDataType.AUTO,
                     format = "MM.dd.yy(HH:mm:ss)"
                 )
                 private LocalDateTime cellAutoSpecificFormatLocalDateTime;
 
-                @ExcelColumn(headerName = "won", columnCellType = CellType.AUTO,
+                @ExcelColumn(headerName = "won", columnCellType = ColumnDataType.AUTO,
                     format = CellFormats.KR_WON_FORMAT
                 )
                 private Integer wonDataFormat2;

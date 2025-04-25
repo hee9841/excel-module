@@ -6,7 +6,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
  * Interface defining alignment behavior for Excel cells.
  * Implementations of this interface provide different strategies for
  * applying horizontal and vertical alignment to Excel cell styles.
- * 
+ *
  * @see io.github.hee9841.excel.style.align.DefaultExcelAlign
  * @see io.github.hee9841.excel.style.align.CustomExcelAlign
  */

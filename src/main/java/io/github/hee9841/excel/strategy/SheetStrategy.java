@@ -16,10 +16,10 @@ import org.apache.commons.compress.archivers.zip.Zip64Mode;
  * The Zip64 mode affects how Apache POI handles large Excel files:
  * <ul>
  *   <li>{@code ONE_SHEET}: Uses {@code AsNeeded} mode, which only enables Zip64 extensions when required</li>
- *   <li>{@code MULTI_SHEET}: Uses {@code Always} mode, which always enables Zip64 extensions for better 
+ *   <li>{@code MULTI_SHEET}: Uses {@code Always} mode, which always enables Zip64 extensions for better
  *       handling of multiple sheets</li>
  * </ul>
- * 
+ *
  * @see org.apache.commons.compress.archivers.zip.Zip64Mode
  * @see io.github.hee9841.excel.annotation.Excel
  */
@@ -30,7 +30,7 @@ public enum SheetStrategy {
      * This is more efficient for smaller datasets that fit within a single sheet.
      */
     ONE_SHEET(AsNeeded),
-    
+
     /**
      * Strategy for exporting data across multiple sheets.
      * Uses the {@code Always} Zip64 mode which always enables Zip64 extensions.

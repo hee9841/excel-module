@@ -10,8 +10,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import io.github.hee9841.excel.annotation.Excel;
-import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.annotation.ExcelColumn;
+import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.example.dto.TypeAutoDto;
 import io.github.hee9841.excel.example.style.EnumCellStyleExample;
 import io.github.hee9841.excel.exception.ExcelException;
@@ -22,8 +22,8 @@ import io.github.hee9841.excel.strategy.DataFormatStrategy;
 import io.github.hee9841.excel.strategy.SheetStrategy;
 import io.github.hee9841.excel.style.CustomExcelCellStyle;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
-import io.github.hee9841.excel.style.color.IndexedColors;
-import io.github.hee9841.excel.style.color.IndexedExcelColor;
+import io.github.hee9841.excel.style.color.ColorPalette;
+import io.github.hee9841.excel.style.color.PaletteExcelColor;
 import io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -79,9 +79,34 @@ class ExcelExporterByteOutputStreamTest {
         os.close();
     }
 
-
+    @DisplayName("data의 크기가 maxRows를 넘기고 ONE_SHEET 전략일 경우, build 시 오류를 발생한다.")
     @Test
+    void dataSizeExceedMaxRowsThrowsException() {
+        // given
+        List<TestDto> data = new ArrayList<>();
+        // Create more data items than the maxRows limit
+        for (int i = 0; i < 11; i++) {
+            data.add(new TestDto("test" + (i + 1), i + 1));
+        }
+        int maxRows = 10; // Set maxRows to 10, which is less than the data size
+
+        // when & then
+        ExcelException exception = assertThrows(ExcelException.class, () ->
+            ExcelExporter.builder(TestDto.class, data)
+                .maxRows(maxRows)
+                .sheetStrategy(
+                    SheetStrategy.ONE_SHEET) // Force ONE_SHEET strategy to ensure exception is thrown
+                .build()
+        );
+
+        // Verify the exception message
+        assertTrue(exception.getMessage()
+            .contains("The data size exceeds the maximum number of rows allowed per sheet"));
+    }
+
+
     @DisplayName("엑셀 시트 버전의 최대 행을 넘는 max row 값을 설정할 수 없다.")
+    @Test
     void cannotExceedMaxRowOfImplementation() {
         //given
         List<TestDto> data = new ArrayList<>();
@@ -98,8 +123,8 @@ class ExcelExporterByteOutputStreamTest {
             .contains("cannot exceed the supplied Excel sheet version's maximum row"));
     }
 
-    @Test
     @DisplayName("엑셀 파일 생성 성공 시, log가 순서대로 생성되어야한다.")
+    @Test
     void validateLogSequence() throws IOException {
         // given
         List<TestDto> data = new ArrayList<>();
@@ -113,11 +138,11 @@ class ExcelExporterByteOutputStreamTest {
 
         //then
         assertEquals(8, memoryAppender.getSize());
-        assertTrue(memoryAppender.isPresent(0, "Initialize", Level.INFO));
-        assertTrue(memoryAppender.isPresent(1, "Mapping", Level.DEBUG));
-        assertTrue(memoryAppender.isPresent(2,
-            "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode:Always.",
+        assertTrue(memoryAppender.isPresent(0,
+            "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode: Always.",
             Level.DEBUG));
+        assertTrue(memoryAppender.isPresent(1, "Initializing", Level.INFO));
+        assertTrue(memoryAppender.isPresent(2, "Mapping", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(3, "Create new Sheet", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(4, "Add rows data - row:1", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(5, "Add rows data - row:2", Level.DEBUG));
@@ -126,8 +151,8 @@ class ExcelExporterByteOutputStreamTest {
     }
 
 
-    @Test
     @DisplayName("빈 데이터로 엑셀 파일 생성시, 해더만 있는 빈 엑셀 파일을 생성한다.")
+    @Test
     void createEmptyExcelFile() throws IOException {
         // given
         List<TestDto> emptyData = new ArrayList<>();
@@ -158,8 +183,8 @@ class ExcelExporterByteOutputStreamTest {
     @Nested
     class SheetTest {
 
-        @Test
         @DisplayName("multi sheet: 데이터 크기가 최대행을 넘을 때 자동으로 다음 시트를 생성한다.")
+        @Test
         void multiSheetMaxRowsExceedTest() throws IOException {
             // given
             int rowCnt = 18;
@@ -193,7 +218,7 @@ class ExcelExporterByteOutputStreamTest {
 
             assertTrue(memoryAppender
                 .isPresent(
-                    "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode:Always",
+                    "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode: Always",
                     Level.DEBUG)
             );
             assertEquals(rowCnt, memoryAppender.search("Add rows data", Level.DEBUG).size());
@@ -201,8 +226,8 @@ class ExcelExporterByteOutputStreamTest {
 
         }
 
-        @Test
         @DisplayName("one sheet: 데이터가 최대 행 초과 시 예외을 발생한다.")
+        @Test
         void throwExceptionWhenOneSheetAndExceedMaxRows() {
             // given
             List<TestDto> testData = new ArrayList<>();
@@ -224,12 +249,14 @@ class ExcelExporterByteOutputStreamTest {
 
             //
             assertEquals(2, memoryAppender.getSize());
-            assertTrue(memoryAppender.isPresent("Initialize", Level.INFO));
-            assertTrue(memoryAppender.isPresent("Mapping DTO", Level.DEBUG));
+            assertTrue(memoryAppender.isPresent("Initializing", Level.INFO));
+            assertTrue(memoryAppender.isPresent(
+                "Set sheet strategy and Zip64Mode - strategy: ONE_SHEET, Zip64Mode: AsNeeded.",
+                Level.DEBUG));
         }
 
-        @Test
         @DisplayName("시트 이름 지정 시 지정한 이름으로 시트 생성한다.")
+        @Test
         void createSheetWithSpecifiedName() throws IOException {
             //given
             List<TestDto> testData = new ArrayList<>();
@@ -257,9 +284,8 @@ class ExcelExporterByteOutputStreamTest {
         }
     }
 
-
-    @Test
     @DisplayName("Formula 타입인 cell는 함수 값이 적용 되어야한다.")
+    @Test
     void checkFormulaType() throws IOException {
         List<TypeAutoDto> testData = new ArrayList<>();
         int sum = 0;
@@ -307,7 +333,9 @@ class ExcelExporterByteOutputStreamTest {
     void checkEnumType() throws IOException {
         @Excel
         class TestDto {
+
             @ExcelColumn(headerName = "gender")
+            final
             Gender gender;
 
             TestDto() {
@@ -341,7 +369,7 @@ class ExcelExporterByteOutputStreamTest {
             SXSSFWorkbook wb = new SXSSFWorkbook();
             // default header : GREY_25_PERCENT, CENTER_CENTER, ALL_BORDER_THICK
             CellStyle headerStyle = wb.createCellStyle();
-            headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            headerStyle.setFillForegroundColor(ColorPalette.GREY_25_PERCENT.getIndex());
             headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             headerStyle.setAlignment(HorizontalAlignment.CENTER);
             headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -352,7 +380,7 @@ class ExcelExporterByteOutputStreamTest {
 
             //red header : RED, CENTER_CENTER, ALL_BORDER_THICK
             CellStyle redHeaderStyle = wb.createCellStyle();
-            redHeaderStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+            redHeaderStyle.setFillForegroundColor(ColorPalette.RED.getIndex());
             redHeaderStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             redHeaderStyle.setAlignment(HorizontalAlignment.CENTER);
             redHeaderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -363,7 +391,7 @@ class ExcelExporterByteOutputStreamTest {
 
             //DefaultBodyStyle : WHITE, LEFT_BOTTOM
             CellStyle bodyStyle = wb.createCellStyle();
-            bodyStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+            bodyStyle.setFillForegroundColor(ColorPalette.WHITE.getIndex());
             bodyStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             bodyStyle.setAlignment(HorizontalAlignment.LEFT);
             bodyStyle.setVerticalAlignment(VerticalAlignment.BOTTOM);
@@ -485,7 +513,7 @@ class ExcelExporterByteOutputStreamTest {
 
         @Override
         public void configure(ExcelCellStyleConfigurer configurer) {
-            configurer.excelColor(IndexedExcelColor.of(IndexedColors.WHITE));
+            configurer.excelColor(PaletteExcelColor.of(ColorPalette.WHITE));
             configurer.excelAlign(DefaultExcelAlign.LEFT_BOTTOM);
         }
     }

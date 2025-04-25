@@ -5,7 +5,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 /**
  * Implementation of ExcelBorder that allows for configuring individual border styles
  * for each side of an Excel cell (top, bottom, left, right).
- * 
+ *
  * <pre>
  * This class provides multiple ways to create border configurations:
  * - Static factory method for applying the same border style to all sides
@@ -14,10 +14,10 @@ import org.apache.poi.ss.usermodel.CellStyle;
  */
 public class DefaultExcelBorder implements ExcelBorder {
 
-    private final BorderStyle top;
-    private final BorderStyle bottom;
-    private final BorderStyle left;
-    private final BorderStyle right;
+    private final ExcelBorderStyle top;
+    private final ExcelBorderStyle bottom;
+    private final ExcelBorderStyle left;
+    private final ExcelBorderStyle right;
 
     /**
      * Creates a DefaultExcelBorder with the same border style applied to all sides.
@@ -25,7 +25,7 @@ public class DefaultExcelBorder implements ExcelBorder {
      * @param all the border style to apply to all sides
      * @return a new DefaultExcelBorder instance
      */
-    public static DefaultExcelBorder all(BorderStyle all) {
+    public static DefaultExcelBorder all(ExcelBorderStyle all) {
         return new DefaultExcelBorder(all, all, all, all);
     }
 
@@ -40,10 +40,10 @@ public class DefaultExcelBorder implements ExcelBorder {
 
 
     private DefaultExcelBorder(
-        BorderStyle top,
-        BorderStyle bottom,
-        BorderStyle left,
-        BorderStyle right) {
+        ExcelBorderStyle top,
+        ExcelBorderStyle bottom,
+        ExcelBorderStyle left,
+        ExcelBorderStyle right) {
         this.top = top;
         this.bottom = bottom;
         this.left = left;
@@ -63,52 +63,52 @@ public class DefaultExcelBorder implements ExcelBorder {
      */
     public static class Builder {
 
-        private BorderStyle top;
-        private BorderStyle bottom;
-        private BorderStyle left;
-        private BorderStyle right;
+        private ExcelBorderStyle top;
+        private ExcelBorderStyle bottom;
+        private ExcelBorderStyle left;
+        private ExcelBorderStyle right;
 
         /**
          * Sets the border style for the top side.
          *
-         * @param topBorderStyle the border style for the top side
+         * @param topExcelBorderStyle the border style for the top side
          * @return this builder instance
          */
-        public Builder top(BorderStyle topBorderStyle) {
-            this.top = topBorderStyle;
+        public Builder top(ExcelBorderStyle topExcelBorderStyle) {
+            this.top = topExcelBorderStyle;
             return this;
         }
 
         /**
          * Sets the border style for the bottom side.
          *
-         * @param bottomBorderStyle the border style for the bottom side
+         * @param bottomExcelBorderStyle the border style for the bottom side
          * @return this builder instance
          */
-        public Builder bottom(BorderStyle bottomBorderStyle) {
-            this.bottom = bottomBorderStyle;
+        public Builder bottom(ExcelBorderStyle bottomExcelBorderStyle) {
+            this.bottom = bottomExcelBorderStyle;
             return this;
         }
 
         /**
          * Sets the border style for the left side.
          *
-         * @param leftBorderStyle the border style for the left side
+         * @param leftExcelBorderStyle the border style for the left side
          * @return this builder instance
          */
-        public Builder left(BorderStyle leftBorderStyle) {
-            this.left = leftBorderStyle;
+        public Builder left(ExcelBorderStyle leftExcelBorderStyle) {
+            this.left = leftExcelBorderStyle;
             return this;
         }
 
         /**
          * Sets the border style for the right side.
          *
-         * @param rightBorderStyle the border style for the right side
+         * @param rightExcelBorderStyle the border style for the right side
          * @return this builder instance
          */
-        public Builder right(BorderStyle rightBorderStyle) {
-            this.right = rightBorderStyle;
+        public Builder right(ExcelBorderStyle rightExcelBorderStyle) {
+            this.right = rightExcelBorderStyle;
             return this;
         }
 
@@ -130,9 +130,17 @@ public class DefaultExcelBorder implements ExcelBorder {
      */
     @Override
     public void applyAllBorder(CellStyle cellStyle) {
-        if (top != null) cellStyle.setBorderTop(top.getBorderStyle());
-        if (bottom != null) cellStyle.setBorderBottom(bottom.getBorderStyle());
-        if (left != null) cellStyle.setBorderLeft(left.getBorderStyle());
-        if (right != null) cellStyle.setBorderRight(right.getBorderStyle());
+        if (top != null) {
+            cellStyle.setBorderTop(top.getBorderStyle());
+        }
+        if (bottom != null) {
+            cellStyle.setBorderBottom(bottom.getBorderStyle());
+        }
+        if (left != null) {
+            cellStyle.setBorderLeft(left.getBorderStyle());
+        }
+        if (right != null) {
+            cellStyle.setBorderRight(right.getBorderStyle());
+        }
     }
 }

@@ -1,52 +1,123 @@
 package io.github.hee9841.excel.annotation.processor;
 
-import com.google.auto.service.AutoService;
+import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES;
+import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES_STRING;
+
 import io.github.hee9841.excel.annotation.Excel;
+import io.github.hee9841.excel.annotation.ExcelColumn;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 /**
- * Annotation processor for handling {@code @Excel} annotations.
- * This processor validates classes annotated with {@code @Excel} to ensure they meet
+ * Annotation processor for handling {@code @Excel} and {@code @ExcelColumn} annotations.
+ * This processor validates the relationship between these annotations and ensures they meet
  * the required criteria for Excel processing.
  *
- * <p>Supported criteria:
+ * <p>Validation rules:
  * <ul>
- *     <li>Can be applied to regular classes or record classes</li>
- *     <li>Target class must not be abstract</li>
+ *     <li>Classes annotated with {@code @Excel} must have at least one field annotated with {@code @ExcelColumn}</li>
+ *     <li>Fields annotated with {@code @ExcelColumn} must be in a class annotated with {@code @Excel}</li>
+ *     <li>Classes annotated with {@code @Excel} must be either regular classes or record classes</li>
+ *     <li>Regular classes annotated with {@code @Excel} must not be abstract</li>
+ *     <li>Fields annotated with {@code @ExcelColumn} must be of supported types</li>
  * </ul>
+ *
+ * <p>Supported field types for {@code @ExcelColumn}:
+ * <ul>
+ *   <li>String</li>
+ *   <li>Character/char</li>
+ *   <li>Numeric types (Byte, Short, Integer, Long, Float, Double and their primitives)</li>
+ *   <li>Boolean/boolean</li>
+ *   <li>Date/Time types (LocalDate, LocalDateTime, Date, java.sql.Date)</li>
+ *   <li>Enum types</li>
+ * </ul>
+ *
+ * <p>Note: Array types are not supported for {@code @ExcelColumn} fields.
  */
-@AutoService(Processor.class)
-@SupportedAnnotationTypes("io.github.hee9841.excel.annotation.Excel")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedAnnotationTypes({
+    "io.github.hee9841.excel.annotation.Excel",
+    "io.github.hee9841.excel.annotation.ExcelColumn"
+})
 public class ExcelAnnotationProcessor extends AbstractProcessor {
 
     private Messager messager;
+    private Types typeUtils;
+    private Elements elementUtils;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         messager = processingEnv.getMessager();
+        typeUtils = processingEnv.getTypeUtils();
+        elementUtils = processingEnv.getElementUtils();
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         boolean hasError = false;
 
+        // Map to track Excel-annotated classes and their ExcelColumn fields
+        Map<TypeElement, Boolean> excelClasses = new HashMap<>();
+
+        // First pass: collect all Excel-annotated classes
         for (Element element : roundEnv.getElementsAnnotatedWith(Excel.class)) {
+            TypeElement typeElement = (TypeElement) element;
+            excelClasses.put(typeElement, false);
+
             if (!isValidExcelClass(element)) {
+                hasError = true;
+            }
+        }
+
+        // Second pass: validate ExcelColumn annotations
+        for (Element element : roundEnv.getElementsAnnotatedWith(ExcelColumn.class)) {
+            if (!isAllowedType(element)) {
+                hasError = true;
+            }
+
+            TypeElement enclosingClass = (TypeElement) element.getEnclosingElement();
+
+            // Check if the enclosing class has @Excel annotation
+            if (!excelClasses.containsKey(enclosingClass)) {
+                error(element,
+                    "Field %s annotated with @ExcelColumn must be in a class annotated with @Excel",
+                    element.getSimpleName());
+                hasError = true;
+                continue;
+            }
+
+            // Add the ExcelColumn field to the class's set
+            excelClasses.put(enclosingClass, true);
+        }
+
+        // Third pass: check if Excel-annotated classes have at least one ExcelColumn
+        for (Map.Entry<TypeElement, Boolean> entry : excelClasses.entrySet()) {
+            if (!entry.getValue()) {
+                error(entry.getKey(),
+                    "Class %s annotated with @Excel must have at least one field annotated with @ExcelColumn",
+                    entry.getKey().getSimpleName());
                 hasError = true;
             }
         }
@@ -62,18 +133,19 @@ public class ExcelAnnotationProcessor extends AbstractProcessor {
      *     <li>If it's a regular class, it must not be abstract</li>
      * </ul>
      *
-     * @param element the element to validate, typically a class or record annotated with {@code @Excel}
-     * @return true if the element meets all validation criteria, false if any validation fails 
-     *         (error messages will be reported via {@link #error(Element, String, Object...)})
+     * @param element the element to validate, typically a class or record annotated with
+     *                {@code @Excel}
+     * @return true if the element meets all validation criteria, false if any validation fails
+     * (error messages will be reported via {@link #error(Element, String, Object...)})
      * @see Excel
      */
     private boolean isValidExcelClass(Element element) {
-        
+
         // Check for record class in Java 14 and above
         if (element.getKind().name().equals("RECORD")) {
             return true;
         }
-       
+
         if (element.getKind() != ElementKind.CLASS) {
             error(element,
                 "@%s can only be applied to classes or record classes",
@@ -83,7 +155,7 @@ public class ExcelAnnotationProcessor extends AbstractProcessor {
         }
 
         TypeElement typeElement = (TypeElement) element;
-        
+
         // The class must not be an abstract class.
         if (typeElement.getModifiers().contains(Modifier.ABSTRACT)) {
             error(element,
@@ -96,12 +168,78 @@ public class ExcelAnnotationProcessor extends AbstractProcessor {
         return true;
     }
 
+
     /**
-     * Reports an error for the given element.
+     * Checks if the annotated element has an allowed field type.
+     * Validates that the element is a field and checks if its type is either an enum
+     * or one of the supported types defined in ALLOWED_TYPES. Array types are not allowed.
      *
-     * @param e the element for which to report the error
-     * @param msg the error message with format specifiers
-     * @param args arguments referenced by the format specifiers in the message
+     * @param element the element to check
+     * @return true if the element has an allowed type, false otherwise
+     */
+    private boolean isAllowedType(Element element) {
+        // 1.If element is enum type, return true
+        if (!element.getKind().isField()) {
+            error(element, "@ExcelColumn can only be applied to field type");
+            return false;
+        }
+
+        TypeMirror typeMirror = element.asType();
+
+        // 3. If element is array type, return false
+        if (typeMirror.getKind() == TypeKind.ARRAY) {
+            error(element, "@ExcelColumn cannot be applied to array type");
+            return false;
+        }
+
+        if (isEnumType(typeMirror)) {
+            return true;
+        }
+
+        // 4.Primitive type check
+        if (typeMirror.getKind().isPrimitive()) {
+            return true;
+        }
+
+        //5.Check if type is in allowed types list
+        if (typeMirror.getKind() == TypeKind.DECLARED) {
+            boolean isAllowed = ALLOWED_FIELD_TYPES.stream()
+                .map(clazz -> elementUtils.getTypeElement(clazz.getTypeName()))
+                .filter(Objects::nonNull)
+                .map(TypeElement::asType)
+                .anyMatch(allowedType ->
+                    typeUtils.isAssignable(typeMirror, allowedType));
+
+            if (!isAllowed) {
+                error(element, "@ExcelColumn can only be applied to allowed types(%s).",
+                    ALLOWED_FIELD_TYPES_STRING);
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the given TypeMirror represents an enum type.
+     *
+     * @param typeMirror the type to check
+     * @return true if the type is an enum, false otherwise
+     */
+    private boolean isEnumType(TypeMirror typeMirror) {
+        TypeElement typeElement = (TypeElement) typeUtils.asElement(typeMirror);
+        return typeElement != null && typeElement.getKind() == ElementKind.ENUM;
+    }
+
+
+    /**
+     * Reports an error for the given element using the processor's message.
+     *
+     * @param e    the element for which to report the error
+     * @param msg  the error message format string
+     * @param args the arguments to be used in the formatted message
      */
     private void error(Element e, String msg, Object... args) {
         messager.printMessage(

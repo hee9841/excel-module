@@ -1,7 +1,7 @@
 package io.github.hee9841.excel.annotation;
 
 import io.github.hee9841.excel.format.CellFormats;
-import io.github.hee9841.excel.meta.CellType;
+import io.github.hee9841.excel.meta.ColumnDataType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,13 +45,14 @@ public @interface ExcelColumn {
      * <p>
      * If specified (not _NONE), this value takes precedence over
      * the {@link io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()}
-     * is defined in the @Excel annotation. For example, if {@link io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()}
+     * is defined in the @Excel annotation. For example,
+     * if {@link io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()}
      * {@link io.github.hee9841.excel.strategy.CellTypeStrategy#AUTO} but
      * this columnCellType is specified, the specified type will be used.
      *
      * @return the cell type for the column
      */
-    CellType columnCellType() default CellType._NONE;
+    ColumnDataType columnCellType() default ColumnDataType._NONE;
 
     /**
      * Specifies the format pattern for the column's data.

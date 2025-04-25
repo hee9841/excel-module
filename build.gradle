@@ -1,40 +1,43 @@
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
-    id 'java'
+    id 'java-library'
     id "com.vanniktech.maven.publish" version "0.28.0"
     id 'signing'
+    id 'jacoco' // JaCoCo
+    id 'com.github.kt3k.coveralls' version '2.12.0' // Coveralls
 }
 
 group = 'io.github.hee9841.excel'
-version = '0.0.0'
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
-}
-
-compileJava {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
-}
-
-
+version = '0.0.1'
 
 repositories {
     mavenCentral()
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
+    withSourcesJar() // 소스 코드도 포함
+}
+
+compileJava {
+    options.release = 8
+    options.compilerArgs += ["-Xlint:-options"]
+}
+
+
 dependencies {
     //poi
-    implementation 'org.apache.poi:poi:5.4.0'
-    implementation 'org.apache.poi:poi-ooxml:5.4.0'
+    api 'org.apache.poi:poi:5.4.0'
+    api 'org.apache.poi:poi-ooxml:5.4.0'
 
     //logging
-    compileOnly 'org.slf4j:slf4j-api:2.0.17'
-    testImplementation 'ch.qos.logback:logback-classic:1.3.15'  //for java 8
-
-
-    //for annotation processor
-    implementation 'com.google.auto.service:auto-service:1.1.1'
+    implementation 'org.slf4j:slf4j-api:2.0.17'
+    testImplementation 'ch.qos.logback:logback-classic:1.3.15'
 
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
@@ -50,9 +53,12 @@ test {
     useJUnitPlatform()
 }
 
+
 javadoc {
     options {
         encoding = 'UTF-8'
+        charSet = 'UTF-8'
+        addStringOption('Xdoclint:none', '-quiet')
     }
 }
 
@@ -66,14 +72,18 @@ signing {
     sign publishing.publications
 }
 
+var groupId = "io.github.hee9841"
+var artifactId = "excel-module"
+
 mavenPublishing {
+    configure(new JavaLibrary(new JavadocJar.Javadoc(), true))
     signAllPublications()
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-    coordinates("io.github.hee9841", "excel-module", version)
+    coordinates(groupId, artifactId, version)
 
     pom {
-        name = "excel-module"
+        name = artifactId
         description = "A Java library that helps you work with Excel files easily."
         inceptionYear = "2025"
         url = "https://github.com/hee9841/excel-module"
@@ -100,4 +110,19 @@ mavenPublishing {
             url = 'https://github.com/hee9841/excel-module/tree/master'
         }
     }
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)  // Coveralls needs XML report
+        html.required.set(true) // HTML report
+    }
+}
+
+tasks.coveralls {
+    dependsOn tasks.jacocoTestReport // Ensure test report runs first
 }

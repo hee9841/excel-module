@@ -2,8 +2,8 @@ package io.github.hee9841.excel.style.align;
 
 import static org.mockito.BDDMockito.then;
 
-import io.github.hee9841.excel.style.align.alignment.HorizontalAlignment;
-import io.github.hee9841.excel.style.align.alignment.VerticalAlignment;
+import io.github.hee9841.excel.style.align.alignment.ExcelHorizontalAlignment;
+import io.github.hee9841.excel.style.align.alignment.ExcelVerticalAlignment;
 import java.util.stream.Stream;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +25,7 @@ class CustomExcelAlignTest {
     @ParameterizedTest
     @MethodSource("generateHorizontalData")
     void from_HorizontalAlignment(
-        HorizontalAlignment horizontal,
+        ExcelHorizontalAlignment horizontal,
         org.apache.poi.ss.usermodel.HorizontalAlignment poiHorizontal
     ) {
 
@@ -34,14 +34,15 @@ class CustomExcelAlignTest {
         align.applyAlign(cellStyle);
 
         then(cellStyle).should().setAlignment(poiHorizontal);
-        then(cellStyle).shouldHaveNoMoreInteractions();
+        then(cellStyle).should()
+            .setVerticalAlignment(org.apache.poi.ss.usermodel.VerticalAlignment.CENTER);
     }
 
     @DisplayName("from(VerticalAlignment) 메서드는 vertical만 설정되어야 한다.")
     @ParameterizedTest
     @MethodSource("generateVerticalData")
     void from_VerticalAlignment(
-        VerticalAlignment vertical,
+        ExcelVerticalAlignment vertical,
         org.apache.poi.ss.usermodel.VerticalAlignment poiVertical
     ) {
 
@@ -57,8 +58,8 @@ class CustomExcelAlignTest {
     @ParameterizedTest
     @MethodSource("generateFoAlignData")
     void of_ShouldSetBothHorizontalAndVerticalAlignments(
-        HorizontalAlignment horizontal,
-        VerticalAlignment vertical,
+        ExcelHorizontalAlignment horizontal,
+        ExcelVerticalAlignment vertical,
         org.apache.poi.ss.usermodel.HorizontalAlignment poiHorizontal,
         org.apache.poi.ss.usermodel.VerticalAlignment poiVertical
     ) {
@@ -74,35 +75,35 @@ class CustomExcelAlignTest {
     static Stream<Arguments> generateHorizontalData() {
         return Stream.of(
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_GENERAL,
+                ExcelHorizontalAlignment.HORIZONTAL_GENERAL,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.GENERAL
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_LEFT,
+                ExcelHorizontalAlignment.HORIZONTAL_LEFT,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.LEFT
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_CENTER,
+                ExcelHorizontalAlignment.HORIZONTAL_CENTER,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_RIGHT,
+                ExcelHorizontalAlignment.HORIZONTAL_RIGHT,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.RIGHT
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_FILL,
+                ExcelHorizontalAlignment.HORIZONTAL_FILL,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.FILL
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_JUSTIFY,
+                ExcelHorizontalAlignment.HORIZONTAL_JUSTIFY,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.JUSTIFY
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_CENTER_SELECTION,
+                ExcelHorizontalAlignment.HORIZONTAL_CENTER_SELECTION,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER_SELECTION
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_DISTRIBUTED,
+                ExcelHorizontalAlignment.HORIZONTAL_DISTRIBUTED,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.DISTRIBUTED
             )
         );
@@ -111,23 +112,23 @@ class CustomExcelAlignTest {
     static Stream<Arguments> generateVerticalData() {
         return Stream.of(
             Arguments.of(
-                VerticalAlignment.VERTICAL_TOP,
+                ExcelVerticalAlignment.VERTICAL_TOP,
                 org.apache.poi.ss.usermodel.VerticalAlignment.TOP
             ),
             Arguments.of(
-                VerticalAlignment.VERTICAL_CENTER,
+                ExcelVerticalAlignment.VERTICAL_CENTER,
                 org.apache.poi.ss.usermodel.VerticalAlignment.CENTER
             ),
             Arguments.of(
-                VerticalAlignment.VERTICAL_BOTTOM,
+                ExcelVerticalAlignment.VERTICAL_BOTTOM,
                 org.apache.poi.ss.usermodel.VerticalAlignment.BOTTOM
             ),
             Arguments.of(
-                VerticalAlignment.VERTICAL_JUSTIFY,
+                ExcelVerticalAlignment.VERTICAL_JUSTIFY,
                 org.apache.poi.ss.usermodel.VerticalAlignment.JUSTIFY
             ),
             Arguments.of(
-                VerticalAlignment.VERTICAL_DISTRIBUTED,
+                ExcelVerticalAlignment.VERTICAL_DISTRIBUTED,
                 org.apache.poi.ss.usermodel.VerticalAlignment.DISTRIBUTED
             )
         );
@@ -136,32 +137,32 @@ class CustomExcelAlignTest {
     static Stream<Arguments> generateFoAlignData() {
         return Stream.of(
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_GENERAL,
-                VerticalAlignment.VERTICAL_TOP,
+                ExcelHorizontalAlignment.HORIZONTAL_GENERAL,
+                ExcelVerticalAlignment.VERTICAL_TOP,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.GENERAL,
                 org.apache.poi.ss.usermodel.VerticalAlignment.TOP
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_GENERAL,
-                VerticalAlignment.VERTICAL_CENTER,
+                ExcelHorizontalAlignment.HORIZONTAL_GENERAL,
+                ExcelVerticalAlignment.VERTICAL_CENTER,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.GENERAL,
                 org.apache.poi.ss.usermodel.VerticalAlignment.CENTER
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_LEFT,
-                VerticalAlignment.VERTICAL_BOTTOM,
+                ExcelHorizontalAlignment.HORIZONTAL_LEFT,
+                ExcelVerticalAlignment.VERTICAL_BOTTOM,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.LEFT,
                 org.apache.poi.ss.usermodel.VerticalAlignment.BOTTOM
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_LEFT,
-                VerticalAlignment.VERTICAL_JUSTIFY,
+                ExcelHorizontalAlignment.HORIZONTAL_LEFT,
+                ExcelVerticalAlignment.VERTICAL_JUSTIFY,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.LEFT,
                 org.apache.poi.ss.usermodel.VerticalAlignment.JUSTIFY
             ),
             Arguments.of(
-                HorizontalAlignment.HORIZONTAL_LEFT,
-                VerticalAlignment.VERTICAL_DISTRIBUTED,
+                ExcelHorizontalAlignment.HORIZONTAL_LEFT,
+                ExcelVerticalAlignment.VERTICAL_DISTRIBUTED,
                 org.apache.poi.ss.usermodel.HorizontalAlignment.LEFT,
                 org.apache.poi.ss.usermodel.VerticalAlignment.DISTRIBUTED
             )

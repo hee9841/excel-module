@@ -1,6 +1,7 @@
 package io.github.hee9841.excel.style.color;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.hee9841.excel.exception.ExcelStyleException;
 import java.io.IOException;
@@ -28,13 +29,13 @@ class RgbExcelColorTest {
         wb.close();
     }
 
+    @DisplayName("다양한 RGB 값 테스트")
     @ParameterizedTest
     @CsvSource({
         "0, 0, 0",
         "255, 255, 255",
         "128, 128, 128"
     })
-    @DisplayName("다양한 RGB 값 테스트")
     void testVariousRgbValues(int red, int green, int blue) {
         //given
         RgbExcelColor color = RgbExcelColor.rgb(red, green, blue);
@@ -47,11 +48,12 @@ class RgbExcelColorTest {
         XSSFColor appliedColor = (XSSFColor) cellStyle.getFillForegroundColorColor();
         byte[] rgb = appliedColor.getRGB();
 
-        assertEquals((byte)red, rgb[0]);
-        assertEquals((byte)green, rgb[1]);
-        assertEquals((byte)blue, rgb[2]);
+        assertEquals((byte) red, rgb[0]);
+        assertEquals((byte) green, rgb[1]);
+        assertEquals((byte) blue, rgb[2]);
     }
 
+    @DisplayName("잘못된 RGB 값 테스트")
     @ParameterizedTest
     @CsvSource({
         "-1, 0, 0",
@@ -61,7 +63,6 @@ class RgbExcelColorTest {
         "128, 256, 128",
         "128, 128, 256",
     })
-    @DisplayName("잘못된 RGB 값 테스트")
     void testInvalidRgbValues(int red, int green, int blue) {
         //given
         String expectedMsg = String.format("Invalid RGB values(r:%d, g:%d, b:%d). "
