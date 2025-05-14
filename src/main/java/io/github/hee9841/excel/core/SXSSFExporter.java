@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> The type of data to be handled in the Excel file
  */
-public abstract class SXSSFExporter<T> implements ExcelFile<T> {
+public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
 
     protected static final Logger logger = LoggerFactory.getLogger(SXSSFExporter.class);
 

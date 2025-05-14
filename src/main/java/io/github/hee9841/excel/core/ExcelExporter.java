@@ -5,130 +5,18 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * ExcelExporter is a concrete implementation of {@link SXSSFExporter} that provides functionality
- * for exporting data to Excel files. This class uses the SXSSFWorkbook from Apache POI for
- * efficient
- * handling of large datasets by streaming data to disk.
+ * Core interface for Excel file operations in the library.
+ * This interface defines the basic contract for Excel file handling operations.
  *
- * <p>The ExcelExporter supports two sheet management strategies:</p>
+ * <p>Implementations of this interface provide functionality for:</p>
  * <ul>
- *     <li>ONE_SHEET - All data is exported to a single sheet (limited by max rows per sheet)</li>
- *     <li>MULTI_SHEET - Data is split across multiple sheets when exceeding max rows per sheet</li>
+ *     <li>Writing Excel data to an output stream</li>
+ *     <li>Adding rows of data to the Excel file</li>
  * </ul>
  *
- * <p>Use the {@link ExcelExporterBuilder} to configure and instantiate this class.</p>
- *
- * @param <T> The type of data to be exported to Excel. The type must be annotated appropriately
- *            for Excel column mapping using the library's annotation system.
- * @see SXSSFExporter
- * @see ExcelExporterBuilder
- * @see SheetStrategy
+ * @param <T> The type of data to be handled in the Excel file
  */
-public class ExcelExporter<T> extends SXSSFExporter<T> {
-
-    private static final String EXCEED_MAX_ROW_MSG_2ARGS =
-        "The data size exceeds the maximum number of rows allowed per sheet. "
-            + "The sheet strategy is set to ONE_SHEET but the data size is larger than "
-            + "the maximum rows per sheet (data size: {0}, maximum rows: {1} ).\n"
-            + "Please change the sheet strategy to MULTI_SHEET or reduce the data size.";
-
-    private static final int ROW_START_INDEX = 0;
-    private int currentRowIndex = ROW_START_INDEX;
-
-    private final String sheetName;
-    private final int maxRowsPerSheet;
-
-    private SheetStrategy sheetStrategy;
-    private int currentSheetIndex;
-
-
-    /**
-     * Constructs an ExcelExporter with the specified configuration.
-     *
-     * <p>This constructor is not meant to be called directly. Use {@link ExcelExporterBuilder}
-     * to create instances of ExcelExporter.</p>
-     *
-     * @param type            The class type of the data to be exported
-     * @param data            The list of data objects to be exported
-     * @param sheetStrategy   The strategy for sheet management (ONE_SHEET or MULTI_SHEET)
-     * @param sheetName       Base name for sheets (null for default names)
-     * @param maxRowsPerSheet Maximum number of rows allowed per sheet
-     */
-    ExcelExporter(
-        Class<T> type,
-        List<T> data,
-        SheetStrategy sheetStrategy,
-        String sheetName,
-        int maxRowsPerSheet
-    ) {
-        super();
-        this.maxRowsPerSheet = maxRowsPerSheet;
-        this.sheetName = sheetName;
-        this.currentSheetIndex = 0;
-        setSheetStrategy(sheetStrategy);
-
-        this.initialize(type, data);
-        this.createExcelFile(data);
-    }
-
-
-    /**
-     * Creates a new builder for configuring and instantiating an ExcelExporter.
-     *
-     * @param <T>  The type of data to be exported
-     * @param type The class of the data type
-     * @param data The list of data objects to be exported
-     * @return A new ExcelExporterBuilder instance
-     */
-    public static <T> ExcelExporterBuilder<T> builder(Class<T> type, List<T> data) {
-        return new ExcelExporterBuilder<>(type, data, supplyExcelVersion.getMaxRows());
-    }
-
-
-    /**
-     * Validates the data size against the maximum rows per sheet limit.
-     *
-     * <p>This method checks if the data size exceeds the maximum allowed rows per sheet
-     * when using ONE_SHEET strategy. If the limit is exceeded, an ExcelException is thrown.</p>
-     *
-     * @param type The class type of the data being validated
-     * @param data The list of data objects to be validated
-     * @throws ExcelException if data size exceeds max rows limit with ONE_SHEET strategy
-     */
-    @Override
-    protected void validate(Class<?> type, List<T> data) {
-        if (SheetStrategy.isOneSheet(sheetStrategy) && data.size() > maxRowsPerSheet - 1) {
-            throw new ExcelException(
-                MessageFormat.format(EXCEED_MAX_ROW_MSG_2ARGS,
-                    data.size(), maxRowsPerSheet
-                ), dtoTypeName);
-        }
-    }
-
-    /**
-     * Creates the Excel file with the provided data.
-     *
-     * <p>This method handles the creation of sheets and rows based on the data:</p>
-     * <ul>
-     *   <li>If the data is empty, it creates a sheet with headers only</li>
-     *   <li>Otherwise, it creates a sheet with headers and adds all data rows</li>
-     * </ul>
-     *
-     * @param data The list of data objects to be exported
-     */
-    @Override
-    protected void createExcelFile(List<T> data) {
-        // 1. If data is empty, create createHeader only.
-        if (data.isEmpty()) {
-            createNewSheetWithHeader();
-            logger.warn("Empty data provided - Excel file will be created with headers only.");
-            return;
-        }
-
-        //2. Add rows
-        createNewSheetWithHeader();
-        addRows(data);
-    }
+public interface ExcelExporter<T> {
 
     /**
      * Writes the Excel file content to the specified output stream.
