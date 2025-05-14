@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @param <T> The type of data to be exported
  */
-public class ExcelExporterBuilder<T> {
+public class DefaultExcelExporterBuilder<T> {
 
     private final Class<T> type;
     private final List<T> data;
@@ -39,13 +39,13 @@ public class ExcelExporterBuilder<T> {
     private String sheetName;
 
     /**
-     * Constructs a new ExcelExporterBuilder with the specified type and data.
+     * Constructs a new DefaultExcelExporterBuilder with the specified type and data.
      *
      * @param type               The class type of the data to be exported
      * @param data               The list of data objects to be exported
      * @param supplyExcelMaxRows The maximum number of rows supported by the Excel version
      */
-    ExcelExporterBuilder(
+    DefaultExcelExporterBuilder(
         Class<T> type,
         List<T> data,
         int supplyExcelMaxRows
@@ -64,7 +64,7 @@ public class ExcelExporterBuilder<T> {
      * @param sheetStrategy The strategy to use for sheet management (ONE_SHEET or MULTI_SHEET)
      * @return This builder instance for method chaining
      */
-    public ExcelExporterBuilder<T> sheetStrategy(SheetStrategy sheetStrategy) {
+    public DefaultExcelExporterBuilder<T> sheetStrategy(SheetStrategy sheetStrategy) {
         this.sheetStrategy = sheetStrategy;
         return this;
     }
@@ -76,7 +76,7 @@ public class ExcelExporterBuilder<T> {
      * @return This builder instance for method chaining
      * @throws ExcelException if maxRowsPerSheet exceeds the Excel version's maximum row limit
      */
-    public ExcelExporterBuilder<T> maxRows(int maxRowsPerSheet) {
+    public DefaultExcelExporterBuilder<T> maxRows(int maxRowsPerSheet) {
         if (maxRowsPerSheet > supplyExcelMaxRows) {
             throw new ExcelException(String.format(
                 "The maximum rows per sheet(%d) cannot exceed the supplied Excel sheet version's maximum row limit(%d).",
@@ -99,7 +99,7 @@ public class ExcelExporterBuilder<T> {
      * @param sheetName The base name for sheets
      * @return This builder instance for method chaining
      */
-    public ExcelExporterBuilder<T> sheetName(String sheetName) {
+    public DefaultExcelExporterBuilder<T> sheetName(String sheetName) {
         this.sheetName = sheetName;
         return this;
     }

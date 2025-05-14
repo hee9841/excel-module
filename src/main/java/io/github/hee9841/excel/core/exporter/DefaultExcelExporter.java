@@ -17,12 +17,12 @@ import java.util.List;
  *     <li>MULTI_SHEET - Data is split across multiple sheets when exceeding max rows per sheet</li>
  * </ul>
  *
- * <p>Use the {@link ExcelExporterBuilder} to configure and instantiate this class.</p>
+ * <p>Use the {@link DefaultExcelExporterBuilder} to configure and instantiate this class.</p>
  *
  * @param <T> The type of data to be exported to Excel. The type must be annotated appropriately
  *            for Excel column mapping using the library's annotation system.
  * @see SXSSFExporter
- * @see ExcelExporterBuilder
+ * @see DefaultExcelExporterBuilder
  * @see SheetStrategy
  */
 public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
@@ -46,7 +46,7 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
     /**
      * Constructs an DefaultExcelExporter with the specified configuration.
      *
-     * <p>This constructor is not meant to be called directly. Use {@link ExcelExporterBuilder}
+     * <p>This constructor is not meant to be called directly. Use {@link DefaultExcelExporterBuilder}
      * to create instances of DefaultExcelExporter.</p>
      *
      * @param type            The class type of the data to be exported
@@ -79,10 +79,10 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
      * @param <T>  The type of data to be exported
      * @param type The class of the data type
      * @param data The list of data objects to be exported
-     * @return A new ExcelExporterBuilder instance
+     * @return A new DefaultExcelExporterBuilder instance
      */
-    public static <T> ExcelExporterBuilder<T> builder(Class<T> type, List<T> data) {
-        return new ExcelExporterBuilder<>(type, data, supplyExcelVersion.getMaxRows());
+    public static <T> DefaultExcelExporterBuilder<T> builder(Class<T> type, List<T> data) {
+        return new DefaultExcelExporterBuilder<>(type, data, supplyExcelVersion.getMaxRows());
     }
 
 
