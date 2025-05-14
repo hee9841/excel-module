@@ -105,7 +105,7 @@ List<Product> products = Arrays.asList(
 );
 
 // 3. Export to Excel
-ExcelExporter<Product> exporter = ExcelExporter.builder(Product.class, products)
+DefaultExcelExporter<Product> exporter = DefaultExcelExporter.builder(Product.class, products)
     .sheetStrategy(SheetStrategy.MULTI_SHEET) // Optional, MULTI_SHEET is default
     .maxRows(100)   // Optional, Max row of SpreadsheetVersion.EXCEL2007 is default
     .sheetName("Products") // Optional, if not specified sheets will be named Sheet0, Sheet1, etc.

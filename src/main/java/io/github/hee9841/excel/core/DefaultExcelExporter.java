@@ -1,16 +1,17 @@
 package io.github.hee9841.excel.core;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import io.github.hee9841.excel.exception.ExcelException;
+import io.github.hee9841.excel.strategy.SheetStrategy;
+import java.text.MessageFormat;
 import java.util.List;
 
 /**
- * ExcelExporter is a concrete implementation of {@link SXSSFExporter} that provides functionality
+ * DefaultExcelExporter is a concrete implementation of {@link SXSSFExporter} that provides functionality
  * for exporting data to Excel files. This class uses the SXSSFWorkbook from Apache POI for
  * efficient
  * handling of large datasets by streaming data to disk.
  *
- * <p>The ExcelExporter supports two sheet management strategies:</p>
+ * <p>The DefaultExcelExporter supports two sheet management strategies:</p>
  * <ul>
  *     <li>ONE_SHEET - All data is exported to a single sheet (limited by max rows per sheet)</li>
  *     <li>MULTI_SHEET - Data is split across multiple sheets when exceeding max rows per sheet</li>
@@ -24,7 +25,7 @@ import java.util.List;
  * @see ExcelExporterBuilder
  * @see SheetStrategy
  */
-public class ExcelExporter<T> extends SXSSFExporter<T> {
+public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
 
     private static final String EXCEED_MAX_ROW_MSG_2ARGS =
         "The data size exceeds the maximum number of rows allowed per sheet. "
@@ -43,10 +44,10 @@ public class ExcelExporter<T> extends SXSSFExporter<T> {
 
 
     /**
-     * Constructs an ExcelExporter with the specified configuration.
+     * Constructs an DefaultExcelExporter with the specified configuration.
      *
      * <p>This constructor is not meant to be called directly. Use {@link ExcelExporterBuilder}
-     * to create instances of ExcelExporter.</p>
+     * to create instances of DefaultExcelExporter.</p>
      *
      * @param type            The class type of the data to be exported
      * @param data            The list of data objects to be exported
@@ -54,7 +55,7 @@ public class ExcelExporter<T> extends SXSSFExporter<T> {
      * @param sheetName       Base name for sheets (null for default names)
      * @param maxRowsPerSheet Maximum number of rows allowed per sheet
      */
-    ExcelExporter(
+    DefaultExcelExporter(
         Class<T> type,
         List<T> data,
         SheetStrategy sheetStrategy,
@@ -73,7 +74,7 @@ public class ExcelExporter<T> extends SXSSFExporter<T> {
 
 
     /**
-     * Creates a new builder for configuring and instantiating an ExcelExporter.
+     * Creates a new builder for configuring and instantiating an DefaultExcelExporter.
      *
      * @param <T>  The type of data to be exported
      * @param type The class of the data type
@@ -131,17 +132,73 @@ public class ExcelExporter<T> extends SXSSFExporter<T> {
     }
 
     /**
-     * Writes the Excel file content to the specified output stream.
+     * Adds rows to the current sheet for the provided data list.
      *
-     * @param stream The output stream to write the Excel file to
-     * @throws IOException if an I/O error occurs during writing
-     */
-    void write(OutputStream stream) throws IOException;
-
-    /**
-     * Adds a list of data rows to the Excel file.
+     * <p>If the number of rows exceeds the maximum allowed per sheet and the sheet strategy
+     * is MULTI_SHEET, a new sheet will be created to continue adding rows.</p>
+     *
+     * <p>If the sheet strategy is ONE_SHEET and the data size exceeds the maximum rows per sheet,
+     * an ExcelException will be thrown.</p>
      *
      * @param data The list of data objects to be added as rows
+     * @throws ExcelException if ONE_SHEET strategy is used and data exceeds max rows limit
      */
-    void addRows(List<T> data);
+    @Override
+    public void addRows(List<T> data) {
+        int leftDataSize = data.size();
+        for (Object renderedData : data) {
+            createBody(renderedData, currentRowIndex++);
+            leftDataSize--;
+            if (currentRowIndex == maxRowsPerSheet && leftDataSize > 0) {
+                //If one sheet strategy, throw exception
+                if (SheetStrategy.isOneSheet(sheetStrategy)) {
+                    throw new ExcelException(
+                        MessageFormat.format(EXCEED_MAX_ROW_MSG_2ARGS,
+                            data.size(), maxRowsPerSheet), dtoTypeName);
+                }
+
+                //If multi sheet strategy, create new sheet
+                createNewSheetWithHeader();
+            }
+        }
+    }
+
+    /**
+     * Sets the sheet strategy for this exporter.
+     *
+     * <p>This method also configures the workbook's Zip64 mode based on the selected strategy.</p>
+     *
+     * @param strategy The sheet strategy to use (ONE_SHEET or MULTI_SHEET)-
+     */
+    private void setSheetStrategy(SheetStrategy strategy) {
+
+        this.sheetStrategy = strategy;
+        workbook.setZip64Mode(sheetStrategy.getZip64Mode());
+
+        logger.debug("Set sheet strategy and Zip64Mode - strategy: {}, Zip64Mode: {}.",
+            strategy.name(), sheetStrategy.getZip64Mode().name());
+    }
+
+    /**
+     * Creates a new sheet with headers.
+     *
+     * <p>This method resets the current row index, creates a new sheet, and adds headers to it.
+     * If a sheet name is provided, it will be used as a base name with an index(index starts from
+     * 0) suffix.</p>
+     */
+    private void createNewSheetWithHeader() {
+        currentRowIndex = ROW_START_INDEX;
+
+        //If sheet name is provided, create sheet with sheet name + idx
+        if (sheetName != null) {
+            sheet = workbook.createSheet(String.format("%s%d", sheetName, currentSheetIndex++));
+        } else {
+            sheet = workbook.createSheet();
+        }
+
+        logger.debug("Create new Sheet : {}.", sheet.getSheetName());
+
+        createHeaderWithNewSheet(sheet, ROW_START_INDEX);
+        currentRowIndex++;
+    }
 }

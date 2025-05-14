@@ -5,7 +5,7 @@ import io.github.hee9841.excel.strategy.SheetStrategy;
 import java.util.List;
 
 /**
- * Builder class for creating and configuring {@link ExcelExporter} instances.
+ * Builder class for creating and configuring {@link DefaultExcelExporter} instances.
  * This class implements the Builder pattern to provide a fluent interface for
  * configuring Excel export settings.
  *
@@ -18,7 +18,7 @@ import java.util.List;
  *
  * <p>Example usage:</p>
  * <pre>
- * ExcelExporter&lt;MyData&gt; exporter = ExcelExporter.builder(MyData.class, dataList)
+ * DefaultExcelExporter&lt;MyData&gt; exporter = DefaultExcelExporter.builder(MyData.class, dataList)
  *     .sheetStrategy(SheetStrategy.ONE_SHEET)
  *     .maxRows(10000)
  *     .sheetName("MySheet")
@@ -105,12 +105,12 @@ public class ExcelExporterBuilder<T> {
     }
 
     /**
-     * Builds and returns a new ExcelExporter instance with the configured settings.
+     * Builds and returns a new DefaultExcelExporter instance with the configured settings.
      *
-     * @return A new ExcelExporter instance
+     * @return A new DefaultExcelExporter instance
      */
-    public ExcelExporter<T> build() {
-        return new ExcelExporter<T>(
+    public DefaultExcelExporter<T> build() {
+        return new DefaultExcelExporter<T>(
             this.type,
             this.data,
             this.sheetStrategy,

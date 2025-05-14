@@ -52,8 +52,8 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 
-@DisplayName("ExcelExporter 테스트")
-class ExcelExporterByteOutputStreamTest {
+@DisplayName("DefaultExcelExporter 테스트")
+class DefaultExcelExporterByteOutputStreamTest {
 
     MemoryAppender memoryAppender;
     String loggerClassName;
@@ -92,7 +92,7 @@ class ExcelExporterByteOutputStreamTest {
 
         // when & then
         ExcelException exception = assertThrows(ExcelException.class, () ->
-            ExcelExporter.builder(TestDto.class, data)
+            DefaultExcelExporter.builder(TestDto.class, data)
                 .maxRows(maxRows)
                 .sheetStrategy(
                     SheetStrategy.ONE_SHEET) // Force ONE_SHEET strategy to ensure exception is thrown
@@ -113,7 +113,7 @@ class ExcelExporterByteOutputStreamTest {
         int maxRowOfExcel2007 = 0x100000; // Excel 2007 최대 행 수 초과
 
         // when
-        ExcelException exception = assertThrows(ExcelException.class, () -> ExcelExporter
+        ExcelException exception = assertThrows(ExcelException.class, () -> DefaultExcelExporter
             .builder(TestDto.class, data)
             .maxRows(maxRowOfExcel2007 + 1)
             .build());
@@ -131,7 +131,7 @@ class ExcelExporterByteOutputStreamTest {
         data.add(new TestDto("test1", 1));
         data.add(new TestDto("test2", 2));
 
-        ExcelExporter<TestDto> exporter = ExcelExporter
+        DefaultExcelExporter<TestDto> exporter = DefaultExcelExporter
             .builder(TestDto.class, data).build();
 
         exporter.write(os);
@@ -157,7 +157,7 @@ class ExcelExporterByteOutputStreamTest {
         // given
         List<TestDto> emptyData = new ArrayList<>();
 
-        ExcelExporter<TestDto> exporter = ExcelExporter
+        DefaultExcelExporter<TestDto> exporter = DefaultExcelExporter
             .builder(TestDto.class, emptyData)
             .build();
 
@@ -193,7 +193,7 @@ class ExcelExporterByteOutputStreamTest {
                 testData.add(new TestDto("test" + (i + 1), i + 1));
             }
             // when
-            ExcelExporter.builder(TestDto.class, testData)
+            DefaultExcelExporter.builder(TestDto.class, testData)
                 .maxRows(10)
                 .build().write(os);
 
@@ -237,7 +237,7 @@ class ExcelExporterByteOutputStreamTest {
 
             //when
             ExcelException exception = assertThrows(ExcelException.class,
-                () -> ExcelExporter.builder(TestDto.class, testData)
+                () -> DefaultExcelExporter.builder(TestDto.class, testData)
                     .maxRows(10)
                     .sheetStrategy(SheetStrategy.ONE_SHEET)
                     .build()
@@ -265,7 +265,7 @@ class ExcelExporterByteOutputStreamTest {
             }
 
             //when
-            ExcelExporter.builder(TestDto.class, testData)
+            DefaultExcelExporter.builder(TestDto.class, testData)
                 .sheetName("TestSheet")
                 .maxRows(10)
                 .build()
@@ -300,7 +300,7 @@ class ExcelExporterByteOutputStreamTest {
         }
 
         //when
-        ExcelExporter.builder(TypeAutoDto.class, testData)
+        DefaultExcelExporter.builder(TypeAutoDto.class, testData)
             .sheetName("TestSheet")
             .build()
             .write(os);
@@ -346,7 +346,7 @@ class ExcelExporterByteOutputStreamTest {
         testData.add(new TestDto());
 
         //when
-        ExcelExporter.builder(TestDto.class, testData)
+        DefaultExcelExporter.builder(TestDto.class, testData)
             .build()
             .write(os);
 
@@ -402,7 +402,7 @@ class ExcelExporterByteOutputStreamTest {
             testData.add(new TestDto("name value", 1));
 
             //when
-            ExcelExporter.builder(TestDto.class, testData)
+            DefaultExcelExporter.builder(TestDto.class, testData)
                 .build()
                 .write(os);
 
@@ -454,7 +454,7 @@ class ExcelExporterByteOutputStreamTest {
         String signUpDatePattern = CellFormats.DEFAULT_DATE_FORMAT;
 
         //when
-        ExcelExporter.builder(TestDto.class, testData)
+        DefaultExcelExporter.builder(TestDto.class, testData)
             .build()
             .write(os);
 
