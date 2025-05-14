@@ -6,7 +6,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 /**
- * ExcelExporter is a concrete implementation of {@link SXSSFExcelFile} that provides functionality
+ * ExcelExporter is a concrete implementation of {@link SXSSFExporter} that provides functionality
  * for exporting data to Excel files. This class uses the SXSSFWorkbook from Apache POI for
  * efficient
  * handling of large datasets by streaming data to disk.
@@ -21,11 +21,11 @@ import java.util.List;
  *
  * @param <T> The type of data to be exported to Excel. The type must be annotated appropriately
  *            for Excel column mapping using the library's annotation system.
- * @see SXSSFExcelFile
+ * @see SXSSFExporter
  * @see ExcelExporterBuilder
  * @see SheetStrategy
  */
-public class ExcelExporter<T> extends SXSSFExcelFile<T> {
+public class ExcelExporter<T> extends SXSSFExporter<T> {
 
     private static final String EXCEED_MAX_ROW_MSG_2ARGS =
         "The data size exceeds the maximum number of rows allowed per sheet. "

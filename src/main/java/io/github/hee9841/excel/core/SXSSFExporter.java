@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> The type of data to be handled in the Excel file
  */
-public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
+public abstract class SXSSFExporter<T> implements ExcelFile<T> {
 
-    protected static final Logger logger = LoggerFactory.getLogger(SXSSFExcelFile.class);
+    protected static final Logger logger = LoggerFactory.getLogger(SXSSFExporter.class);
 
     protected static final SpreadsheetVersion supplyExcelVersion = SpreadsheetVersion.EXCEL2007;
 
@@ -49,9 +49,9 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
     protected String dtoTypeName;
 
     /**
-     * Constructs a new SXSSFExcelFile with a new SXSSFWorkbook instance.
+     * Constructs a new SXSSFExporter with a new SXSSFWorkbook instance.
      */
-    protected SXSSFExcelFile() {
+    protected SXSSFExporter() {
         this.workbook = new SXSSFWorkbook();
     }
 

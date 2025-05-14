@@ -61,8 +61,8 @@ class ExcelExporterByteOutputStreamTest {
 
     @BeforeEach
     void beforeEach() {
-        Logger logger = (Logger) LoggerFactory.getLogger(SXSSFExcelFile.class);
-        loggerClassName = SXSSFExcelFile.class.getName();
+        Logger logger = (Logger) LoggerFactory.getLogger(SXSSFExporter.class);
+        loggerClassName = SXSSFExporter.class.getName();
         memoryAppender = new MemoryAppender();
         memoryAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
         logger.setLevel(Level.DEBUG);
