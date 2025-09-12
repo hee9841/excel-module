@@ -1,4 +1,4 @@
-package io.github.hee9841.excel.meta;
+package io.github.hee9841.excel.core.meta;
 
 import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.exception.ExcelException;
@@ -30,10 +30,12 @@ public enum ColumnDataType {
      * Automatically determine the cell type based on the field type
      */
     AUTO,
+
     /**
      * No specific cell type (default)
      */
     _NONE,
+
     /**
      * Numeric cell type for various number formats
      */
@@ -50,6 +52,7 @@ public enum ColumnDataType {
         CellFormats._NONE,
         true
     ),
+
     /**
      * Boolean cell type
      */
@@ -61,6 +64,7 @@ public enum ColumnDataType {
         CellFormats._NONE,
         true
     ),
+
     /**
      * String cell type for text values
      */
@@ -72,6 +76,7 @@ public enum ColumnDataType {
         CellFormats._NONE,
         true
     ),
+
     /**
      * Enum cell type - uses toString() to get the value
      */
@@ -81,6 +86,7 @@ public enum ColumnDataType {
         CellFormats._NONE,
         true
     ),
+
     /**
      * Formula cell type - value is treated as an Excel formula
      */

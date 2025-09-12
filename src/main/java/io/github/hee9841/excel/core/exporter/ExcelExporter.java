@@ -1,4 +1,4 @@
-package io.github.hee9841.excel.core;
+package io.github.hee9841.excel.core.exporter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @param <T> The type of data to be handled in the Excel file
  */
-public interface ExcelFile<T> {
+public interface ExcelExporter<T> {
 
     /**
      * Writes the Excel file content to the specified output stream.

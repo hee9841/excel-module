@@ -1,4 +1,4 @@
-package io.github.hee9841.excel.meta;
+package io.github.hee9841.excel.core.meta;
 
 import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES;
 import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES_STRING;

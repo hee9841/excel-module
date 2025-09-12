@@ -2,7 +2,7 @@ package io.github.hee9841.excel.example.dto;
 
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
-import io.github.hee9841.excel.meta.ColumnDataType;
+import io.github.hee9841.excel.core.meta.ColumnDataType;
 import io.github.hee9841.excel.strategy.CellTypeStrategy;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
 import java.time.LocalDate;

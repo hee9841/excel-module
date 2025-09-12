@@ -1,11 +1,11 @@
-package io.github.hee9841.excel.core;
+package io.github.hee9841.excel.core.exporter;
 
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.strategy.SheetStrategy;
 import java.util.List;
 
 /**
- * Builder class for creating and configuring {@link ExcelExporter} instances.
+ * Builder class for creating and configuring {@link DefaultExcelExporter} instances.
  * This class implements the Builder pattern to provide a fluent interface for
  * configuring Excel export settings.
  *
@@ -18,7 +18,7 @@ import java.util.List;
  *
  * <p>Example usage:</p>
  * <pre>
- * ExcelExporter&lt;MyData&gt; exporter = ExcelExporter.builder(MyData.class, dataList)
+ * DefaultExcelExporter&lt;MyData&gt; exporter = DefaultExcelExporter.builder(MyData.class, dataList)
  *     .sheetStrategy(SheetStrategy.ONE_SHEET)
  *     .maxRows(10000)
  *     .sheetName("MySheet")
@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @param <T> The type of data to be exported
  */
-public class ExcelExporterBuilder<T> {
+public class DefaultExcelExporterBuilder<T> {
 
     private final Class<T> type;
     private final List<T> data;
@@ -39,13 +39,13 @@ public class ExcelExporterBuilder<T> {
     private String sheetName;
 
     /**
-     * Constructs a new ExcelExporterBuilder with the specified type and data.
+     * Constructs a new DefaultExcelExporterBuilder with the specified type and data.
      *
      * @param type               The class type of the data to be exported
      * @param data               The list of data objects to be exported
      * @param supplyExcelMaxRows The maximum number of rows supported by the Excel version
      */
-    ExcelExporterBuilder(
+    DefaultExcelExporterBuilder(
         Class<T> type,
         List<T> data,
         int supplyExcelMaxRows
@@ -64,7 +64,7 @@ public class ExcelExporterBuilder<T> {
      * @param sheetStrategy The strategy to use for sheet management (ONE_SHEET or MULTI_SHEET)
      * @return This builder instance for method chaining
      */
-    public ExcelExporterBuilder<T> sheetStrategy(SheetStrategy sheetStrategy) {
+    public DefaultExcelExporterBuilder<T> sheetStrategy(SheetStrategy sheetStrategy) {
         this.sheetStrategy = sheetStrategy;
         return this;
     }
@@ -76,7 +76,7 @@ public class ExcelExporterBuilder<T> {
      * @return This builder instance for method chaining
      * @throws ExcelException if maxRowsPerSheet exceeds the Excel version's maximum row limit
      */
-    public ExcelExporterBuilder<T> maxRows(int maxRowsPerSheet) {
+    public DefaultExcelExporterBuilder<T> maxRows(int maxRowsPerSheet) {
         if (maxRowsPerSheet > supplyExcelMaxRows) {
             throw new ExcelException(String.format(
                 "The maximum rows per sheet(%d) cannot exceed the supplied Excel sheet version's maximum row limit(%d).",
@@ -99,18 +99,18 @@ public class ExcelExporterBuilder<T> {
      * @param sheetName The base name for sheets
      * @return This builder instance for method chaining
      */
-    public ExcelExporterBuilder<T> sheetName(String sheetName) {
+    public DefaultExcelExporterBuilder<T> sheetName(String sheetName) {
         this.sheetName = sheetName;
         return this;
     }
 
     /**
-     * Builds and returns a new ExcelExporter instance with the configured settings.
+     * Builds and returns a new DefaultExcelExporter instance with the configured settings.
      *
-     * @return A new ExcelExporter instance
+     * @return A new DefaultExcelExporter instance
      */
-    public ExcelExporter<T> build() {
-        return new ExcelExporter<T>(
+    public DefaultExcelExporter<T> build() {
+        return new DefaultExcelExporter<T>(
             this.type,
             this.data,
             this.sheetStrategy,

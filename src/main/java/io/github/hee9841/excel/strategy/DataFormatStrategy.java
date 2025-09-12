@@ -1,20 +1,18 @@
 package io.github.hee9841.excel.strategy;
 
-import io.github.hee9841.excel.meta.ColumnDataType;
-
 /**
  * Strategy enum that determines how data formatting is applied to Excel cells.
  * <p>
  * This enum defines strategies for controlling how cell formatting patterns are determined and
  * applied during
- * Excel export operations. It works in conjunction with the {@link ColumnDataType}
+ * Excel export operations. It works in conjunction with the {@link io.github.hee9841.excel.core.meta.ColumnDataType}
  * to apply appropriate formatting to different types of data.
  * <p>
  * The available strategies are:
  * <ul>
  *   <li>{@code NONE}: No automatic formatting is applied. Formatting must be explicitly specified
  *       in the {@link io.github.hee9841.excel.annotation.ExcelColumn} annotation.</li>
- *   <li>{@code AUTO_BY_CELL_TYPE}: Automatic formatting is applied based on the {@link ColumnDataType}, but only when the
+ *   <li>{@code AUTO_BY_CELL_TYPE}: Automatic formatting is applied based on the {@link io.github.hee9841.excel.core.meta.ColumnDataType}, but only when the
  *       {@link io.github.hee9841.excel.annotation.ExcelColumn#columnCellType()} is explicitly set or determined by the {@link CellTypeStrategy} (not when it's NONE).
  *       If user specified the {@code format} parameter in the {@link io.github.hee9841.excel.annotation.ExcelColumn} annotation, it will take precedence over the automatic format.
  *   </li>
@@ -24,7 +22,7 @@ import io.github.hee9841.excel.meta.ColumnDataType;
  * annotation and affects all columns unless overridden at the column level.
  *
  * @see io.github.hee9841.excel.annotation.Excel#dataFormatStrategy()
- * @see ColumnDataType
+ * @see io.github.hee9841.excel.core.meta.ColumnDataType
  * @see io.github.hee9841.excel.format.ExcelDataFormater
  * @see io.github.hee9841.excel.format.CellFormats
  */
@@ -45,7 +43,7 @@ public enum DataFormatStrategy {
      * <p>
      * This strategy only applies when the cell type is explicitly set (not NONE) or
      * determined by the {@link CellTypeStrategy} (when set to AUTO). It uses the format
-     * pattern defined for each {@link ColumnDataType} to format
+     * pattern defined for each {@link io.github.hee9841.excel.core.meta.ColumnDataType} to format
      * the cell appropriately for its data type.
      * <p>
      * Note: If a format pattern is explicitly specified in the

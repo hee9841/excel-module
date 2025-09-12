@@ -1,8 +1,8 @@
-package io.github.hee9841.excel.core;
+package io.github.hee9841.excel.core.exporter;
 
 import io.github.hee9841.excel.exception.ExcelException;
-import io.github.hee9841.excel.meta.ColumnInfo;
-import io.github.hee9841.excel.meta.ColumnInfoMapper;
+import io.github.hee9841.excel.core.meta.ColumnInfo;
+import io.github.hee9841.excel.core.meta.ColumnInfoMapper;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> The type of data to be handled in the Excel file
  */
-public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
+public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
 
-    protected static final Logger logger = LoggerFactory.getLogger(SXSSFExcelFile.class);
+    protected static final Logger logger = LoggerFactory.getLogger(SXSSFExporter.class);
 
     protected static final SpreadsheetVersion supplyExcelVersion = SpreadsheetVersion.EXCEL2007;
 
@@ -49,9 +49,9 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
     protected String dtoTypeName;
 
     /**
-     * Constructs a new SXSSFExcelFile with a new SXSSFWorkbook instance.
+     * Constructs a new SXSSFExporter with a new SXSSFWorkbook instance.
      */
-    protected SXSSFExcelFile() {
+    protected SXSSFExporter() {
         this.workbook = new SXSSFWorkbook();
     }
 

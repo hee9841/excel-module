@@ -1,4 +1,4 @@
-package io.github.hee9841.excel.meta;
+package io.github.hee9841.excel.core.meta;
 
 import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import org.apache.poi.ss.usermodel.CellStyle;

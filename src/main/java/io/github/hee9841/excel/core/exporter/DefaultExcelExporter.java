@@ -1,4 +1,4 @@
-package io.github.hee9841.excel.core;
+package io.github.hee9841.excel.core.exporter;
 
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.strategy.SheetStrategy;
@@ -6,26 +6,26 @@ import java.text.MessageFormat;
 import java.util.List;
 
 /**
- * ExcelExporter is a concrete implementation of {@link SXSSFExcelFile} that provides functionality
+ * DefaultExcelExporter is a concrete implementation of {@link SXSSFExporter} that provides functionality
  * for exporting data to Excel files. This class uses the SXSSFWorkbook from Apache POI for
  * efficient
  * handling of large datasets by streaming data to disk.
  *
- * <p>The ExcelExporter supports two sheet management strategies:</p>
+ * <p>The DefaultExcelExporter supports two sheet management strategies:</p>
  * <ul>
  *     <li>ONE_SHEET - All data is exported to a single sheet (limited by max rows per sheet)</li>
  *     <li>MULTI_SHEET - Data is split across multiple sheets when exceeding max rows per sheet</li>
  * </ul>
  *
- * <p>Use the {@link ExcelExporterBuilder} to configure and instantiate this class.</p>
+ * <p>Use the {@link DefaultExcelExporterBuilder} to configure and instantiate this class.</p>
  *
  * @param <T> The type of data to be exported to Excel. The type must be annotated appropriately
  *            for Excel column mapping using the library's annotation system.
- * @see SXSSFExcelFile
- * @see ExcelExporterBuilder
+ * @see SXSSFExporter
+ * @see DefaultExcelExporterBuilder
  * @see SheetStrategy
  */
-public class ExcelExporter<T> extends SXSSFExcelFile<T> {
+public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
 
     private static final String EXCEED_MAX_ROW_MSG_2ARGS =
         "The data size exceeds the maximum number of rows allowed per sheet. "
@@ -44,10 +44,10 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
 
 
     /**
-     * Constructs an ExcelExporter with the specified configuration.
+     * Constructs an DefaultExcelExporter with the specified configuration.
      *
-     * <p>This constructor is not meant to be called directly. Use {@link ExcelExporterBuilder}
-     * to create instances of ExcelExporter.</p>
+     * <p>This constructor is not meant to be called directly. Use {@link DefaultExcelExporterBuilder}
+     * to create instances of DefaultExcelExporter.</p>
      *
      * @param type            The class type of the data to be exported
      * @param data            The list of data objects to be exported
@@ -55,7 +55,7 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
      * @param sheetName       Base name for sheets (null for default names)
      * @param maxRowsPerSheet Maximum number of rows allowed per sheet
      */
-    ExcelExporter(
+    DefaultExcelExporter(
         Class<T> type,
         List<T> data,
         SheetStrategy sheetStrategy,
@@ -74,15 +74,15 @@ public class ExcelExporter<T> extends SXSSFExcelFile<T> {
 
 
     /**
-     * Creates a new builder for configuring and instantiating an ExcelExporter.
+     * Creates a new builder for configuring and instantiating an DefaultExcelExporter.
      *
      * @param <T>  The type of data to be exported
      * @param type The class of the data type
      * @param data The list of data objects to be exported
-     * @return A new ExcelExporterBuilder instance
+     * @return A new DefaultExcelExporterBuilder instance
      */
-    public static <T> ExcelExporterBuilder<T> builder(Class<T> type, List<T> data) {
-        return new ExcelExporterBuilder<>(type, data, supplyExcelVersion.getMaxRows());
+    public static <T> DefaultExcelExporterBuilder<T> builder(Class<T> type, List<T> data) {
+        return new DefaultExcelExporterBuilder<>(type, data, supplyExcelVersion.getMaxRows());
     }
 
 

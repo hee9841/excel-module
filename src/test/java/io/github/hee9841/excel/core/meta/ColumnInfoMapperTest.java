@@ -1,4 +1,4 @@
-package io.github.hee9841.excel.meta;
+package io.github.hee9841.excel.core.meta;
 
 import static io.github.hee9841.excel.strategy.ColumnIndexStrategy.USER_DEFINED;
 import static org.junit.jupiter.api.Assertions.assertEquals;

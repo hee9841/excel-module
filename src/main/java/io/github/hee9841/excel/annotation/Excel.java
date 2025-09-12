@@ -41,7 +41,7 @@ import java.lang.annotation.Target;
  * 
  * // Usage example:
  * List{@literal <}UserData{@literal >} users = getUserData();
- * ExcelExporter{@literal <}UserData{@literal >} exporter = ExcelExporter.builder(UserData.class, users)
+ * DefaultExcelExporter{@literal <}UserData{@literal >} exporter = DefaultExcelExporter.builder(UserData.class, users)
  *     .sheetName("Users")
  *     .build();
  * exporter.write(new FileOutputStream("users.xlsx"));
