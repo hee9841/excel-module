@@ -22,7 +22,7 @@ package io.github.hee9841.excel.strategy;
  *
  * @see io.github.hee9841.excel.annotation.Excel#columnIndexStrategy()
  * @see io.github.hee9841.excel.annotation.ExcelColumn#columnIndex()
- * @see io.github.hee9841.excel.meta.ColumnInfoMapper
+ * @see io.github.hee9841.excel.core.meta.ColumnInfoMapper
  */
 public enum ColumnIndexStrategy {
     /**

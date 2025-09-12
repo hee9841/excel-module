@@ -1,7 +1,7 @@
 package io.github.hee9841.excel.annotation;
 
 import io.github.hee9841.excel.format.CellFormats;
-import io.github.hee9841.excel.meta.ColumnDataType;
+import io.github.hee9841.excel.core.meta.ColumnDataType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

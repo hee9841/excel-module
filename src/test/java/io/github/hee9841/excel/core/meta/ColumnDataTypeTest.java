@@ -1,4 +1,4 @@
-package io.github.hee9841.excel.meta;
+package io.github.hee9841.excel.core.meta;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.then;

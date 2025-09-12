@@ -1,4 +1,4 @@
-package io.github.hee9841.excel.core;
+package io.github.hee9841.excel.core.exporter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,8 +12,6 @@ import ch.qos.logback.classic.LoggerContext;
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.annotation.ExcelColumnStyle;
-import io.github.hee9841.excel.core.exporter.DefaultExcelExporter;
-import io.github.hee9841.excel.core.exporter.SXSSFExporter;
 import io.github.hee9841.excel.example.dto.TypeAutoDto;
 import io.github.hee9841.excel.example.style.EnumCellStyleExample;
 import io.github.hee9841.excel.exception.ExcelException;

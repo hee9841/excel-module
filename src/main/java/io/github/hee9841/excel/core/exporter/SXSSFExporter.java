@@ -1,8 +1,8 @@
 package io.github.hee9841.excel.core.exporter;
 
 import io.github.hee9841.excel.exception.ExcelException;
-import io.github.hee9841.excel.meta.ColumnInfo;
-import io.github.hee9841.excel.meta.ColumnInfoMapper;
+import io.github.hee9841.excel.core.meta.ColumnInfo;
+import io.github.hee9841.excel.core.meta.ColumnInfoMapper;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
