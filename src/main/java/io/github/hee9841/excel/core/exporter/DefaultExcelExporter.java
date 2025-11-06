@@ -4,6 +4,7 @@ import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.strategy.SheetStrategy;
 import java.text.MessageFormat;
 import java.util.List;
+import org.apache.poi.ss.usermodel.Sheet;
 
 /**
  * DefaultExcelExporter is a concrete implementation of {@link SXSSFExporter} that provides functionality
@@ -69,7 +70,7 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
         setSheetStrategy(sheetStrategy);
 
         this.initialize(type, data);
-        this.createExcelFile(data);
+        this.createExcel(data);
     }
 
 
@@ -83,6 +84,22 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
      */
     public static <T> DefaultExcelExporterBuilder<T> builder(Class<T> type, List<T> data) {
         return new DefaultExcelExporterBuilder<>(type, data, supplyExcelVersion.getMaxRows());
+    }
+
+    /**
+     * Sets the sheet strategy for this exporter.
+     *
+     * <p>This method also configures the workbook's Zip64 mode based on the selected strategy.</p>
+     *
+     * @param strategy The sheet strategy to use (ONE_SHEET or MULTI_SHEET)-
+     */
+    private void setSheetStrategy(SheetStrategy strategy) {
+
+        this.sheetStrategy = strategy;
+        workbook.setZip64Mode(sheetStrategy.getZip64Mode());
+
+        logger.debug("Set sheet strategy and Zip64Mode - strategy: {}, Zip64Mode: {}.",
+            strategy.name(), sheetStrategy.getZip64Mode().name());
     }
 
 
@@ -107,7 +124,7 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
     }
 
     /**
-     * Creates the Excel file with the provided data.
+     * Creates the Excel(workBook) with the provided data.
      *
      * <p>This method handles the creation of sheets and rows based on the data:</p>
      * <ul>
@@ -118,17 +135,19 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
      * @param data The list of data objects to be exported
      */
     @Override
-    protected void createExcelFile(List<T> data) {
+    protected void createExcel(List<T> data) {
         // 1. If data is empty, create createHeader only.
         if (data.isEmpty()) {
-            createNewSheetWithHeader();
+            Sheet newSheet = createNewSheet();
+            createHeader(newSheet, ROW_START_INDEX);
             logger.warn("Empty data provided - Excel file will be created with headers only.");
             return;
         }
 
         //2. Add rows
-        createNewSheetWithHeader();
-        addRows(data);
+        Sheet newSheet = createNewSheet();
+        createHeader(newSheet, ROW_START_INDEX);
+        addRows(newSheet, data);
     }
 
     /**
@@ -144,10 +163,10 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
      * @throws ExcelException if ONE_SHEET strategy is used and data exceeds max rows limit
      */
     @Override
-    public void addRows(List<T> data) {
+    public void addRows(Sheet sheet, List<T> data) {
         int leftDataSize = data.size();
         for (Object renderedData : data) {
-            createBody(renderedData, currentRowIndex++);
+            createBody(sheet, renderedData, currentRowIndex++);
             leftDataSize--;
             if (currentRowIndex == maxRowsPerSheet && leftDataSize > 0) {
                 //If one sheet strategy, throw exception
@@ -158,26 +177,25 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
                 }
 
                 //If multi sheet strategy, create new sheet
-                createNewSheetWithHeader();
+                currentRowIndex = ROW_START_INDEX;
+                sheet = createNewSheet();
+                createHeader(sheet, ROW_START_INDEX);
             }
         }
     }
 
     /**
-     * Sets the sheet strategy for this exporter.
+     * Override createHeader Method to add currentRowIndex.
      *
-     * <p>This method also configures the workbook's Zip64 mode based on the selected strategy.</p>
-     *
-     * @param strategy The sheet strategy to use (ONE_SHEET or MULTI_SHEET)-
+     * @param sheet      The sheet to add headers to
+     * @param headerRowIndex The headers row index
      */
-    private void setSheetStrategy(SheetStrategy strategy) {
-
-        this.sheetStrategy = strategy;
-        workbook.setZip64Mode(sheetStrategy.getZip64Mode());
-
-        logger.debug("Set sheet strategy and Zip64Mode - strategy: {}, Zip64Mode: {}.",
-            strategy.name(), sheetStrategy.getZip64Mode().name());
+    @Override
+    protected void createHeader(Sheet sheet, Integer headerRowIndex) {
+        super.createHeader(sheet, headerRowIndex);
+        currentRowIndex++;
     }
+
 
     /**
      * Creates a new sheet with headers.
@@ -186,19 +204,19 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
      * If a sheet name is provided, it will be used as a base name with an index(index starts from
      * 0) suffix.</p>
      */
-    private void createNewSheetWithHeader() {
-        currentRowIndex = ROW_START_INDEX;
-
+    private Sheet createNewSheet() {
         //If sheet name is provided, create sheet with sheet name + idx
-        if (sheetName != null) {
-            sheet = workbook.createSheet(String.format("%s%d", sheetName, currentSheetIndex++));
-        } else {
-            sheet = workbook.createSheet();
-        }
+        final String finalSheetName = (sheetName != null)
+            ? String.format("%s%d", sheetName, currentSheetIndex++)
+            : null;
+
+        Sheet sheet = (finalSheetName != null)
+            ? workbook.createSheet(finalSheetName)
+            : workbook.createSheet();
 
         logger.debug("Create new Sheet : {}.", sheet.getSheetName());
 
-        createHeaderWithNewSheet(sheet, ROW_START_INDEX);
-        currentRowIndex++;
+        return sheet;
     }
+
 }
