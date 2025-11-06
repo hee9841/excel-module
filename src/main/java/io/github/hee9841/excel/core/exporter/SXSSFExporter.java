@@ -1,8 +1,8 @@
 package io.github.hee9841.excel.core.exporter;
 
-import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.core.meta.ColumnInfo;
 import io.github.hee9841.excel.core.meta.ColumnInfoMapper;
+import io.github.hee9841.excel.exception.ExcelException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -44,7 +44,6 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
 
     protected SXSSFWorkbook workbook;
     protected Map<Integer, ColumnInfo> columnsMappingInfo;
-    protected Sheet sheet;
 
     protected String dtoTypeName;
 
@@ -73,34 +72,15 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
         this.columnsMappingInfo = ColumnInfoMapper.of(type, workbook).map();
     }
 
-    /**
-     * Validates the provided data and type.
-     * This method can be overridden by subclasses to add custom validation logic.
-     *
-     * @param type The class of the data type
-     * @param data The list of data objects to be exported
-     */
-    protected void validate(Class<?> type, List<T> data) {
-    }
 
     /**
-     * Creates the Excel file with the provided data.
-     * This method must be implemented by subclasses to define their specific sheet management
-     * strategy.
+     * Creates headers using the column mapping information.
      *
-     * @param data The list of data objects to be exported
+     * @param sheet      The sheet to add headers to
+     * @param headerRowIndex The headers row index
      */
-    protected abstract void createExcelFile(List<T> data);
-
-    /**
-     * Creates headers for a new sheet using the column mapping information.
-     *
-     * @param newSheet      The sheet to add headers to
-     * @param startRowIndex The row index where headers should start
-     */
-    protected void createHeaderWithNewSheet(Sheet newSheet, Integer startRowIndex) {
-        this.sheet = newSheet;
-        Row row = sheet.createRow(startRowIndex);
+    protected void createHeader(Sheet sheet, Integer headerRowIndex) {
+        Row row = sheet.createRow(headerRowIndex);
         for (Integer colIndex : columnsMappingInfo.keySet()) {
             ColumnInfo columnMappingInfo = columnsMappingInfo.get(colIndex);
             Cell cell = row.createCell(colIndex);
@@ -113,11 +93,12 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
      * Creates a row in the Excel sheet for the given data object.
      * This method handles field access and cell value setting based on column mapping information.
      *
-     * @param data     The data object to create a row for
+     * @param sheet    The Sheet object to create a row.
+     * @param data     The data object for rendering data to cell
      * @param rowIndex The index of the row to create
      * @throws ExcelException if field access fails
      */
-    protected void createBody(Object data, int rowIndex) {
+    protected void createBody(Sheet sheet, Object data, int rowIndex) {
         logger.debug("Add rows data - row:{}.", rowIndex);
         Row row = sheet.createRow(rowIndex);
         for (Integer colIndex : columnsMappingInfo.keySet()) {
@@ -146,7 +127,7 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
      * @throws IOException if an I/O error occurs during writing
      */
     @Override
-    public void write(OutputStream stream) throws IOException {
+    public final void write(OutputStream stream) throws IOException {
         if (stream == null) {
             throw new ExcelException("Output stream is null.");
         }
@@ -158,5 +139,23 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
             logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
         }
     }
+
+    /**
+     * Validates the provided data and type.
+     * This method can be overridden by subclasses to add custom validation logic.
+     *
+     * @param type The class of the data type
+     * @param data The list of data objects to be exported
+     */
+    protected abstract void validate(Class<?> type, List<T> data);
+
+    /**
+     * Creates the Excel file with the provided data.
+     * This method must be implemented by subclasses to define their specific sheet management
+     * strategy.
+     *
+     * @param data The list of data objects to be exported
+     */
+    protected abstract void createExcel(List<T> data);
 
 }

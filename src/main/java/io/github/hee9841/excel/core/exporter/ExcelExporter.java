@@ -3,6 +3,7 @@ package io.github.hee9841.excel.core.exporter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import org.apache.poi.ss.usermodel.Sheet;
 
 /**
  * Core interface for Excel file operations in the library.
@@ -31,5 +32,5 @@ public interface ExcelExporter<T> {
      *
      * @param data The list of data objects to be added as rows
      */
-    void addRows(List<T> data);
+    void addRows(Sheet sheet, List<T> data);
 }
