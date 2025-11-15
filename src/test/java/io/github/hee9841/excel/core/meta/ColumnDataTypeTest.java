@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.stream.Stream;
 import org.apache.poi.ss.usermodel.Cell;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -90,7 +91,8 @@ class ColumnDataTypeTest {
 
     @DisplayName("CellType에 맞게 cell 값을 set해야한다.")
     @ParameterizedTest
-    @MethodSource("cellValueData")
+    @MethodSource("cellValuesAndInfos")
+    @Order(1)
     void shouldSetCellValueByCellType(ColumnDataType columnDataType, Object value) {
         Cell cell = Mockito.mock(Cell.class);
 
@@ -106,7 +108,7 @@ class ColumnDataTypeTest {
                 then(cell).should().setCellValue((boolean) value);
                 break;
             case ENUM:
-                then(cell).should().setCellValue(value != null ? value.toString() : "");
+                then(cell).should().setCellValue(value != null ? ((Enum<?>) value).name() : "");
                 break;
             case FORMULA:
                 then(cell).should().setCellFormula(String.valueOf(value));
@@ -128,7 +130,8 @@ class ColumnDataTypeTest {
     }
 
 
-    static Stream<Arguments> cellValueData() {
+
+    static Stream<Arguments> cellValuesAndInfos() {
         return Stream.of(
             Arguments.of(
                 ColumnDataType.NUMBER,

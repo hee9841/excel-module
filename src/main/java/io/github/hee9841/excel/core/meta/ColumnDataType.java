@@ -78,10 +78,10 @@ public enum ColumnDataType {
     ),
 
     /**
-     * Enum cell type - uses toString() to get the value
+     * Enum cell type - Enum's name value
      */
     ENUM(
-        (cell, o) -> cell.setCellValue(o != null ? o.toString() : ""),
+        (cell, o) -> cell.setCellValue(o != null ? ((Enum<?>) o).name() : ""),
         Collections.singletonList(Enum.class),
         CellFormats._NONE,
         true
