@@ -23,7 +23,7 @@ import io.github.hee9841.excel.style.color.ExcelColor;
 import io.github.hee9841.excel.style.color.PaletteExcelColor;
 import io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
+import java.util.List;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -108,15 +108,18 @@ public class CellStyleMappingTest {
             }
 
             //when
-            Map<Integer, ColumnInfo> resultMap = ColumnInfoMapper
-                .of(TestDto.class, wb).map();
+            List<ColumnInfo> resultList = ColumnInfoMapper.of(TestDto.class, wb).map();
 
             //then
-            assertCellStyleEquals(whiteGeneralCenterTopThin, resultMap.get(0).getHeaderStyle());
-            assertCellStyleEquals(blackCenterThin, resultMap.get(0).getBodyStyle());
-
-            assertCellStyleEquals(blackCenterThin, resultMap.get(1).getHeaderStyle());
-            assertCellStyleEquals(wb.createCellStyle(), resultMap.get(1).getBodyStyle());
+            for (ColumnInfo result : resultList) {
+                if (result.getColumnIdx() == 0) {
+                    assertCellStyleEquals(whiteGeneralCenterTopThin, result.getHeaderStyle());
+                    assertCellStyleEquals(blackCenterThin, result.getBodyStyle());
+                } else if (result.getColumnIdx() == 1) {
+                    assertCellStyleEquals(blackCenterThin, result.getHeaderStyle());
+                    assertCellStyleEquals(wb.createCellStyle(), result.getBodyStyle());
+                }
+            }
         }
 
 
@@ -141,15 +144,25 @@ public class CellStyleMappingTest {
             }
 
             //when
-            Map<Integer, ColumnInfo> resultMap = ColumnInfoMapper
+            List<ColumnInfo> results = ColumnInfoMapper
                 .of(TestDto.class, wb).map();
 
-            //then
-            assertCellStyleEquals(whiteGeneralCenterTopThin, resultMap.get(0).getHeaderStyle());
-            assertCellStyleEquals(blackCenterThin, resultMap.get(0).getBodyStyle());
 
-            assertCellStyleEquals(blackCenterThin, resultMap.get(1).getHeaderStyle());
-            assertCellStyleEquals(wb.createCellStyle(), resultMap.get(1).getBodyStyle());
+            //then
+            for (ColumnInfo result : results) {
+                if (result.getColumnIdx() == 0) {
+                    assertCellStyleEquals(whiteGeneralCenterTopThin, result.getHeaderStyle());
+                    assertCellStyleEquals(blackCenterThin, result.getBodyStyle());
+
+                }
+
+                if (result.getColumnIdx() == 1) {
+                    assertCellStyleEquals(blackCenterThin, result.getHeaderStyle());
+                    assertCellStyleEquals(wb.createCellStyle(), result.getBodyStyle());
+
+                }
+
+            }
         }
 
 

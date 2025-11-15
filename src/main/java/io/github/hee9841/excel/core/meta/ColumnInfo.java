@@ -17,6 +17,12 @@ import org.apache.poi.ss.usermodel.CellStyle;
 public class ColumnInfo {
 
     /**
+     * The column index
+     */
+    private final int columnIdx;
+
+
+    /**
      * The name of the Java field this column maps to
      */
     private final String fieldName;
@@ -39,12 +45,14 @@ public class ColumnInfo {
 
 
     private ColumnInfo(
+        int columnIdx,
         String fieldName,
         String headerName,
         ColumnDataType columnType,
         CellStyle headerStyle,
         CellStyle bodyStyle
     ) {
+        this.columnIdx = columnIdx;
         this.fieldName = fieldName;
         this.headerName = headerName;
         this.columnType = columnType;
@@ -55,6 +63,7 @@ public class ColumnInfo {
     /**
      * Factory method to create a new {@link ColumnInfo} instance.
      *
+     * @param columnIdx   The index of column
      * @param fieldName   The name of the Java field
      * @param headerName  The display name for the Excel header
      * @param columnType  The cell type for this column
@@ -63,15 +72,20 @@ public class ColumnInfo {
      * @return A new {@link ColumnInfo} instance
      */
     public static ColumnInfo of(
+        int columnIdx,
         String fieldName,
         String headerName,
         ColumnDataType columnType,
         CellStyle headerStyle,
         CellStyle bodyStyle
     ) {
-        return new ColumnInfo(fieldName, headerName, columnType, headerStyle, bodyStyle);
+        return new ColumnInfo(columnIdx, fieldName, headerName, columnType, headerStyle, bodyStyle);
     }
 
+
+    public int getColumnIdx() {
+        return columnIdx;
+    }
 
     public String getFieldName() {
         return fieldName;

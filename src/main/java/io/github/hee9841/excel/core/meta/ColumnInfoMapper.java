@@ -18,7 +18,9 @@ import io.github.hee9841.excel.style.NoCellStyle;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -96,15 +98,15 @@ public class ColumnInfoMapper {
     }
 
     /**
-     * Maps the class fields to Excel columns and returns a map of column indices to
-     * {@link ColumnInfo} objects.
+     * Maps the class fields to Excel columns and returns a list of {@link ColumnInfo} objects.
+     *
      * This method processes the {@link io.github.hee9841.excel.annotation.Excel} annotation and
      * all {@link io.github.hee9841.excel.annotation.ExcelColumn} annotations in the class.
      *
-     * @return A map of column indices to {@link ColumnInfo} objects
+     * @return A list of {@link ColumnInfo} objects
      * @throws ExcelException If the class is not properly annotated or has invalid configuration
      */
-    public Map<Integer, ColumnInfo> map() {
+    public List<ColumnInfo> map() {
         parsingExcelAnnotation();
         return parsingExcelColumns().orElseThrow(() -> new ExcelException(
                 String.format("No @ExcelColumn annotations found in class '(%s)'."
@@ -156,14 +158,15 @@ public class ColumnInfoMapper {
      * in the class and builds a map of
      * column indices to {@link ColumnInfo} objects.
      *
-     * @return An Optional containing the map of column indices to {@link ColumnInfo} objects,
+     * @return An Optional containing the list of {@link ColumnInfo} objects,
      * or an empty Optional
      * if no {@link io.github.hee9841.excel.annotation.ExcelColumn} annotations were found.
      * @throws ExcelException If there are duplicate column indices or other validation errors
      */
-    private Optional<Map<Integer, ColumnInfo>> parsingExcelColumns() {
+    private Optional<List<ColumnInfo>> parsingExcelColumns() {
         int autoColumnIndexCnt = 0;
-        Map<Integer, ColumnInfo> result = new HashMap<>();
+        List<ColumnInfo> result = new ArrayList<>();
+        Map<Integer, String> columnIndexAndNameMap = new HashMap<>();
 
         for (Field field : FieldUtils.getAllFields(type)) {
             if (!field.isAnnotationPresent(ExcelColumn.class)) {
@@ -179,11 +182,15 @@ public class ColumnInfoMapper {
             int columnIndex = columnIndexStrategy.isFieldOrder()
                 ? autoColumnIndexCnt++
                 : excelColumn.columnIndex();
-            validateColumnIndex(result, columnIndex, field.getName());
+
+            validateColumnIndex(columnIndexAndNameMap, columnIndex, field.getName());
 
             //get column info
-            result.put(columnIndex,
-                getColumnInfo(excelColumn, field.getType(), field.getName()));
+            ColumnInfo columnInfo = getColumnInfo(excelColumn, field.getType(), field.getName(),
+                columnIndex);
+            columnIndexAndNameMap.put(columnInfo.getColumnIdx(), columnInfo.getFieldName());
+            result.add(columnInfo);
+
         }
 
         return result.isEmpty() ? Optional.empty() : Optional.of(result);
@@ -220,12 +227,12 @@ public class ColumnInfoMapper {
     /**
      * Validates a column index to ensure it's not negative and not already in use.
      *
-     * @param columnInfoMap The current map of column indices to {@link ColumnInfo} objects
+     * @param columnInfoMap The current map of column indices and filed name
      * @param columnIndex   The column index to validate
      * @param fieldName     The name of the field being validated
      * @throws ExcelException If the column index is negative or already in use
      */
-    private void validateColumnIndex(Map<Integer, ColumnInfo> columnInfoMap, int columnIndex,
+    private void validateColumnIndex(Map<Integer, String> columnInfoMap, int columnIndex,
         String fieldName) {
         //1. Check columnIndex value is negative.
         if (columnIndex < 0) {
@@ -242,7 +249,7 @@ public class ColumnInfoMapper {
         if (columnInfoMap.containsKey(columnIndex)) {
             throw new ExcelException(String.format(
                 "Invalid column index : Duplicate value(%d) detected in fields (%s, %s)."
-                , columnIndex, fieldName, columnInfoMap.get(columnIndex).getFieldName()),
+                , columnIndex, fieldName, columnInfoMap.get(columnIndex)),
                 type.getName()
             );
         }
@@ -254,11 +261,12 @@ public class ColumnInfoMapper {
      * @param excelColumn The {@link ExcelColumn} annotation
      * @param fieldType   The type of the field
      * @param fieldName   The name of the field
+     * @param columnIndex The index of column
      * @return A {@link ColumnInfo} object with the appropriate settings
      * @throws ExcelException If the {@link ColumnDataType} is not compatible with the field type
      */
     private ColumnInfo getColumnInfo(ExcelColumn excelColumn, Class<?> fieldType,
-        String fieldName) {
+        String fieldName, int columnIndex) {
         //Get cell type for column
         ColumnDataType columnDataType = getcolumnDataType(excelColumn.columnCellType(), fieldType,
             fieldName);
@@ -272,6 +280,7 @@ public class ColumnInfoMapper {
         dataFormater.apply(bodyStyle);
 
         return ColumnInfo.of(
+            columnIndex,
             fieldName,
             excelColumn.headerName(),
             columnDataType,

@@ -43,7 +43,7 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
     protected static final SpreadsheetVersion supplyExcelVersion = SpreadsheetVersion.EXCEL2007;
 
     protected SXSSFWorkbook workbook;
-    protected Map<Integer, ColumnInfo> columnsMappingInfo;
+    protected List<ColumnInfo> columnInfos;
 
     protected String dtoTypeName;
 
@@ -69,7 +69,7 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
 
         logger.debug("Mapping DTO to Excel data - DTO class({}).", dtoTypeName);
         //Map DTO to Excel data
-        this.columnsMappingInfo = ColumnInfoMapper.of(type, workbook).map();
+        this.columnInfos = ColumnInfoMapper.of(type, workbook).map();
     }
 
 
@@ -81,11 +81,10 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
      */
     protected void createHeader(Sheet sheet, Integer headerRowIndex) {
         Row row = sheet.createRow(headerRowIndex);
-        for (Integer colIndex : columnsMappingInfo.keySet()) {
-            ColumnInfo columnMappingInfo = columnsMappingInfo.get(colIndex);
-            Cell cell = row.createCell(colIndex);
-            cell.setCellValue(columnMappingInfo.getHeaderName());
-            cell.setCellStyle(columnMappingInfo.getHeaderStyle());
+        for (ColumnInfo columnInfo : columnInfos) {
+            Cell cell = row.createCell(columnInfo.getColumnIdx());
+            cell.setCellValue(columnInfo.getHeaderName());
+            cell.setCellStyle(columnInfo.getHeaderStyle());
         }
     }
 
@@ -101,11 +100,10 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
     protected void createBody(Sheet sheet, Object data, int rowIndex) {
         logger.debug("Add rows data - row:{}.", rowIndex);
         Row row = sheet.createRow(rowIndex);
-        for (Integer colIndex : columnsMappingInfo.keySet()) {
-            ColumnInfo columnInfo = columnsMappingInfo.get(colIndex);
+        for (ColumnInfo columnInfo : columnInfos) {
             try {
                 Field field = FieldUtils.getField(data.getClass(), columnInfo.getFieldName(), true);
-                Cell cell = row.createCell(colIndex);
+                Cell cell = row.createCell(columnInfo.getColumnIdx());
                 //Set cell value by cell type
                 columnInfo.getColumnType().setCellValueByCellType(cell, field.get(data));
                 //Set cell style
@@ -114,7 +112,7 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
                 throw new ExcelException(
                     String.format("Failed to create body(column:%d, row:%d) : "
                             + "Access to field %s failed.",
-                        colIndex, rowIndex, columnInfo.getFieldName()), e);
+                        columnInfo.getColumnIdx(), rowIndex, columnInfo.getFieldName()), e);
             }
         }
     }
