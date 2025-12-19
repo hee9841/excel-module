@@ -32,5 +32,5 @@ public interface ExcelExporter<T> {
      *
      * @param data The list of data objects to be added as rows
      */
-    void addRows(Sheet sheet, List<T> data);
+    void addRows(List<T> data);
 }
