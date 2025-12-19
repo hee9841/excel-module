@@ -274,12 +274,12 @@ class DefaultExcelExporterByteOutputStreamTest {
             //then
             try (Workbook workbook = WorkbookFactory.create(
                 new ByteArrayInputStream(os.toByteArray()))) {
-                assertEquals("TestSheet0", workbook.getSheetAt(0).getSheetName());
-                assertEquals("TestSheet1", workbook.getSheetAt(1).getSheetName());
+                assertEquals("TestSheet(0)", workbook.getSheetAt(0).getSheetName());
+                assertEquals("TestSheet(1)", workbook.getSheetAt(1).getSheetName());
             }
 
-            assertTrue(memoryAppender.isPresent("Create new Sheet : TestSheet0.", Level.DEBUG));
-            assertTrue(memoryAppender.isPresent("Create new Sheet : TestSheet1.", Level.DEBUG));
+            assertTrue(memoryAppender.isPresent("Create new Sheet : TestSheet(0).", Level.DEBUG));
+            assertTrue(memoryAppender.isPresent("Create new Sheet : TestSheet(1).", Level.DEBUG));
 
         }
     }
@@ -308,7 +308,7 @@ class DefaultExcelExporterByteOutputStreamTest {
         //  then
         try (Workbook workbook = WorkbookFactory
             .create(new ByteArrayInputStream(os.toByteArray()))) {
-            Sheet sheet = workbook.getSheet("TestSheet0");
+            Sheet sheet = workbook.getSheetAt(0);
 
             for (int i = 1; i < 10; i++) {
                 Row row = sheet.getRow(i);

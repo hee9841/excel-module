@@ -90,6 +90,29 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
     }
 
     /**
+     * Creates a new sheet with headers.
+     *
+     * <p>This method resets the current row index, creates a new sheet, and adds headers to it.
+     * If a sheet name is provided, it will be used as a base name with an index(index starts from
+     * 0) suffix.</p>
+     */
+    protected Sheet createNewSheet(String sheetName, int sheetIndex) {
+        //If sheet name is provided, create sheet with sheet name + idx
+        final String finalSheetName = (sheetName != null)
+            ? String.format("%s(%d)", sheetName, sheetIndex)
+            : null;
+
+
+        Sheet sheet = (finalSheetName != null)
+            ? workbook.createSheet(finalSheetName)
+            : workbook.createSheet();
+
+        logger.debug("Create new Sheet : {}.", sheet.getSheetName());
+
+        return sheet;
+    }
+
+    /**
      * Creates a row in the Excel sheet for the given data object.
      * This method handles field access and cell value setting based on column mapping information.
      *
