@@ -17,19 +17,11 @@ import org.apache.poi.ss.usermodel.CellStyle;
  */
 public abstract class CustomExcelCellStyle implements ExcelCellStyle {
 
-    private final ExcelCellStyleConfigurer configurer = new ExcelCellStyleConfigurer();
-
-    /**
-     * Constructs a new CustomExcelCellStyle and initializes it by calling
-     * the {@link #configure(ExcelCellStyleConfigurer)} method.
-     */
-    public CustomExcelCellStyle() {
-        configure(configurer);
-    }
+    private ExcelCellStyleConfigurer configurer;
 
     /**
      * Template method to be implemented by subclasses to define specific style configurations.
-     * This method is called during construction to set up the configurer.
+     * This method is invoked lazily when the style is first applied to build the configurer.
      *
      * @param configurer the style configurer to be set up with specific style settings
      */
@@ -43,7 +35,16 @@ public abstract class CustomExcelCellStyle implements ExcelCellStyle {
      */
     @Override
     public void apply(CellStyle cellStyle) {
-        configurer.configure(cellStyle);
+        getConfigurer().configure(cellStyle);
+    }
+
+    private ExcelCellStyleConfigurer getConfigurer() {
+        if (configurer == null) {
+            ExcelCellStyleConfigurer initialized = new ExcelCellStyleConfigurer();
+            configure(initialized);
+            configurer = initialized;
+        }
+        return configurer;
     }
 
 }
