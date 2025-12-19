@@ -41,7 +41,8 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
     private final int maxRowsPerSheet;
 
     private SheetStrategy sheetStrategy;
-    private int currentSheetIndex;
+
+    private Sheet currentSheet;
 
 
     /**
@@ -66,7 +67,6 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
         super();
         this.maxRowsPerSheet = maxRowsPerSheet;
         this.sheetName = sheetName;
-        this.currentSheetIndex = 0;
         setSheetStrategy(sheetStrategy);
 
         this.initialize(type, data);
@@ -136,18 +136,18 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
      */
     @Override
     protected void createExcel(List<T> data) {
+
+        currentSheet = createNewSheet(sheetName, 0);
+        createHeader(currentSheet, ROW_START_INDEX);
+
         // 1. If data is empty, create createHeader only.
         if (data.isEmpty()) {
-            Sheet newSheet = createNewSheet();
-            createHeader(newSheet, ROW_START_INDEX);
             logger.warn("Empty data provided - Excel file will be created with headers only.");
             return;
         }
 
-        //2. Add rows
-        Sheet newSheet = createNewSheet();
-        createHeader(newSheet, ROW_START_INDEX);
-        addRows(newSheet, data);
+        //2. Add Rows
+        addRows(data);
     }
 
     /**
@@ -163,10 +163,10 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
      * @throws ExcelException if ONE_SHEET strategy is used and data exceeds max rows limit
      */
     @Override
-    public void addRows(Sheet sheet, List<T> data) {
+    public void addRows(List<T> data) {
         int leftDataSize = data.size();
         for (Object renderedData : data) {
-            createBody(sheet, renderedData, currentRowIndex++);
+            createBody(currentSheet, renderedData, currentRowIndex++);
             leftDataSize--;
             if (currentRowIndex == maxRowsPerSheet && leftDataSize > 0) {
                 //If one sheet strategy, throw exception
@@ -178,8 +178,8 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
 
                 //If multi sheet strategy, create new sheet
                 currentRowIndex = ROW_START_INDEX;
-                sheet = createNewSheet();
-                createHeader(sheet, ROW_START_INDEX);
+                currentSheet = createNewSheet(sheetName, workbook.getSheetIndex(currentSheet) + 1);
+                createHeader(currentSheet, ROW_START_INDEX);
             }
         }
     }
@@ -195,28 +195,4 @@ public class DefaultExcelExporter<T> extends SXSSFExporter<T> {
         super.createHeader(sheet, headerRowIndex);
         currentRowIndex++;
     }
-
-
-    /**
-     * Creates a new sheet with headers.
-     *
-     * <p>This method resets the current row index, creates a new sheet, and adds headers to it.
-     * If a sheet name is provided, it will be used as a base name with an index(index starts from
-     * 0) suffix.</p>
-     */
-    private Sheet createNewSheet() {
-        //If sheet name is provided, create sheet with sheet name + idx
-        final String finalSheetName = (sheetName != null)
-            ? String.format("%s%d", sheetName, currentSheetIndex++)
-            : null;
-
-        Sheet sheet = (finalSheetName != null)
-            ? workbook.createSheet(finalSheetName)
-            : workbook.createSheet();
-
-        logger.debug("Create new Sheet : {}.", sheet.getSheetName());
-
-        return sheet;
-    }
-
 }
