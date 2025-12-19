@@ -9,7 +9,9 @@ import io.github.hee9841.excel.exception.ExcelStyleException;
  *
  * <p>The colors are organized by index values (0-64) that correspond to Excel's
  * built-in color palette. This class enables the use of these colors without
- * having to remember their numeric index values.</p>
+ * having to remember their numeric index values. Some palette slots are not mapped
+ * because they are unused in this library; these will produce a descriptive
+ * {@link ExcelStyleException} when looked up.</p>
  */
 public enum ColorPalette {
     BLACK1(0),
@@ -91,18 +93,20 @@ public enum ColorPalette {
      *
      * @param index the index value to look up
      * @return the IndexedColors constant corresponding to the given index
-     * @throws ExcelStyleException if the index is invalid or not mapped to a color
+     * @throws ExcelStyleException if the index is invalid or not mapped to a color. Some palette
+     *                             slots are intentionally left unmapped; these will raise an
+     *                             explicit exception rather than returning null.
      */
     public static ColorPalette fromInt(int index) {
         if (index >= 0 && index < _values.length) {
             ColorPalette color = _values[index];
             if (color == null) {
-                throw new ExcelStyleException("Illegal IndexedColor index: " + index);
+                throw new ExcelStyleException("Unsupported IndexedColor index (no palette mapping): " + index);
             } else {
                 return color;
             }
         } else {
-            throw new ExcelStyleException("Illegal IndexedColor index: " + index);
+            throw new ExcelStyleException("IndexedColor index out of range: " + index);
         }
     }
 
