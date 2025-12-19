@@ -133,9 +133,8 @@ public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
         }
         logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
 
-        try (SXSSFWorkbook autoCloseableWb = this.workbook;
-            OutputStream autoCloseableStream = stream) {
-            autoCloseableWb.write(autoCloseableStream);
+        try (SXSSFWorkbook autoCloseableWb = this.workbook) {
+            autoCloseableWb.write(stream);
             logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
         }
     }
