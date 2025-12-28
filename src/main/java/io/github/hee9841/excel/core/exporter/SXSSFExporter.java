@@ -1,183 +1,198 @@
 package io.github.hee9841.excel.core.exporter;
 
-import io.github.hee9841.excel.core.meta.ColumnInfo;
-import io.github.hee9841.excel.core.meta.ColumnInfoMapper;
 import io.github.hee9841.excel.exception.ExcelException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
+import io.github.hee9841.excel.strategy.SheetStrategy;
+import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.poi.ss.SpreadsheetVersion;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Abstract base class for Excel file operations using Apache POI's SXSSF (Streaming XML Spreadsheet
- * Format).
- * This class provides the core functionality for handling Excel files with streaming support for
- * large datasets.
+ * SXSSFExporter is a concrete implementation of {@link AbstractExcelExporter} that provides functionality
+ * for exporting data to Excel files. This class uses the SXSSFWorkbook from Apache POI for
+ * efficient
+ * handling of large datasets by streaming data to disk.
  *
- * <p>Key features:</p>
+ * <p>The SXSSFExporter supports two sheet management strategies:</p>
  * <ul>
- *     <li>Uses SXSSFWorkbook for memory-efficient handling of large Excel files</li>
- *     <li>Supports Excel 2007+ format (XLSX)</li>
- *     <li>Provides column mapping and header generation</li>
- *     <li>Handles cell styling and data type conversion</li>
+ *     <li>ONE_SHEET - All data is exported to a single sheet (limited by max rows per sheet)</li>
+ *     <li>MULTI_SHEET - Data is split across multiple sheets when exceeding max rows per sheet</li>
  * </ul>
  *
- * <p>This class implements the core functionality while leaving sheet management strategies
- * to be implemented by concrete subclasses.</p>
+ * <p>Use the {@link SXSSFExporterBuilder} to configure and instantiate this class.</p>
  *
- * @param <T> The type of data to be handled in the Excel file
+ * @param <T> The type of data to be exported to Excel. The type must be annotated appropriately
+ *            for Excel column mapping using the library's annotation system.
+ * @see AbstractExcelExporter
+ * @see SXSSFExporterBuilder
+ * @see SheetStrategy
  */
-public abstract class SXSSFExporter<T> implements ExcelExporter<T> {
+public class SXSSFExporter<T> extends AbstractExcelExporter<T> {
 
-    protected static final Logger logger = LoggerFactory.getLogger(SXSSFExporter.class);
+    private static final String EXCEED_MAX_ROW_MSG_2ARGS =
+        "The data size exceeds the maximum number of rows allowed per sheet. "
+            + "The sheet strategy is set to ONE_SHEET but the data size is larger than "
+            + "the maximum rows per sheet (data size: {0}, maximum rows: {1} ).\n"
+            + "Please change the sheet strategy to MULTI_SHEET or reduce the data size.";
 
-    protected static final SpreadsheetVersion supplyExcelVersion = SpreadsheetVersion.EXCEL2007;
+    private static final int ROW_START_INDEX = 0;
+    private int currentRowIndex = ROW_START_INDEX;
 
-    protected SXSSFWorkbook workbook;
-    protected Map<Integer, ColumnInfo> columnsMappingInfo;
+    private final String sheetName;
+    private final int maxRowsPerSheet;
 
-    protected String dtoTypeName;
+    private SheetStrategy sheetStrategy;
+
+    private Sheet currentSheet;
+
 
     /**
-     * Constructs a new SXSSFExporter with a new SXSSFWorkbook instance.
+     * Constructs an SXSSFExporter with the specified configuration.
+     *
+     * <p>This constructor is not meant to be called directly. Use {@link SXSSFExporterBuilder}
+     * to create instances of SXSSFExporter.</p>
+     *
+     * @param type            The class type of the data to be exported
+     * @param data            The list of data objects to be exported
+     * @param sheetStrategy   The strategy for sheet management (ONE_SHEET or MULTI_SHEET)
+     * @param sheetName       Base name for sheets (null for default names)
+     * @param maxRowsPerSheet Maximum number of rows allowed per sheet
      */
-    protected SXSSFExporter() {
-        this.workbook = new SXSSFWorkbook();
+    SXSSFExporter(
+        Class<T> type,
+        List<T> data,
+        SheetStrategy sheetStrategy,
+        String sheetName,
+        int maxRowsPerSheet
+    ) {
+        super();
+        this.maxRowsPerSheet = maxRowsPerSheet;
+        this.sheetName = sheetName;
+        setSheetStrategy(sheetStrategy);
+
+        this.initialize(type, data);
+        this.createExcel(data);
     }
 
+
     /**
-     * Initializes the Excel file with the specified type and data.
-     * This method performs validation and sets up column mapping information.
+     * Creates a new builder for configuring and instantiating an SXSSFExporter.
      *
-     * @param type The class type of the data to be exported
+     * @param <T>  The type of data to be exported
+     * @param type The class of the data type
      * @param data The list of data objects to be exported
+     * @return A new SXSSFExporterBuilder instance
      */
-    protected void initialize(Class<?> type, List<T> data) {
-        this.dtoTypeName = type.getName();
-        logger.info("Initializing Excel file for DTO: {}.java.", dtoTypeName);
+    public static <T> SXSSFExporterBuilder<T> builder(Class<T> type, List<T> data) {
+        return new SXSSFExporterBuilder<>(type, data, supplyExcelVersion.getMaxRows());
+    }
 
-        validate(type, data);
+    /**
+     * Sets the sheet strategy for this exporter.
+     *
+     * <p>This method also configures the workbook's Zip64 mode based on the selected strategy.</p>
+     *
+     * @param strategy The sheet strategy to use (ONE_SHEET or MULTI_SHEET)-
+     */
+    private void setSheetStrategy(SheetStrategy strategy) {
 
-        logger.debug("Mapping DTO to Excel data - DTO class({}).", dtoTypeName);
-        //Map DTO to Excel data
-        this.columnsMappingInfo = ColumnInfoMapper.of(type, workbook).map();
+        this.sheetStrategy = strategy;
+        workbook.setZip64Mode(sheetStrategy.getZip64Mode());
+
+        logger.debug("Set sheet strategy and Zip64Mode - strategy: {}, Zip64Mode: {}.",
+            strategy.name(), sheetStrategy.getZip64Mode().name());
     }
 
 
     /**
-     * Creates headers using the column mapping information.
+     * Validates the data size against the maximum rows per sheet limit.
      *
-     * @param sheet      The sheet to add headers to
-     * @param headerRowIndex The headers row index
+     * <p>This method checks if the data size exceeds the maximum allowed rows per sheet
+     * when using ONE_SHEET strategy. If the limit is exceeded, an ExcelException is thrown.</p>
+     *
+     * @param type The class type of the data being validated
+     * @param data The list of data objects to be validated
+     * @throws ExcelException if data size exceeds max rows limit with ONE_SHEET strategy
      */
-    protected void createHeader(Sheet sheet, Integer headerRowIndex) {
-        Row row = sheet.createRow(headerRowIndex);
-        for (Integer colIndex : columnsMappingInfo.keySet()) {
-            ColumnInfo columnMappingInfo = columnsMappingInfo.get(colIndex);
-            Cell cell = row.createCell(colIndex);
-            cell.setCellValue(columnMappingInfo.getHeaderName());
-            cell.setCellStyle(columnMappingInfo.getHeaderStyle());
+    @Override
+    protected void validate(Class<?> type, List<T> data) {
+        if (SheetStrategy.isOneSheet(sheetStrategy) && data.size() > maxRowsPerSheet - 1) {
+            throw new ExcelException(
+                MessageFormat.format(EXCEED_MAX_ROW_MSG_2ARGS,
+                    data.size(), maxRowsPerSheet
+                ), dtoTypeName);
         }
     }
 
     /**
-     * Creates a new sheet with headers.
+     * Creates the Excel(workBook) with the provided data.
      *
-     * <p>This method resets the current row index, creates a new sheet, and adds headers to it.
-     * If a sheet name is provided, it will be used as a base name with an index(index starts from
-     * 0) suffix.</p>
+     * <p>This method handles the creation of sheets and rows based on the data:</p>
+     * <ul>
+     *   <li>If the data is empty, it creates a sheet with headers only</li>
+     *   <li>Otherwise, it creates a sheet with headers and adds all data rows</li>
+     * </ul>
+     *
+     * @param data The list of data objects to be exported
      */
-    protected Sheet createNewSheet(String sheetName, int sheetIndex) {
-        //If sheet name is provided, create sheet with sheet name + idx
-        final String finalSheetName = (sheetName != null)
-            ? String.format("%s(%d)", sheetName, sheetIndex)
-            : null;
+    @Override
+    protected void createExcel(List<T> data) {
 
+        currentSheet = createNewSheet(sheetName, 0);
+        createHeader(currentSheet, ROW_START_INDEX);
 
-        Sheet sheet = (finalSheetName != null)
-            ? workbook.createSheet(finalSheetName)
-            : workbook.createSheet();
+        // 1. If data is empty, create createHeader only.
+        if (data.isEmpty()) {
+            logger.warn("Empty data provided - Excel file will be created with headers only.");
+            return;
+        }
 
-        logger.debug("Create new Sheet : {}.", sheet.getSheetName());
-
-        return sheet;
+        //2. Add Rows
+        addRows(data);
     }
 
     /**
-     * Creates a row in the Excel sheet for the given data object.
-     * This method handles field access and cell value setting based on column mapping information.
+     * Adds rows to the current sheet for the provided data list.
      *
-     * @param sheet    The Sheet object to create a row.
-     * @param data     The data object for rendering data to cell
-     * @param rowIndex The index of the row to create
-     * @throws ExcelException if field access fails
+     * <p>If the number of rows exceeds the maximum allowed per sheet and the sheet strategy
+     * is MULTI_SHEET, a new sheet will be created to continue adding rows.</p>
+     *
+     * <p>If the sheet strategy is ONE_SHEET and the data size exceeds the maximum rows per sheet,
+     * an ExcelException will be thrown.</p>
+     *
+     * @param data The list of data objects to be added as rows
+     * @throws ExcelException if ONE_SHEET strategy is used and data exceeds max rows limit
      */
-    protected void createBody(Sheet sheet, Object data, int rowIndex) {
-        logger.debug("Add rows data - row:{}.", rowIndex);
-        Row row = sheet.createRow(rowIndex);
-        for (Integer colIndex : columnsMappingInfo.keySet()) {
-            ColumnInfo columnInfo = columnsMappingInfo.get(colIndex);
-            try {
-                Field field = FieldUtils.getField(data.getClass(), columnInfo.getFieldName(), true);
-                Cell cell = row.createCell(colIndex);
-                //Set cell value by cell type
-                columnInfo.getColumnType().setCellValueByCellType(cell, field.get(data));
-                //Set cell style
-                cell.setCellStyle(columnInfo.getBodyStyle());
-            } catch (IllegalAccessException e) {
-                throw new ExcelException(
-                    String.format("Failed to create body(column:%d, row:%d) : "
-                            + "Access to field %s failed.",
-                        colIndex, rowIndex, columnInfo.getFieldName()), e);
+    @Override
+    public void addRows(List<T> data) {
+        int leftDataSize = data.size();
+        for (Object renderedData : data) {
+            createBody(currentSheet, renderedData, currentRowIndex++);
+            leftDataSize--;
+            if (currentRowIndex == maxRowsPerSheet && leftDataSize > 0) {
+                //If one sheet strategy, throw exception
+                if (SheetStrategy.isOneSheet(sheetStrategy)) {
+                    throw new ExcelException(
+                        MessageFormat.format(EXCEED_MAX_ROW_MSG_2ARGS,
+                            data.size(), maxRowsPerSheet), dtoTypeName);
+                }
+
+                //If multi sheet strategy, create new sheet
+                currentRowIndex = ROW_START_INDEX;
+                currentSheet = createNewSheet(sheetName, workbook.getSheetIndex(currentSheet) + 1);
+                createHeader(currentSheet, ROW_START_INDEX);
             }
         }
     }
 
     /**
-     * Writes the Excel file content to the specified output stream.
-     * This method ensures proper resource cleanup using try-with-resources.
+     * Override createHeader Method to add currentRowIndex.
      *
-     * @param stream The output stream to write the Excel file to
-     * @throws IOException if an I/O error occurs during writing
+     * @param sheet      The sheet to add headers to
+     * @param headerRowIndex The headers row index
      */
     @Override
-    public final void write(OutputStream stream) throws IOException {
-        if (stream == null) {
-            throw new ExcelException("Output stream is null.");
-        }
-        logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
-
-        try (SXSSFWorkbook autoCloseableWb = this.workbook) {
-            autoCloseableWb.write(stream);
-            logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
-        }
+    protected void createHeader(Sheet sheet, Integer headerRowIndex) {
+        super.createHeader(sheet, headerRowIndex);
+        currentRowIndex++;
     }
-
-    /**
-     * Validates the provided data and type.
-     * This method can be overridden by subclasses to add custom validation logic.
-     *
-     * @param type The class of the data type
-     * @param data The list of data objects to be exported
-     */
-    protected abstract void validate(Class<?> type, List<T> data);
-
-    /**
-     * Creates the Excel file with the provided data.
-     * This method must be implemented by subclasses to define their specific sheet management
-     * strategy.
-     *
-     * @param data The list of data objects to be exported
-     */
-    protected abstract void createExcel(List<T> data);
-
 }
