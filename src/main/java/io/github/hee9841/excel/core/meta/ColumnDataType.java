@@ -1,5 +1,7 @@
 package io.github.hee9841.excel.core.meta;
 
+import static io.github.hee9841.excel.global.AllowedTypes.*;
+
 import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.format.CellFormats;
@@ -40,15 +42,8 @@ public enum ColumnDataType {
      * Numeric cell type for various number formats
      */
     NUMBER(
-        (cell, o) -> cell.setCellValue(Double.parseDouble(String.valueOf(o))),
-        Collections.unmodifiableList(
-            Arrays.asList(
-                Integer.TYPE, Double.TYPE,
-                Float.TYPE, Long.TYPE,
-                Short.TYPE, Byte.TYPE,
-                Number.class
-            )
-        ),
+        typedSetter(Number.class, (cell, o) -> cell.setCellValue(o.doubleValue())),
+        NUMBER_TYPES,
         CellFormats._NONE,
         true
     ),
@@ -57,10 +52,8 @@ public enum ColumnDataType {
      * Boolean cell type
      */
     BOOLEAN(
-        (cell, o) -> cell.setCellValue((boolean) o),
-        Collections.unmodifiableList(
-            Arrays.asList(Boolean.TYPE, Boolean.class)
-        ),
+        typedSetter(Boolean.class, Cell::setCellValue),
+        BOOLEAN_TYPES,
         CellFormats._NONE,
         true
     ),
@@ -69,10 +62,8 @@ public enum ColumnDataType {
      * String cell type for text values
      */
     STRING(
-        (cell, o) -> cell.setCellValue(String.valueOf(o)),
-        Collections.unmodifiableList(
-            Arrays.asList(String.class, Character.class, char.class)
-        ),
+        typedSetter(Object.class, (cell, o) -> cell.setCellValue(String.valueOf(o))),
+        STRING_TYPES,
         CellFormats._NONE,
         true
     ),
@@ -81,8 +72,8 @@ public enum ColumnDataType {
      * Enum cell type - uses toString() to get the value
      */
     ENUM(
-        (cell, o) -> cell.setCellValue(o != null ? o.toString() : ""),
-        Collections.singletonList(Enum.class),
+        typedSetter(Enum.class, (cell, o) -> cell.setCellValue(o != null ? o.toString() : "")),
+        ENUM_TYPES,
         CellFormats._NONE,
         true
     ),
@@ -91,8 +82,8 @@ public enum ColumnDataType {
      * Formula cell type - value is treated as an Excel formula
      */
     FORMULA(
-        (cell, o) -> cell.setCellFormula(String.valueOf(o)),
-        Collections.singletonList(String.class),
+        typedSetter(String.class, Cell::setCellFormula),
+        FORMULA_TYPES,
         CellFormats._NONE,
         false
     ),
@@ -101,30 +92,28 @@ public enum ColumnDataType {
      * Date And Time cell type
      */
     DATE(
-        (cell, o) -> cell.setCellValue((Date) o),
-        Collections.unmodifiableList(
-            Arrays.asList(Date.class, java.sql.Date.class)
-        ),
+        typedSetter(Date.class, Cell::setCellValue),
+        DATE_TYPES,
         CellFormats.DEFAULT_DATE_FORMAT,
         true
     ),
     LOCAL_DATE(
-        (cell, o) -> cell.setCellValue((LocalDate) o),
-        Collections.singletonList(LocalDate.class),
+        typedSetter(LocalDate.class, Cell::setCellValue),
+        LOCAL_DATE_TYPES,
         CellFormats.DEFAULT_DATE_FORMAT,
         true
     ),
     LOCAL_DATE_TIME(
-        (cell, o) -> cell.setCellValue((LocalDateTime) o),
-        Collections.singletonList(LocalDateTime.class),
+        typedSetter(LocalDateTime.class, Cell::setCellValue),
+        LOCAL_DATE_TIME_TYPES,
         CellFormats.DEFAULT_DATE_TIME_FORMAT,
         true
     );
 
     /**
-     * Function to set a cell's value based on the given object
+     * Function to set a cell's value based on the given object.
      */
-    private final BiConsumer<Cell, Object> cellValueSetter;
+    private final TypedCellValueSetter<?> cellValueSetter;
     /**
      * List of Java types allowed for this cell type
      */
@@ -140,7 +129,7 @@ public enum ColumnDataType {
 
 
     ColumnDataType(
-        BiConsumer<Cell, Object> cellValueSetter,
+        TypedCellValueSetter<?> cellValueSetter,
         List<Class<?>> allowedTypes,
         String dataFormatPattern,
         boolean hasHighPriority
@@ -159,7 +148,7 @@ public enum ColumnDataType {
      */
     ColumnDataType() {
         this(
-            (cell, o) -> cell.setCellValue(String.valueOf(o)),
+            typedSetter(Object.class, (cell, o) -> cell.setCellValue(String.valueOf(o))),
             Collections.emptyList(),
             CellFormats._NONE,
             false
@@ -218,6 +207,26 @@ public enum ColumnDataType {
         }
     }
 
+    private static <T> TypedCellValueSetter<T> typedSetter(
+        Class<T> type,
+        BiConsumer<Cell, T> setter
+    ) {
+        return new TypedCellValueSetter<>(type, setter);
+    }
+
+    private static final class TypedCellValueSetter<T> {
+        private final Class<T> type;
+        private final BiConsumer<Cell, T> setter;
+
+        private TypedCellValueSetter(Class<T> type, BiConsumer<Cell, T> setter) {
+            this.type = type;
+            this.setter = setter;
+        }
+
+        private void accept(Cell cell, Object value) {
+            setter.accept(cell, type.cast(value));
+        }
+    }
 
     public boolean isAuto() {
         return this == AUTO;

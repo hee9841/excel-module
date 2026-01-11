@@ -26,6 +26,7 @@ package io.github.hee9841.excel.strategy;
  * @see io.github.hee9841.excel.format.ExcelDataFormater
  * @see io.github.hee9841.excel.format.CellFormats
  */
+@Deprecated
 public enum DataFormatStrategy {
     /**
      * No automatic formatting is applied.

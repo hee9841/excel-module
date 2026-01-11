@@ -1,7 +1,7 @@
 package io.github.hee9841.excel.core.meta;
 
-import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES;
-import static io.github.hee9841.excel.global.SystemValues.ALLOWED_FIELD_TYPES_STRING;
+import static io.github.hee9841.excel.global.AllowedTypes.ALLOWED_FIELD_TYPES;
+import static io.github.hee9841.excel.global.AllowedTypes.ALLOWED_FIELD_TYPES_STRING;
 
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
