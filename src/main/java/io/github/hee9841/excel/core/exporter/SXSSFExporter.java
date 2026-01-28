@@ -5,6 +5,7 @@ import io.github.hee9841.excel.strategy.SheetStrategy;
 import java.text.MessageFormat;
 import java.util.List;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 /**
  * SXSSFExporter is a concrete implementation of {@link AbstractExcelExporter} that provides functionality
@@ -26,7 +27,7 @@ import org.apache.poi.ss.usermodel.Sheet;
  * @see SXSSFExporterBuilder
  * @see SheetStrategy
  */
-public class SXSSFExporter<T> extends AbstractExcelExporter<T> {
+public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
 
     private static final String EXCEED_MAX_ROW_MSG_2ARGS =
         "The data size exceeds the maximum number of rows allowed per sheet. "
@@ -64,7 +65,7 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T> {
         String sheetName,
         int maxRowsPerSheet
     ) {
-        super();
+        super(new SXSSFWorkbook());
         this.maxRowsPerSheet = maxRowsPerSheet;
         this.sheetName = sheetName;
         setSheetStrategy(sheetStrategy);

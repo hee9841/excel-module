@@ -13,20 +13,19 @@ import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract base class for Excel file operations using Apache POI's SXSSF (Streaming XML Spreadsheet
- * Format).
- * This class provides the core functionality for handling Excel files with streaming support for
- * large datasets.
+ * Abstract base class for Excel file operations using Apache POI's Workbook abstraction.
+ * This class provides the core functionality for handling Excel files with different Workbook
+ * implementations.
  *
  * <p>Key features:</p>
  * <ul>
- *     <li>Uses SXSSFWorkbook for memory-efficient handling of large Excel files</li>
- *     <li>Supports Excel 2007+ format (XLSX)</li>
+ *     <li>Supports different Workbook implementations</li>
+ *     <li>Supports Excel 2007+ format (XLSX) by default</li>
  *     <li>Provides column mapping and header generation</li>
  *     <li>Handles cell styling and data type conversion</li>
  * </ul>
@@ -35,23 +34,28 @@ import org.slf4j.LoggerFactory;
  * to be implemented by concrete subclasses.</p>
  *
  * @param <T> The type of data to be handled in the Excel file
+ * @param <W> The workbook implementation type
  */
-public abstract class AbstractExcelExporter<T> implements ExcelExporter<T> {
+public abstract class AbstractExcelExporter<T, W extends Workbook> implements ExcelExporter<T> {
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractExcelExporter.class);
 
     protected static final SpreadsheetVersion supplyExcelVersion = SpreadsheetVersion.EXCEL2007;
 
-    protected SXSSFWorkbook workbook;
+    protected W workbook;
     protected Map<Integer, ColumnInfo> columnsMappingInfo;
 
     protected String dtoTypeName;
 
     /**
-     * Constructs a new AbstractExcelExporter with a new SXSSFWorkbook instance.
+     * Constructs a new AbstractExcelExporter with the provided workbook instance.
      */
-    protected AbstractExcelExporter() {
-        this.workbook = new SXSSFWorkbook();
+    protected AbstractExcelExporter(W workbook) {
+        if (workbook == null) {
+//            throw new NullPointerException("workbook is null");
+            throw new ExcelException("Workbook is null.");
+        }
+        this.workbook = workbook;
     }
 
     /**
@@ -156,7 +160,7 @@ public abstract class AbstractExcelExporter<T> implements ExcelExporter<T> {
         }
         logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
 
-        try (SXSSFWorkbook autoCloseableWb = this.workbook) {
+        try (W autoCloseableWb = this.workbook) {
             autoCloseableWb.write(stream);
             logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
         }
