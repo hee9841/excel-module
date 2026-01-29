@@ -101,7 +101,7 @@ class SXSSFExporterByteOutputStreamTest {
 
         // Verify the exception message
         assertTrue(exception.getMessage()
-            .contains("The data size exceeds the maximum number of rows allowed per sheet"));
+            .contains("The data size exceeds the maximum number of data rows allowed per sheet"));
     }
 
 
@@ -120,7 +120,24 @@ class SXSSFExporterByteOutputStreamTest {
 
         //then
         assertTrue(exception.getMessage()
-            .contains("cannot exceed the supplied Excel sheet version's maximum row"));
+            .contains("maxRowsPerSheet must be between 2 and"));
+    }
+
+    @DisplayName("maxRows는 2 이상이어야 한다.")
+    @Test
+    void maxRowsMustBeAtLeastTwo() {
+        //given
+        List<TestDto> data = new ArrayList<>();
+
+        // when
+        ExcelException exception = assertThrows(ExcelException.class, () -> SXSSFExporter
+            .builder(TestDto.class, data)
+            .maxRows(1)
+            .build());
+
+        //then
+        assertTrue(exception.getMessage()
+            .contains("maxRowsPerSheet must be between 2 and"));
     }
 
     @DisplayName("엑셀 파일 생성 성공 시, log가 순서대로 생성되어야한다.")
@@ -137,17 +154,18 @@ class SXSSFExporterByteOutputStreamTest {
         exporter.write(os);
 
         //then
-        assertEquals(8, memoryAppender.getSize());
+        assertEquals(9, memoryAppender.getSize());
         assertTrue(memoryAppender.isPresent(0,
             "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode: Always.",
             Level.DEBUG));
         assertTrue(memoryAppender.isPresent(1, "Initializing", Level.INFO));
         assertTrue(memoryAppender.isPresent(2, "Mapping", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(3, "Create new Sheet", Level.DEBUG));
-        assertTrue(memoryAppender.isPresent(4, "Add rows data - row:1", Level.DEBUG));
-        assertTrue(memoryAppender.isPresent(5, "Add rows data - row:2", Level.DEBUG));
-        assertTrue(memoryAppender.isPresent(6, "Start to write Excel file", Level.INFO));
-        assertTrue(memoryAppender.isPresent(7, "Successfully wrote Excel", Level.INFO));
+        assertTrue(memoryAppender.isPresent(4, "Created header row at index 0", Level.DEBUG));
+        assertTrue(memoryAppender.isPresent(5, "Add rows data - row:1", Level.DEBUG));
+        assertTrue(memoryAppender.isPresent(6, "Add rows data - row:2", Level.DEBUG));
+        assertTrue(memoryAppender.isPresent(7, "Start to write Excel file", Level.INFO));
+        assertTrue(memoryAppender.isPresent(8, "Successfully wrote Excel", Level.INFO));
     }
 
 
@@ -175,7 +193,7 @@ class SXSSFExporterByteOutputStreamTest {
             assertNull(sheet.getRow(1));
         }
 
-        assertEquals(7, memoryAppender.countEventsForLogger(loggerClassName));
+        assertEquals(8, memoryAppender.countEventsForLogger(loggerClassName));
         assertTrue(memoryAppender.isPresent("Empty data provided", Level.WARN));
     }
 
@@ -245,7 +263,7 @@ class SXSSFExporterByteOutputStreamTest {
 
             //then
             assertTrue(exception.getMessage()
-                .contains("The data size exceeds the maximum number of rows allowed per sheet."));
+                .contains("The data size exceeds the maximum number of data rows allowed per sheet."));
 
             //
             assertEquals(2, memoryAppender.getSize());
@@ -282,6 +300,32 @@ class SXSSFExporterByteOutputStreamTest {
             assertTrue(memoryAppender.isPresent("Create new Sheet : TestSheet(1).", Level.DEBUG));
 
         }
+    }
+
+    @DisplayName("ONE_SHEET 전략에서 addRows가 남은 행을 초과하면 예외를 발생한다.")
+    @Test
+    void addRowsThrowsExceptionWhenExceedRemainingRowsInOneSheet() {
+        // given
+        List<TestDto> initialData = new ArrayList<>();
+        initialData.add(new TestDto("test1", 1));
+        initialData.add(new TestDto("test2", 2));
+        initialData.add(new TestDto("test3", 3));
+
+        SXSSFExporter<TestDto> exporter = SXSSFExporter.builder(TestDto.class, initialData)
+            .maxRows(5)
+            .sheetStrategy(SheetStrategy.ONE_SHEET)
+            .build();
+
+        List<TestDto> additionalData = new ArrayList<>();
+        additionalData.add(new TestDto("test4", 4));
+        additionalData.add(new TestDto("test5", 5));
+
+        // when & then
+        ExcelException exception = assertThrows(ExcelException.class,
+            () -> exporter.addRows(additionalData));
+
+        assertTrue(exception.getMessage()
+            .contains("The data size exceeds the remaining data rows in the current sheet."));
     }
 
     @DisplayName("Formula 타입인 cell는 함수 값이 적용 되어야한다.")
@@ -536,4 +580,3 @@ class SXSSFExporterByteOutputStreamTest {
     }
 
 }
-
