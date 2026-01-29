@@ -4,6 +4,7 @@ import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.strategy.SheetStrategy;
 import java.text.MessageFormat;
 import java.util.List;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
@@ -29,21 +30,17 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
  */
 public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
 
-    private static final String EXCEED_MAX_ROW_MSG_2ARGS =
-        "The data size exceeds the maximum number of rows allowed per sheet. "
-            + "The sheet strategy is set to ONE_SHEET but the data size is larger than "
-            + "the maximum rows per sheet (data size: {0}, maximum rows: {1} ).\n"
-            + "Please change the sheet strategy to MULTI_SHEET or reduce the data size.";
+    private static final SpreadsheetVersion supplyExcelVersion = SpreadsheetVersion.EXCEL2007;
+    private static final int HEADER_ROW_INDEX = 0;
 
-    private static final int ROW_START_INDEX = 0;
-    private int currentRowIndex = ROW_START_INDEX;
-
-    private final String sheetName;
-    private final int maxRowsPerSheet;
+    private final String sheetNamePrefix;
+    private final int maxRowsIndexPerSheet;
 
     private SheetStrategy sheetStrategy;
 
     private Sheet currentSheet;
+    private int currentRowIndex = HEADER_ROW_INDEX;
+    private int currentSheetIndex;
 
 
     /**
@@ -66,11 +63,16 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
         int maxRowsPerSheet
     ) {
         super(new SXSSFWorkbook());
-        this.maxRowsPerSheet = maxRowsPerSheet;
-        this.sheetName = sheetName;
-        setSheetStrategy(sheetStrategy);
 
+        this.sheetNamePrefix = sheetName;
+        this.maxRowsIndexPerSheet = maxRowsPerSheet - 1;
+        this.currentSheetIndex = HEADER_ROW_INDEX;
+
+        setSheetStrategy(sheetStrategy);
+        // Initialize column mapping
         this.initialize(type, data);
+
+        //create Excel
         this.createExcel(data);
     }
 
@@ -92,7 +94,7 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
      *
      * <p>This method also configures the workbook's Zip64 mode based on the selected strategy.</p>
      *
-     * @param strategy The sheet strategy to use (ONE_SHEET or MULTI_SHEET)-
+     * @param strategy The sheet strategy to use (ONE_SHEET or MULTI_SHEET)
      */
     private void setSheetStrategy(SheetStrategy strategy) {
 
@@ -116,10 +118,14 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
      */
     @Override
     protected void validate(Class<?> type, List<T> data) {
-        if (SheetStrategy.isOneSheet(sheetStrategy) && data.size() > maxRowsPerSheet - 1) {
+        if (SheetStrategy.isOneSheet(sheetStrategy) && data.size() > maxRowsIndexPerSheet) {
             throw new ExcelException(
-                MessageFormat.format(EXCEED_MAX_ROW_MSG_2ARGS,
-                    data.size(), maxRowsPerSheet
+                MessageFormat.format(
+                    "The data size exceeds the maximum number of data rows allowed per sheet. "
+                        + "The sheet strategy is set to ONE_SHEET but the data size is larger than "
+                        + "the maximum data rows per sheet (excluding header) (data size: {0}, maximum data rows: {1}).\n"
+                        + "Please change the sheet strategy to MULTI_SHEET or reduce the data size.",
+                    data.size(), maxRowsIndexPerSheet
                 ), dtoTypeName);
         }
     }
@@ -137,9 +143,8 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
      */
     @Override
     protected void createExcel(List<T> data) {
-
-        currentSheet = createNewSheet(sheetName, 0);
-        createHeader(currentSheet, ROW_START_INDEX);
+        // Initialize first sheet with headers
+        initializeNewSheet();
 
         // 1. If data is empty, create createHeader only.
         if (data.isEmpty()) {
@@ -149,7 +154,9 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
 
         //2. Add Rows
         addRows(data);
+
     }
+
 
     /**
      * Adds rows to the current sheet for the provided data list.
@@ -157,43 +164,41 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
      * <p>If the number of rows exceeds the maximum allowed per sheet and the sheet strategy
      * is MULTI_SHEET, a new sheet will be created to continue adding rows.</p>
      *
-     * <p>If the sheet strategy is ONE_SHEET and the data size exceeds the maximum rows per sheet,
-     * an ExcelException will be thrown.</p>
+     * <p>If the sheet strategy is ONE_SHEET and the data size exceeds the remaining rows
+     * in the current sheet, an ExcelException will be thrown.</p>
      *
      * @param data The list of data objects to be added as rows
      * @throws ExcelException if ONE_SHEET strategy is used and data exceeds max rows limit
      */
     @Override
     public void addRows(List<T> data) {
-        int leftDataSize = data.size();
-        for (Object renderedData : data) {
-            createBody(currentSheet, renderedData, currentRowIndex++);
-            leftDataSize--;
-            if (currentRowIndex == maxRowsPerSheet && leftDataSize > 0) {
-                //If one sheet strategy, throw exception
-                if (SheetStrategy.isOneSheet(sheetStrategy)) {
-                    throw new ExcelException(
-                        MessageFormat.format(EXCEED_MAX_ROW_MSG_2ARGS,
-                            data.size(), maxRowsPerSheet), dtoTypeName);
-                }
+        // If sheet strategy ONE_SHEET and ata size exceeds the remaining rows, throw Exception
+        if (SheetStrategy.isOneSheet(sheetStrategy) &&
+            (data.size() > maxRowsIndexPerSheet - currentRowIndex)
+        ) {
+            throw new ExcelException(
+                MessageFormat.format(
+                    "The data size exceeds the remaining data rows in the current sheet. "
+                        + "The sheet strategy is set to ONE_SHEET but the data size is larger than "
+                        + "the remaining data rows (data size: {0}, remaining data rows: {1}, maximum data rows per sheet (excluding header): {2}).\n"
+                        + "Please change the sheet strategy to MULTI_SHEET or reduce the data size.",
+                    data.size(), (maxRowsIndexPerSheet - currentRowIndex), maxRowsIndexPerSheet),
+                dtoTypeName);
+        }
 
-                //If multi sheet strategy, create new sheet
-                currentRowIndex = ROW_START_INDEX;
-                currentSheet = createNewSheet(sheetName, workbook.getSheetIndex(currentSheet) + 1);
-                createHeader(currentSheet, ROW_START_INDEX);
+
+        for (T rowData : data) {
+            if (currentRowIndex >= maxRowsIndexPerSheet) {
+                initializeNewSheet();
             }
+            createRow(currentSheet, rowData, ++currentRowIndex);
         }
     }
 
-    /**
-     * Override createHeader Method to add currentRowIndex.
-     *
-     * @param sheet      The sheet to add headers to
-     * @param headerRowIndex The headers row index
-     */
-    @Override
-    protected void createHeader(Sheet sheet, Integer headerRowIndex) {
-        super.createHeader(sheet, headerRowIndex);
-        currentRowIndex++;
+    private void initializeNewSheet() {
+        currentSheet = createSheet(sheetNamePrefix, currentSheetIndex++);
+        currentRowIndex = HEADER_ROW_INDEX;
+        createHeader(currentSheet, currentRowIndex);
     }
+
 }

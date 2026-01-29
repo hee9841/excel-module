@@ -53,7 +53,7 @@ public class SXSSFExporterBuilder<T> {
         this.type = type;
         this.data = data;
         this.supplyExcelMaxRows = supplyExcelMaxRows;
-        this.maxRowsPerSheet = supplyExcelMaxRows - 1;
+        this.maxRowsPerSheet = supplyExcelMaxRows;
         this.sheetStrategy = SheetStrategy.MULTI_SHEET;
         this.sheetName = null;
     }
@@ -77,10 +77,10 @@ public class SXSSFExporterBuilder<T> {
      * @throws ExcelException if maxRowsPerSheet exceeds the Excel version's maximum row limit
      */
     public SXSSFExporterBuilder<T> maxRows(int maxRowsPerSheet) {
-        if (maxRowsPerSheet > supplyExcelMaxRows) {
+        if (maxRowsPerSheet > supplyExcelMaxRows || maxRowsPerSheet < 2) {
             throw new ExcelException(String.format(
-                "The maximum rows per sheet(%d) cannot exceed the supplied Excel sheet version's maximum row limit(%d).",
-                maxRowsPerSheet, supplyExcelMaxRows));
+                "maxRowsPerSheet must be between 2 and %d (inclusive). Provided: %d.",
+                supplyExcelMaxRows, maxRowsPerSheet));
         }
         this.maxRowsPerSheet = maxRowsPerSheet;
         return this;
