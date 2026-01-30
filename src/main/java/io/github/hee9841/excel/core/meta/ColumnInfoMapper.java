@@ -198,8 +198,9 @@ public class ColumnInfoMapper {
     }
 
     private void validateField(Field field) {
+        Class<?> fieldType = field.getType();
 
-        if (field.getType().isArray()) {
+        if (fieldType.isArray()) {
             throw new ExcelException(
                 String.format("@ExcelColumn cannot be applied to array type: %s",
                     field.getName()),
@@ -207,11 +208,9 @@ public class ColumnInfoMapper {
             );
         }
 
-        if (type.isEnum() || type.isPrimitive()) {
+        if (fieldType.isEnum() || fieldType.isPrimitive()) {
             return;
         }
-
-        Class<?> fieldType = field.getType();
         ALLOWED_FIELD_TYPES.stream()
             .filter(allowedType -> allowedType.isAssignableFrom(fieldType))
             .findFirst()
