@@ -322,6 +322,10 @@ Controls how sheets are created when exporting data:
 
 ### Common Issues
 
+**Q: Is this library thread-safe?**  
+A: No. The exporters and underlying Apache POI `Workbook`/`CellStyle` objects are not thread-safe.  
+Create a new exporter per thread/request and do not share exporter instances across threads.
+
 **Q: Numbers are stored as text in Excel instead of numeric values**  
 A: You can fix this in two ways:
 1. Use `@ExcelColumn(columnColumnDataType = ColumnDataType.NUMBER)` to explicitly set the column type
@@ -333,8 +337,11 @@ A: Make sure you've set the appropriate `format` pattern in your `@ExcelColumn` 
 **Q: How can I format numbers with specific patterns?**  
 A: Use the `format` attribute in the `@ExcelColumn` annotation with standard Excel format patterns like `#,##0.00` for numbers or `yyyy-MM-dd` for dates.
 
-**Q: Do I need to specify column indices for all fields?**  
+**Q: Do I need to specify column indices for all fields?**
 A: Only if you're using `ColumnIndexStrategy.USER_DEFINED`. If you use `FIELD_ORDER` strategy, columns will be ordered according to field declaration order in the class.
+
+**Q: Can I reuse an exporter after calling `write()`?**
+A: No. Once `write()` is called, the exporter is closed and cannot be reused. Calling `write()` or `addRows()` after `write()` will throw an `IllegalStateException`. Create a new exporter instance if you need to export again.
 
 ## API Documentation
 
