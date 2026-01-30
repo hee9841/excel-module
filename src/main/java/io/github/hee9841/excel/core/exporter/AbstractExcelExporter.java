@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -40,7 +39,7 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
     protected static final Logger logger = LoggerFactory.getLogger(AbstractExcelExporter.class);
 
     protected W workbook;
-    protected Map<Integer, ColumnInfo> columnsMappingInfo;
+    protected List<ColumnInfo> columnsMappingInfos;
     protected String dtoTypeName;
 
     /**
@@ -68,7 +67,7 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
 
         logger.debug("Mapping DTO to Excel data - DTO class({}).", dtoTypeName);
         //Map DTO to Excel data
-        this.columnsMappingInfo = ColumnInfoMapper.of(type, workbook).map();
+        this.columnsMappingInfos = ColumnInfoMapper.of(type, workbook).map();
     }
 
 
@@ -138,8 +137,8 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
      */
     protected final void createHeader(Sheet sheet, Integer headerRowIndex) {
         Row row = sheet.createRow(headerRowIndex);
-        for (Integer colIndex : columnsMappingInfo.keySet()) {
-            ColumnInfo columnMappingInfo = columnsMappingInfo.get(colIndex);
+        for (ColumnInfo columnMappingInfo : columnsMappingInfos) {
+            int colIndex = columnMappingInfo.getIndex();
             Cell cell = row.createCell(colIndex);
             cell.setCellValue(columnMappingInfo.getHeaderName());
             cell.setCellStyle(columnMappingInfo.getHeaderStyle());
@@ -160,8 +159,8 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
         logger.debug("Add rows data - row:{}.", rowIndex);
         Row row = sheet.createRow(rowIndex);
 
-        for (Integer colIndex : columnsMappingInfo.keySet()) {
-            ColumnInfo columnInfo = columnsMappingInfo.get(colIndex);
+        for (ColumnInfo columnInfo : columnsMappingInfos) {
+            int colIndex = columnInfo.getIndex();
             try {
                 Field field = FieldUtils.getField(data.getClass(), columnInfo.getFieldName(), true);
                 Cell cell = row.createCell(colIndex);
