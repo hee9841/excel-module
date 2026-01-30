@@ -11,8 +11,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 /**
  * SXSSFExporter is a concrete implementation of {@link AbstractExcelExporter} that provides functionality
  * for exporting data to Excel files. This class uses the SXSSFWorkbook from Apache POI for
- * efficient
- * handling of large datasets by streaming data to disk.
+ * efficient handling of large datasets by streaming data to disk.
  *
  * <p>The SXSSFExporter supports two sheet management strategies:</p>
  * <ul>
@@ -24,6 +23,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
  *
  * @param <T> The type of data to be exported to Excel. The type must be annotated appropriately
  *            for Excel column mapping using the library's annotation system.
+ * @see ExcelExporter
  * @see AbstractExcelExporter
  * @see SXSSFExporterBuilder
  * @see SheetStrategy

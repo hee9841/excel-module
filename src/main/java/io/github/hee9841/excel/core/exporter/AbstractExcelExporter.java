@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
  * <p>This class implements the core functionality while leaving sheet management strategies
  * to be implemented by concrete subclasses.</p>
  *
+ * <p><b>Thread Safety:</b> This class is NOT thread-safe. A single instance should not be
+ * shared across multiple threads. Each thread should create its own exporter instance.</p>
+ *
  * @param <T> The type of data to be handled in the Excel file
  * @param <W> The workbook implementation type
  */
@@ -42,7 +45,7 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
     protected List<ColumnInfo> columnsMappingInfos;
     protected String dtoTypeName;
 
-    private boolean closed = false;
+    private volatile boolean closed = false;
 
     /**
      * Constructs a new AbstractExcelExporter with the provided workbook instance.
@@ -209,7 +212,6 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
 
     /**
      * Writes the Excel file content to the specified output stream.
-     * This method ensures proper resource cleanup using try-with-resources.
      * After this method is called, the exporter is closed and cannot be reused.
      *
      * @param stream The output stream to write the Excel file to
@@ -226,9 +228,31 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
         }
         logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
 
-        try (W autoCloseableWb = this.workbook) {
-            autoCloseableWb.write(stream);
+        try {
+            workbook.write(stream);
             logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
+        } finally {
+            close();
+        }
+    }
+
+    /**
+     * Closes the exporter and releases any resources associated with it.
+     * This method is idempotent - calling it multiple times has no additional effect.
+     *
+     * <p>For {@code SXSSFWorkbook}, this also cleans up temporary files created during
+     * the streaming process.</p>
+     */
+    @Override
+    public void close() {
+        if (closed) {
+            return;
+        }
+        try {
+            workbook.close();
+            logger.debug("Workbook closed for DTO class({}.java).", dtoTypeName);
+        } catch (IOException e) {
+            logger.warn("Failed to close workbook for DTO class({}.java).", dtoTypeName, e);
         } finally {
             closed = true;
         }

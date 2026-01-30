@@ -199,7 +199,7 @@ class SXSSFExporterByteOutputStreamTest {
         exporter.write(os);
 
         //then
-        assertEquals(9, memoryAppender.getSize());
+        assertEquals(10, memoryAppender.getSize());
         assertTrue(memoryAppender.isPresent(0,
             "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode: Always.",
             Level.DEBUG));
@@ -211,6 +211,7 @@ class SXSSFExporterByteOutputStreamTest {
         assertTrue(memoryAppender.isPresent(6, "Add rows data - row:2", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(7, "Start to write Excel file", Level.INFO));
         assertTrue(memoryAppender.isPresent(8, "Successfully wrote Excel", Level.INFO));
+        assertTrue(memoryAppender.isPresent(9, "Workbook closed", Level.DEBUG));
     }
 
 
@@ -238,8 +239,9 @@ class SXSSFExporterByteOutputStreamTest {
             assertNull(sheet.getRow(1));
         }
 
-        assertEquals(8, memoryAppender.countEventsForLogger(loggerClassName));
+        assertEquals(9, memoryAppender.countEventsForLogger(loggerClassName));
         assertTrue(memoryAppender.isPresent("Empty data provided", Level.WARN));
+        assertTrue(memoryAppender.isPresent("Workbook closed", Level.DEBUG));
     }
 
     @DisplayName("Sheet 관련 테스트")
