@@ -40,7 +40,7 @@ public enum ColumnDataType {
      * Numeric cell type for various number formats
      */
     NUMBER(
-        (cell, o) -> cell.setCellValue(Double.parseDouble(String.valueOf(o))),
+        (cell, o) -> cell.setCellValue(((Number) o).doubleValue()),
         Collections.unmodifiableList(
             Arrays.asList(
                 Integer.TYPE, Double.TYPE,
