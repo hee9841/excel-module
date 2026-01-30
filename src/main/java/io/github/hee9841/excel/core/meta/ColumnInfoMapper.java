@@ -21,9 +21,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -164,7 +164,7 @@ public class ColumnInfoMapper {
     private Optional<List<ColumnInfo>> parsingExcelColumns() {
         int autoColumnIndexCnt = 0;
         List<ColumnInfo> result = new ArrayList<>();
-        Map<Integer, ColumnInfo> indexLookup = new ConcurrentHashMap<>();
+        Map<Integer, ColumnInfo> indexLookup = new HashMap<>();
 
         for (Field field : FieldUtils.getAllFields(type)) {
             if (!field.isAnnotationPresent(ExcelColumn.class)) {
