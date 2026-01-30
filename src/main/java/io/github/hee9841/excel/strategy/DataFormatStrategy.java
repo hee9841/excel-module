@@ -23,7 +23,7 @@ package io.github.hee9841.excel.strategy;
  *
  * @see io.github.hee9841.excel.annotation.Excel#dataFormatStrategy()
  * @see io.github.hee9841.excel.core.meta.ColumnDataType
- * @see io.github.hee9841.excel.format.ExcelDataFormater
+ * @see io.github.hee9841.excel.format.ExcelDataFormatter
  * @see io.github.hee9841.excel.format.CellFormats
  */
 public enum DataFormatStrategy {
