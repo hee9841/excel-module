@@ -153,7 +153,7 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
         }
 
         //2. Add Rows
-        addRows(data);
+        doAddRows(data);
 
     }
 
@@ -171,7 +171,7 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
      * @throws ExcelException if ONE_SHEET strategy is used and data exceeds max rows limit
      */
     @Override
-    public void addRows(List<T> data) {
+    protected void doAddRows(List<T> data) {
         // If sheet strategy ONE_SHEET and ata size exceeds the remaining rows, throw Exception
         if (SheetStrategy.isOneSheet(sheetStrategy) &&
             (data.size() > maxRowsIndexPerSheet - currentRowIndex)

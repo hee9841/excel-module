@@ -104,6 +104,51 @@ class SXSSFExporterByteOutputStreamTest {
             .contains("The data size exceeds the maximum number of data rows allowed per sheet"));
     }
 
+    @DisplayName("write() 호출 후 addRows()를 호출하면 IllegalStateException이 발생한다.")
+    @Test
+    void addRowsAfterWriteThrowsIllegalStateException() throws IOException {
+        // given
+        List<TestDto> data = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            data.add(new TestDto("test" + (i + 1), i + 1));
+        }
+
+        ExcelExporter<TestDto> exporter = SXSSFExporter.builder(TestDto.class, data)
+            .maxRows(10)
+            .build();
+
+        exporter.write(os);
+
+        // when & then
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> exporter.addRows(data));
+
+        assertTrue(exception.getMessage().contains("already closed"));
+    }
+
+    @DisplayName("write() 호출 후 다시 write()를 호출하면 IllegalStateException이 발생한다.")
+    @Test
+    void writeAfterWriteThrowsIllegalStateException() throws IOException {
+        // given
+        List<TestDto> data = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            data.add(new TestDto("test" + (i + 1), i + 1));
+        }
+
+        ExcelExporter<TestDto> exporter = SXSSFExporter.builder(TestDto.class, data)
+            .maxRows(10)
+            .build();
+
+        exporter.write(os);
+
+        // when & then
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> exporter.write(new ByteArrayOutputStream()));
+
+        assertTrue(exception.getMessage().contains("already closed"));
+    }
+
+
 
     @DisplayName("엑셀 시트 버전의 최대 행을 넘는 max row 값을 설정할 수 없다.")
     @Test

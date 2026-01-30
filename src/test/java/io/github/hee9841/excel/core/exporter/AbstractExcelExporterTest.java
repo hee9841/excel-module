@@ -42,13 +42,13 @@ class AbstractExcelExporterTest {
         wb.close();
     }
 
-    @DisplayName("write에 null stream을 전달하면 NPE를 발생한다.")
+    @DisplayName("write에 null stream을 전달하면 IllegalArgumentException을 발생한다.")
     @Test
     void writeThrowsExceptionWhenStreamIsNull() {
         Workbook wb = new XSSFWorkbook();
         TestExporter testExporter = new TestExporter(wb);
 
-        assertThrows(NullPointerException.class, () -> testExporter.write(null));
+        assertThrows(IllegalArgumentException.class, () -> testExporter.write(null));
     }
 
     @DisplayName("워크북이 정상적으로 write 된다.")
@@ -78,7 +78,7 @@ class AbstractExcelExporterTest {
         }
 
         @Override
-        public void addRows(List<Object> data) {
+        protected void doAddRows(List<Object> data) {
         }
     }
 }

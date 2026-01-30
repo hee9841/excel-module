@@ -42,6 +42,8 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
     protected List<ColumnInfo> columnsMappingInfos;
     protected String dtoTypeName;
 
+    private boolean closed = false;
+
     /**
      * Constructs a new AbstractExcelExporter with the provided workbook instance.
      */
@@ -91,13 +93,26 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
 
     /**
      * Adds additional rows to the existing Excel file.
+     * This method checks if the exporter is still open before delegating to
+     * the subclass implementation.
+     *
+     * @param data The list of data objects to be added as rows
+     * @throws IllegalStateException if the exporter has already been closed
+     */
+    @Override
+    public final void addRows(List<T> data) {
+        ensureOpen();
+        doAddRows(data);
+    }
+
+    /**
+     * Performs the actual row addition logic.
      * This method must be implemented by subclasses according to their specific
      * sheet management strategy and workbook type.
      *
      * @param data The list of data objects to be added as rows
      */
-    @Override
-    public abstract void addRows(List<T> data);
+    protected abstract void doAddRows(List<T> data);
 
 
 
@@ -181,23 +196,41 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
 
 
     /**
+     * Ensures that the exporter is still open and can be used.
+     *
+     * @throws IllegalStateException if the exporter has already been closed
+     */
+    private void ensureOpen() {
+        if (closed) {
+            throw new IllegalStateException(
+                "Exporter is already closed. Cannot reuse after write().");
+        }
+    }
+
+    /**
      * Writes the Excel file content to the specified output stream.
      * This method ensures proper resource cleanup using try-with-resources.
+     * After this method is called, the exporter is closed and cannot be reused.
      *
      * @param stream The output stream to write the Excel file to
      * @throws IOException if an I/O error occurs during writing
-     * @throws NullPointerException if stream is null
+     * @throws IllegalArgumentException if stream is null
+     * @throws IllegalStateException if the exporter has already been closed
      */
     @Override
-    public final void write(OutputStream stream) throws IOException, NullPointerException {
+    public final void write(OutputStream stream) throws IOException {
+        ensureOpen();
+
         if (stream == null) {
-            throw new NullPointerException("Output stream is null.");
+            throw new IllegalArgumentException("Output stream must not be null.");
         }
         logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
 
         try (W autoCloseableWb = this.workbook) {
             autoCloseableWb.write(stream);
             logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
+        } finally {
+            closed = true;
         }
     }
 
