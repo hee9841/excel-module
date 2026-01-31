@@ -9,24 +9,22 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract base class for Excel file operations using Apache POI's SXSSF (Streaming XML Spreadsheet
- * Format).
- * This class provides the core functionality for handling Excel files with streaming support for
- * large datasets.
+ * Abstract base class for Excel file operations using Apache POI's Workbook abstraction.
+ * This class provides the core functionality for handling Excel files with different Workbook
+ * implementations.
  *
  * <p>Key features:</p>
  * <ul>
- *     <li>Uses SXSSFWorkbook for memory-efficient handling of large Excel files</li>
- *     <li>Supports Excel 2007+ format (XLSX)</li>
+ *     <li>Supports different Workbook implementations</li>
+ *     <li>Supports Excel 2007+ format (XLSX) by default</li>
  *     <li>Provides column mapping and header generation</li>
  *     <li>Handles cell styling and data type conversion</li>
  * </ul>
@@ -35,23 +33,24 @@ import org.slf4j.LoggerFactory;
  * to be implemented by concrete subclasses.</p>
  *
  * @param <T> The type of data to be handled in the Excel file
+ * @param <W> The workbook implementation type
  */
-public abstract class AbstractExcelExporter<T> implements ExcelExporter<T> {
+public abstract class AbstractExcelExporter<T, W extends Workbook> implements ExcelExporter<T> {
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractExcelExporter.class);
 
-    protected static final SpreadsheetVersion supplyExcelVersion = SpreadsheetVersion.EXCEL2007;
-
-    protected SXSSFWorkbook workbook;
+    protected W workbook;
     protected Map<Integer, ColumnInfo> columnsMappingInfo;
-
     protected String dtoTypeName;
 
     /**
-     * Constructs a new AbstractExcelExporter with a new SXSSFWorkbook instance.
+     * Constructs a new AbstractExcelExporter with the provided workbook instance.
      */
-    protected AbstractExcelExporter() {
-        this.workbook = new SXSSFWorkbook();
+    protected AbstractExcelExporter(W workbook) {
+        if (workbook == null) {
+            throw new ExcelException("Workbook cannot be null");
+        }
+        this.workbook = workbook;
     }
 
     /**
@@ -61,7 +60,7 @@ public abstract class AbstractExcelExporter<T> implements ExcelExporter<T> {
      * @param type The class type of the data to be exported
      * @param data The list of data objects to be exported
      */
-    protected void initialize(Class<?> type, List<T> data) {
+    protected final void initialize(Class<?> type, List<T> data) {
         this.dtoTypeName = type.getName();
         logger.info("Initializing Excel file for DTO: {}.java.", dtoTypeName);
 
@@ -72,95 +71,6 @@ public abstract class AbstractExcelExporter<T> implements ExcelExporter<T> {
         this.columnsMappingInfo = ColumnInfoMapper.of(type, workbook).map();
     }
 
-
-    /**
-     * Creates headers using the column mapping information.
-     *
-     * @param sheet      The sheet to add headers to
-     * @param headerRowIndex The headers row index
-     */
-    protected void createHeader(Sheet sheet, Integer headerRowIndex) {
-        Row row = sheet.createRow(headerRowIndex);
-        for (Integer colIndex : columnsMappingInfo.keySet()) {
-            ColumnInfo columnMappingInfo = columnsMappingInfo.get(colIndex);
-            Cell cell = row.createCell(colIndex);
-            cell.setCellValue(columnMappingInfo.getHeaderName());
-            cell.setCellStyle(columnMappingInfo.getHeaderStyle());
-        }
-    }
-
-    /**
-     * Creates a new sheet with headers.
-     *
-     * <p>This method resets the current row index, creates a new sheet, and adds headers to it.
-     * If a sheet name is provided, it will be used as a base name with an index(index starts from
-     * 0) suffix.</p>
-     */
-    protected Sheet createNewSheet(String sheetName, int sheetIndex) {
-        //If sheet name is provided, create sheet with sheet name + idx
-        final String finalSheetName = (sheetName != null)
-            ? String.format("%s(%d)", sheetName, sheetIndex)
-            : null;
-
-
-        Sheet sheet = (finalSheetName != null)
-            ? workbook.createSheet(finalSheetName)
-            : workbook.createSheet();
-
-        logger.debug("Create new Sheet : {}.", sheet.getSheetName());
-
-        return sheet;
-    }
-
-    /**
-     * Creates a row in the Excel sheet for the given data object.
-     * This method handles field access and cell value setting based on column mapping information.
-     *
-     * @param sheet    The Sheet object to create a row.
-     * @param data     The data object for rendering data to cell
-     * @param rowIndex The index of the row to create
-     * @throws ExcelException if field access fails
-     */
-    protected void createBody(Sheet sheet, Object data, int rowIndex) {
-        logger.debug("Add rows data - row:{}.", rowIndex);
-        Row row = sheet.createRow(rowIndex);
-        for (Integer colIndex : columnsMappingInfo.keySet()) {
-            ColumnInfo columnInfo = columnsMappingInfo.get(colIndex);
-            try {
-                Field field = FieldUtils.getField(data.getClass(), columnInfo.getFieldName(), true);
-                Cell cell = row.createCell(colIndex);
-                //Set cell value by cell type
-                columnInfo.getColumnType().setCellValueByCellType(cell, field.get(data));
-                //Set cell style
-                cell.setCellStyle(columnInfo.getBodyStyle());
-            } catch (IllegalAccessException e) {
-                throw new ExcelException(
-                    String.format("Failed to create body(column:%d, row:%d) : "
-                            + "Access to field %s failed.",
-                        colIndex, rowIndex, columnInfo.getFieldName()), e);
-            }
-        }
-    }
-
-    /**
-     * Writes the Excel file content to the specified output stream.
-     * This method ensures proper resource cleanup using try-with-resources.
-     *
-     * @param stream The output stream to write the Excel file to
-     * @throws IOException if an I/O error occurs during writing
-     */
-    @Override
-    public final void write(OutputStream stream) throws IOException {
-        if (stream == null) {
-            throw new ExcelException("Output stream is null.");
-        }
-        logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
-
-        try (SXSSFWorkbook autoCloseableWb = this.workbook) {
-            autoCloseableWb.write(stream);
-            logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
-        }
-    }
 
     /**
      * Validates the provided data and type.
@@ -179,5 +89,117 @@ public abstract class AbstractExcelExporter<T> implements ExcelExporter<T> {
      * @param data The list of data objects to be exported
      */
     protected abstract void createExcel(List<T> data);
+
+    /**
+     * Adds additional rows to the existing Excel file.
+     * This method must be implemented by subclasses according to their specific
+     * sheet management strategy and workbook type.
+     *
+     * @param data The list of data objects to be added as rows
+     */
+    @Override
+    public abstract void addRows(List<T> data);
+
+
+
+
+    /**
+     * Creates a new sheet.
+     *
+     * <p> If a sheet name is provided, it will be used as a base name with an index (index starts
+     * from 0) suffix.</p>
+     *
+     * @param sheetNamePrefix Base name for sheets (null for default names)
+     * @param sheetIndex      Index used to suffix the sheet name
+     * @return The newly created sheet
+     */
+    protected final Sheet createSheet(String sheetNamePrefix, int sheetIndex) {
+        //If sheet name is provided, create sheet with sheet name + idx
+        final String finalSheetName = (sheetNamePrefix != null)
+            ? String.format("%s(%d)", sheetNamePrefix, sheetIndex)
+            : null;
+
+
+        Sheet sheet = (finalSheetName != null)
+            ? workbook.createSheet(finalSheetName)
+            : workbook.createSheet();
+
+        logger.debug("Create new Sheet : {}.", sheet.getSheetName());
+
+        return sheet;
+    }
+
+
+    /**
+     * Creates a header row using the column mapping information.
+     *
+     * @param sheet The sheet to add headers to
+     * @param headerRowIndex The row index where headers should be created (0-based)
+     */
+    protected final void createHeader(Sheet sheet, Integer headerRowIndex) {
+        Row row = sheet.createRow(headerRowIndex);
+        for (Integer colIndex : columnsMappingInfo.keySet()) {
+            ColumnInfo columnMappingInfo = columnsMappingInfo.get(colIndex);
+            Cell cell = row.createCell(colIndex);
+            cell.setCellValue(columnMappingInfo.getHeaderName());
+            cell.setCellStyle(columnMappingInfo.getHeaderStyle());
+        }
+        logger.debug("Created header row at index {}", headerRowIndex);
+    }
+
+    /**
+     * Creates a row in the Excel sheet for the given data object.
+     * This method handles field access and cell value setting based on column mapping information.
+     *
+     * @param sheet    The Sheet object to create a row.
+     * @param data     The data object for rendering data to cell
+     * @param rowIndex The index of the row to create
+     * @throws ExcelException if field access fails
+     */
+    protected final void createRow(Sheet sheet, Object data, int rowIndex) {
+        logger.debug("Add rows data - row:{}.", rowIndex);
+        Row row = sheet.createRow(rowIndex);
+
+        for (Integer colIndex : columnsMappingInfo.keySet()) {
+            ColumnInfo columnInfo = columnsMappingInfo.get(colIndex);
+            try {
+                Field field = FieldUtils.getField(data.getClass(), columnInfo.getFieldName(), true);
+                Cell cell = row.createCell(colIndex);
+
+                //Set cell value by cell type
+                columnInfo.getColumnType().setCellValueByCellType(cell, field.get(data));
+
+                //Set cell style
+                cell.setCellStyle(columnInfo.getBodyStyle());
+            } catch (IllegalAccessException e) {
+                throw new ExcelException(
+                    String.format("Failed to create body(column:%d, row:%d) : "
+                            + "Access to field %s failed.",
+                        colIndex, rowIndex, columnInfo.getFieldName()), e);
+            }
+        }
+    }
+
+
+    /**
+     * Writes the Excel file content to the specified output stream.
+     * This method ensures proper resource cleanup using try-with-resources.
+     *
+     * @param stream The output stream to write the Excel file to
+     * @throws IOException if an I/O error occurs during writing
+     * @throws NullPointerException if stream is null
+     */
+    @Override
+    public final void write(OutputStream stream) throws IOException, NullPointerException {
+        if (stream == null) {
+            throw new NullPointerException("Output stream is null.");
+        }
+        logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
+
+        try (W autoCloseableWb = this.workbook) {
+            autoCloseableWb.write(stream);
+            logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
+        }
+    }
 
 }
