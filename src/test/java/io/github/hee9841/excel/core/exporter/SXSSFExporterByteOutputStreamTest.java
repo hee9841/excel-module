@@ -104,6 +104,51 @@ class SXSSFExporterByteOutputStreamTest {
             .contains("The data size exceeds the maximum number of data rows allowed per sheet"));
     }
 
+    @DisplayName("write() 호출 후 addRows()를 호출하면 IllegalStateException이 발생한다.")
+    @Test
+    void addRowsAfterWriteThrowsIllegalStateException() throws IOException {
+        // given
+        List<TestDto> data = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            data.add(new TestDto("test" + (i + 1), i + 1));
+        }
+
+        ExcelExporter<TestDto> exporter = SXSSFExporter.builder(TestDto.class, data)
+            .maxRows(10)
+            .build();
+
+        exporter.write(os);
+
+        // when & then
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> exporter.addRows(data));
+
+        assertTrue(exception.getMessage().contains("already closed"));
+    }
+
+    @DisplayName("write() 호출 후 다시 write()를 호출하면 IllegalStateException이 발생한다.")
+    @Test
+    void writeAfterWriteThrowsIllegalStateException() throws IOException {
+        // given
+        List<TestDto> data = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            data.add(new TestDto("test" + (i + 1), i + 1));
+        }
+
+        ExcelExporter<TestDto> exporter = SXSSFExporter.builder(TestDto.class, data)
+            .maxRows(10)
+            .build();
+
+        exporter.write(os);
+
+        // when & then
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> exporter.write(new ByteArrayOutputStream()));
+
+        assertTrue(exception.getMessage().contains("already closed"));
+    }
+
+
 
     @DisplayName("엑셀 시트 버전의 최대 행을 넘는 max row 값을 설정할 수 없다.")
     @Test
@@ -154,7 +199,7 @@ class SXSSFExporterByteOutputStreamTest {
         exporter.write(os);
 
         //then
-        assertEquals(9, memoryAppender.getSize());
+        assertEquals(10, memoryAppender.getSize());
         assertTrue(memoryAppender.isPresent(0,
             "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode: Always.",
             Level.DEBUG));
@@ -166,6 +211,7 @@ class SXSSFExporterByteOutputStreamTest {
         assertTrue(memoryAppender.isPresent(6, "Add rows data - row:2", Level.DEBUG));
         assertTrue(memoryAppender.isPresent(7, "Start to write Excel file", Level.INFO));
         assertTrue(memoryAppender.isPresent(8, "Successfully wrote Excel", Level.INFO));
+        assertTrue(memoryAppender.isPresent(9, "Workbook closed", Level.DEBUG));
     }
 
 
@@ -193,8 +239,9 @@ class SXSSFExporterByteOutputStreamTest {
             assertNull(sheet.getRow(1));
         }
 
-        assertEquals(8, memoryAppender.countEventsForLogger(loggerClassName));
+        assertEquals(9, memoryAppender.countEventsForLogger(loggerClassName));
         assertTrue(memoryAppender.isPresent("Empty data provided", Level.WARN));
+        assertTrue(memoryAppender.isPresent("Workbook closed", Level.DEBUG));
     }
 
     @DisplayName("Sheet 관련 테스트")

@@ -104,18 +104,19 @@ List<Product> products = Arrays.asList(
     new Product(3L, "Headphones", 249.99, LocalDateTime.now())
 );
 
-// 3. Export to Excel
-SXSSFExporter<Product> exporter = SXSSFExporter.builder(Product.class, products)
-    .sheetStrategy(SheetStrategy.MULTI_SHEET) // Optional, MULTI_SHEET is default
-    .maxRows(100)   // Optional, Max row of SpreadsheetVersion.EXCEL2007 is default
-    .sheetName("Products") // Optional, if not specified sheets will be named Sheet0, Sheet1, etc.
-    .build();
+// 3. Export to Excel (recommended: use try-with-resources)
+try (ExcelExporter<Product> exporter = SXSSFExporter.builder(Product.class, products)
+        .sheetStrategy(SheetStrategy.MULTI_SHEET) // Optional, MULTI_SHEET is default
+        .maxRows(100)   // Optional, Max row of SpreadsheetVersion.EXCEL2007 is default
+        .sheetName("Products") // Optional, if not specified sheets will be named Sheet0, Sheet1, etc.
+        .build()) {
 
-// Add more data if needed
-exporter.addRows(moreUsers);
+    // Add more data if needed
+    exporter.addRows(moreProducts);
 
-// Write to file or stream
-exporter.write(outputStream);
+    // Write to file or stream
+    exporter.write(outputStream);
+}  // Resources are automatically cleaned up
 ```
 
 ## Features & Specifications
@@ -322,6 +323,19 @@ Controls how sheets are created when exporting data:
 
 ### Common Issues
 
+**Q: Is this library thread-safe?**
+A: No. The exporters and underlying Apache POI `Workbook`/`CellStyle` objects are not thread-safe.
+Create a new exporter per thread/request and do not share exporter instances across threads.
+
+**Q: Should I use try-with-resources with the exporter?**
+A: Yes, it is recommended. The exporter implements `AutoCloseable` and uses temporary files internally (especially `SXSSFWorkbook`). Using try-with-resources ensures proper cleanup even if an exception occurs:
+```java
+try (ExcelExporter<MyData> exporter = SXSSFExporter.builder(MyData.class, data).build()) {
+    exporter.addRows(moreData);
+    exporter.write(outputStream);
+}  // Resources are automatically cleaned up
+```
+
 **Q: Numbers are stored as text in Excel instead of numeric values**  
 A: You can fix this in two ways:
 1. Use `@ExcelColumn(columnColumnDataType = ColumnDataType.NUMBER)` to explicitly set the column type
@@ -333,8 +347,11 @@ A: Make sure you've set the appropriate `format` pattern in your `@ExcelColumn` 
 **Q: How can I format numbers with specific patterns?**  
 A: Use the `format` attribute in the `@ExcelColumn` annotation with standard Excel format patterns like `#,##0.00` for numbers or `yyyy-MM-dd` for dates.
 
-**Q: Do I need to specify column indices for all fields?**  
+**Q: Do I need to specify column indices for all fields?**
 A: Only if you're using `ColumnIndexStrategy.USER_DEFINED`. If you use `FIELD_ORDER` strategy, columns will be ordered according to field declaration order in the class.
+
+**Q: Can I reuse an exporter after calling `write()` or `close()`?**
+A: No. Once `write()` or `close()` is called, the exporter is closed and cannot be reused. Calling `write()`, `addRows()`, or `close()` after the exporter is closed will throw an `IllegalStateException` (except `close()` which is idempotent). Create a new exporter instance if you need to export again.
 
 ## API Documentation
 

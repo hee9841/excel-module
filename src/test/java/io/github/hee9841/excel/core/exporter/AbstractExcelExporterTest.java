@@ -42,13 +42,13 @@ class AbstractExcelExporterTest {
         wb.close();
     }
 
-    @DisplayName("write에 null stream을 전달하면 NPE를 발생한다.")
+    @DisplayName("write에 null stream을 전달하면 IllegalArgumentException을 발생한다.")
     @Test
     void writeThrowsExceptionWhenStreamIsNull() {
         Workbook wb = new XSSFWorkbook();
         TestExporter testExporter = new TestExporter(wb);
 
-        assertThrows(NullPointerException.class, () -> testExporter.write(null));
+        assertThrows(IllegalArgumentException.class, () -> testExporter.write(null));
     }
 
     @DisplayName("워크북이 정상적으로 write 된다.")
@@ -61,6 +61,85 @@ class AbstractExcelExporterTest {
             testExporter.write(outputStream);
             assertThat(outputStream.toByteArray().length).isGreaterThan(0);
         }
+    }
+
+    @DisplayName("write() 호출 후 다시 write()를 호출하면 IllegalStateException을 발생한다.")
+    @Test
+    void writeAfterWriteThrowsException() throws IOException {
+        Workbook wb = new XSSFWorkbook();
+        TestExporter testExporter = new TestExporter(wb);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            testExporter.write(outputStream);
+        }
+
+        assertThrows(IllegalStateException.class, () -> {
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                testExporter.write(outputStream);
+            }
+        });
+    }
+
+    @DisplayName("write() 호출 후 addRows()를 호출하면 IllegalStateException을 발생한다.")
+    @Test
+    void addRowsAfterWriteThrowsException() throws IOException {
+        Workbook wb = new XSSFWorkbook();
+        TestExporter testExporter = new TestExporter(wb);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            testExporter.write(outputStream);
+        }
+
+        assertThrows(IllegalStateException.class, () -> testExporter.addRows(List.of()));
+    }
+
+    @DisplayName("close() 호출 후 write()를 호출하면 IllegalStateException을 발생한다.")
+    @Test
+    void writeAfterCloseThrowsException() {
+        Workbook wb = new XSSFWorkbook();
+        TestExporter testExporter = new TestExporter(wb);
+
+        testExporter.close();
+
+        assertThrows(IllegalStateException.class, () -> {
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                testExporter.write(outputStream);
+            }
+        });
+    }
+
+    @DisplayName("close() 호출 후 addRows()를 호출하면 IllegalStateException을 발생한다.")
+    @Test
+    void addRowsAfterCloseThrowsException() {
+        Workbook wb = new XSSFWorkbook();
+        TestExporter testExporter = new TestExporter(wb);
+
+        testExporter.close();
+
+        assertThrows(IllegalStateException.class, () -> testExporter.addRows(List.of()));
+    }
+
+    @DisplayName("close()는 여러 번 호출해도 예외가 발생하지 않는다.")
+    @Test
+    void closeIsIdempotent() {
+        Workbook wb = new XSSFWorkbook();
+        TestExporter testExporter = new TestExporter(wb);
+
+        testExporter.close();
+        testExporter.close();
+        testExporter.close();
+        // 예외 없이 정상 종료
+    }
+
+    @DisplayName("try-with-resources로 사용할 수 있다.")
+    @Test
+    void canBeUsedWithTryWithResources() throws IOException {
+        try (TestExporter testExporter = new TestExporter(new XSSFWorkbook());
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            testExporter.write(outputStream);
+            assertThat(outputStream.toByteArray().length).isGreaterThan(0);
+        }
+        // 예외 없이 정상 종료
     }
 
     private static class TestExporter extends AbstractExcelExporter<Object, Workbook> {
@@ -78,7 +157,7 @@ class AbstractExcelExporterTest {
         }
 
         @Override
-        public void addRows(List<Object> data) {
+        protected void doAddRows(List<Object> data) {
         }
     }
 }

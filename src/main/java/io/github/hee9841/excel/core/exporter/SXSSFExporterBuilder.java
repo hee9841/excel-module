@@ -16,14 +16,17 @@ import java.util.List;
  *     <li>Sheet Name: null (default sheet names will be used)</li>
  * </ul>
  *
- * <p>Example usage:</p>
- * <pre>
- * SXSSFExporter&lt;MyData&gt; exporter = SXSSFExporter.builder(MyData.class, dataList)
- *     .sheetStrategy(SheetStrategy.ONE_SHEET)
- *     .maxRows(10000)
- *     .sheetName("MySheet")
- *     .build();
- * </pre>
+ * <p>Example usage (recommended with try-with-resources):</p>
+ * <pre>{@code
+ * try (ExcelExporter<MyData> exporter = SXSSFExporter.builder(MyData.class, dataList)
+ *         .sheetStrategy(SheetStrategy.ONE_SHEET)
+ *         .maxRows(10000)
+ *         .sheetName("MySheet")
+ *         .build()) {
+ *     exporter.addRows(moreData);
+ *     exporter.write(outputStream);
+ * }
+ * }</pre>
  *
  * @param <T> The type of data to be exported
  */
