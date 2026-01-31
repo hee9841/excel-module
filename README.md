@@ -19,7 +19,7 @@ A Java library that helps you work with Excel files easily.
     - [Core Features](#core-features)
     - [Annotations](#annotations)
     - [Custom Cell Styling Options\*\*](#custom-cell-styling-options)
-    - [Strategies](#strategies)
+    - [Modes](#modes)
   - [Annotations](#annotations-1)
     - [@Excel (Class Level)](#excel-class-level)
     - [@ExcelColumn (Field Level)](#excelcolumn-field-level)
@@ -27,11 +27,11 @@ A Java library that helps you work with Excel files easily.
   - [Custom Cell Style](#custom-cell-style)
     - [1. Using Enum classes](#1-using-enum-classes)
     - [2. Using Custom Classes](#2-using-custom-classes)
-  - [Strategies](#strategies-1)
-    - [CellTypeStrategy](#celltypestrategy)
-    - [ColumnIndexStrategy](#columnindexstrategy)
-    - [DataFormatStrategy](#dataformatstrategy)
-    - [SheetStrategy](#sheetstrategy)
+  - [Modes](#modes-1)
+    - [CellTypeMode](#celltypemode)
+    - [ColumnIndexMode](#columnindexmode)
+    - [DataFormatMode](#dataformatmode)
+    - [SheetMode](#sheetmode)
   - [Troubleshooting \& FAQ](#troubleshooting--faq)
     - [Common Issues](#common-issues)
   - [API Documentation](#api-documentation)
@@ -47,7 +47,7 @@ This library is based on Apache POI and helps you to easily map Java DTO (Data T
 - Excel file write operations
 - Annotation-based Excel mapping
 - Cell Styling and Data formatting
-- Flexible extensibility through strategy pattern
+- Flexible extensibility through configurable modes
 
 ## Requirements
 
@@ -73,9 +73,9 @@ Here's a simple example to get you started:
 ```java
 // 1. Define your data model with Excel annotations
 @Excel(
-    columnIndexStrategy = ColumnIndexStrategy.USER_DEFINED,
-    cellTypeStrategy = CellTypeStrategy.AUTO,
-    dataFormatStrategy = DataFormatStrategy.AUTO_BY_CELL_TYPE
+    columnIndexMode = ColumnIndexMode.USER_DEFINED,
+    cellTypeMode = CellTypeMode.AUTO,
+    dataFormatMode = DataFormatMode.AUTO_BY_CELL_TYPE
 )
 public class Product {
 
@@ -106,7 +106,7 @@ List<Product> products = Arrays.asList(
 
 // 3. Export to Excel (recommended: use try-with-resources)
 try (ExcelExporter<Product> exporter = SXSSFExporter.builder(Product.class, products)
-        .sheetStrategy(SheetStrategy.MULTI_SHEET) // Optional, MULTI_SHEET is default
+        .sheetMode(SheetMode.MULTI_SHEET) // Optional, MULTI_SHEET is default
         .maxRows(100)   // Optional, Max row of SpreadsheetVersion.EXCEL2007 is default
         .sheetName("Products") // Optional, if not specified sheets will be named Sheet0, Sheet1, etc.
         .build()) {
@@ -127,7 +127,7 @@ This library provides several key features and specifications to help you work w
 - Excel file write operations with Apache POI
 - Annotation-based Excel mapping for Java classes
 - Customizable cell styling and data formatting
-- Flexible strategy patterns for column indexing, cell types, and data formats
+- Flexible modes for column indexing, cell types, and data formats
 
 ### Annotations
 - `@Excel` - Class level configuration
@@ -139,11 +139,11 @@ This library provides several key features and specifications to help you work w
 - Custom style classes
 - Pre-defined styles and formats
 
-### Strategies
-- Column indexing strategies
-- Cell type determination strategies 
-- Data format strategies
-- Sheet creation strategies
+### Modes
+- Column indexing modes
+- Cell type determination modes
+- Data format modes
+- Sheet creation modes
 
 See the sections below for detailed information about each feature.
 
@@ -157,9 +157,9 @@ The `@Excel` annotation is applied at the class level and configures global Exce
 
 ```java
 @Excel(
-    columnIndexStrategy = ColumnIndexStrategy.USER_DEFINED,
-    cellTypeStrategy = CellTypeStrategy.AUTO,
-    dataFormatStrategy = DataFormatStrategy.AUTO_BY_CELL_TYPE,
+    columnIndexMode = ColumnIndexMode.USER_DEFINED,
+    cellTypeMode = CellTypeMode.AUTO,
+    dataFormatMode = DataFormatMode.AUTO_BY_CELL_TYPE,
     headerStyle = @ExcelColumnStyle(cellStyleClass = MyHeaderEnumStyle.class, enumName="GRAY_25"),
     bodyStyle = @ExcelColumnStyle(cellStyleClass = MyBodyStyle.class)
 )
@@ -172,9 +172,9 @@ public class UserDTO {
 
 | Parameter             | Description                             | Default                           |
 |-----------------------|-----------------------------------------|-----------------------------------|
-| `columnIndexStrategy` | Strategy for determining column indices | `ColumnIndexStrategy.FIELD_ORDER` |
-| `cellTypeStrategy`    | Strategy for determining cell types     | `CellTypeStrategy.NONE`           |
-| `dataFormatStrategy`  | Strategy for applying data formats      | `DataFormatStrategy.NONE`         |
+| `columnIndexMode` | Mode for determining column indices | `ColumnIndexMode.FIELD_ORDER` |
+| `cellTypeMode`    | Mode for determining cell types     | `CellTypeMode.NONE`           |
+| `dataFormatMode`  | Mode for applying data formats      | `DataFormatMode.NONE`         |
 | `headerStyle`         | Default style for header cells          | *None*                            |
 | `bodyStyle`           | Default style for body cells            | *None*                            |
 
@@ -203,9 +203,9 @@ private Long id;
 | Parameter              | Description                        | Required?                                          | **Notes**                                                                                                                                                               |
 |------------------------|------------------------------------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `headerName`           | Column header text                 | Yes                                                |                                                                                                                                                                         |
-| `columnIndex`          | Position of the column             | Only when using `ColumnIndexStrategy.USER_DEFINED` |                                                                                                                                                                         |
-| `columnColumnDataType` | Excel cell type for the column     | No                                                 | **If specified, this overrides any `cellTypeStrategy` setting - even if `cellTypeStrategy` is set to `AUTO`, the explicitly defined type will be used for this column** |
-| `format`               | Format pattern for cell values     | No                                                 | **If specified, this format takes precedence over any automatic formatting from `dataFormatStrategy`, even when `dataFormatStrategy` is set to `AUTO_BY_CELL_TYPE`**    |
+| `columnIndex`          | Position of the column             | Only when using `ColumnIndexMode.USER_DEFINED` |                                                                                                                                                                         |
+| `columnColumnDataType` | Excel cell type for the column     | No                                                 | **If specified, this overrides any `cellTypeMode` setting - even if `cellTypeMode` is set to `AUTO`, the explicitly defined type will be used for this column** |
+| `format`               | Format pattern for cell values     | No                                                 | **If specified, this format takes precedence over any automatic formatting from `dataFormatMode`, even when `dataFormatMode` is set to `AUTO_BY_CELL_TYPE`**    |
 | `headerStyle`          | Style for this column's header     | No                                                 | overrides class-level style                                                                                                                                             |
 | `bodyStyle`            | Style for this column's data cells | No                                                 | overrides class-level style                                                                                                                                             |
 
@@ -287,32 +287,32 @@ public class MyCustomStyle extends CustomExcelCellStyle {
 }
 ```
 
-## Strategies
+## Modes
 
-The library provides several strategies to customize how Excel files are generated.
+The library provides several modes to customize how Excel files are generated.
 
-### CellTypeStrategy
+### CellTypeMode
 
 Controls how cell types are determined:
 
 - `NONE` (default): No automatic cell type determination
 - `AUTO`: Automatically determines cell types based on field types
 
-### ColumnIndexStrategy
+### ColumnIndexMode
 
 Controls how column order is determined:
 
 - `FIELD_ORDER`: Uses the order of field declarations in the class
 - `USER_DEFINED`: Uses explicitly defined column indices from `@ExcelColumn.columnIndex`
 
-### DataFormatStrategy
+### DataFormatMode
 
 Controls how data formatting is applied:
 
 - `NONE` (default): No automatic formatting
 - `AUTO_BY_CELL_TYPE`: Automatically applies formats based on cell types
 
-### SheetStrategy
+### SheetMode
 
 Controls how sheets are created when exporting data:
 
@@ -339,16 +339,16 @@ try (ExcelExporter<MyData> exporter = SXSSFExporter.builder(MyData.class, data).
 **Q: Numbers are stored as text in Excel instead of numeric values**  
 A: You can fix this in two ways:
 1. Use `@ExcelColumn(columnColumnDataType = ColumnDataType.NUMBER)` to explicitly set the column type
-2. Use `CellTypeStrategy.AUTO` in the class-level `@Excel` annotation to automatically detect numeric types
+2. Use `CellTypeMode.AUTO` in the class-level `@Excel` annotation to automatically detect numeric types
 
 **Q: My dates are not formatting correctly in the Excel file**  
-A: Make sure you've set the appropriate `format` pattern in your `@ExcelColumn` annotation(ex.`format = "yyyy-MM-dd HH:mm:ss"`) or use `DataFormatStrategy.AUTO_BY_CELL_TYPE` to apply default date formats.
+A: Make sure you've set the appropriate `format` pattern in your `@ExcelColumn` annotation(ex.`format = "yyyy-MM-dd HH:mm:ss"`) or use `DataFormatMode.AUTO_BY_CELL_TYPE` to apply default date formats.
 
 **Q: How can I format numbers with specific patterns?**  
 A: Use the `format` attribute in the `@ExcelColumn` annotation with standard Excel format patterns like `#,##0.00` for numbers or `yyyy-MM-dd` for dates.
 
 **Q: Do I need to specify column indices for all fields?**
-A: Only if you're using `ColumnIndexStrategy.USER_DEFINED`. If you use `FIELD_ORDER` strategy, columns will be ordered according to field declaration order in the class.
+A: Only if you're using `ColumnIndexMode.USER_DEFINED`. If you use `FIELD_ORDER` mode, columns will be ordered according to field declaration order in the class.
 
 **Q: Can I reuse an exporter after calling `write()` or `close()`?**
 A: No. Once `write()` or `close()` is called, the exporter is closed and cannot be reused. Calling `write()`, `addRows()`, or `close()` after the exporter is closed will throw an `IllegalStateException` (except `close()` which is idempotent). Create a new exporter instance if you need to export again.

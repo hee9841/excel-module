@@ -1,39 +1,39 @@
-package io.github.hee9841.excel.strategy;
+package io.github.hee9841.excel.mode;
 
 
 /**
- * Strategy enum that determines how cell types are assigned in Excel sheets.
+ * Mode enum that determines how cell types are assigned in Excel sheets.
  * <p>
- * This enum defines strategies for determining the data type and format of cells
+ * This enum defines modes for determining the data type and format of cells
  * when exporting data to Excel. It works in conjunction with the
  * {@link io.github.hee9841.excel.core.meta.ColumnDataType} enum to control how different Java types
  * are represented in Excel.
  * </p>
- * The available strategies are:
+ * The available modes are:
  * <ul>
  *   <li>{@code NONE}: Cell types are not applied.</li>
  *   <li>{@code AUTO}: Cell types are automatically determined based on the Java type of each field.</li>
  * </ul>
  * <p>
- * This strategy is typically configured at the class level using the
- * {@link io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()} annotation parameter and
+ * This mode is typically configured at the class level using the
+ * {@link io.github.hee9841.excel.annotation.Excel#cellTypeMode()} annotation parameter and
  * can be overridden at the column level using
  * {@link io.github.hee9841.excel.annotation.ExcelColumn#columnCellType()}.
  * </p>
- * When used with {@link DataFormatStrategy#AUTO_BY_CELL_TYPE}, it also affects how data formatting
+ * When used with {@link DataFormatMode#AUTO_BY_CELL_TYPE}, it also affects how data formatting
  * is applied to cells.
  *
- * @see io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()
+ * @see io.github.hee9841.excel.annotation.Excel#cellTypeMode()
  * @see io.github.hee9841.excel.annotation.ExcelColumn#columnCellType()
  * @see io.github.hee9841.excel.core.meta.ColumnDataType
  * @see io.github.hee9841.excel.core.meta.ColumnInfoMapper
- * @see DataFormatStrategy
+ * @see DataFormatMode
  */
-public enum CellTypeStrategy {
+public enum CellTypeMode {
     /**
-     * Strategy that does not apply any cell type.
+     * Mode that does not apply any cell type.
      * <p>
-     * With this strategy, you can explicitly specify the cell type for each column
+     * With this mode, you can explicitly specify the cell type for each column
      * using the {@link io.github.hee9841.excel.annotation.ExcelColumn#columnCellType()} parameter
      * or if not specified, cell type will be {@link io.github.hee9841.excel.core.meta.ColumnDataType#_NONE}.
      * </p>
@@ -41,9 +41,9 @@ public enum CellTypeStrategy {
     NONE,
 
     /**
-     * Strategy that automatically determines cell types based on field types.
+     * Mode that automatically determines cell types based on field types.
      * <p>
-     * With this strategy, the cell type is automatically determined based on the Java type
+     * With this mode, the cell type is automatically determined based on the Java type
      * of each field. This simplifies configuration but may not always choose the optimal
      * representation, especially for complex types or when specific formatting is required.
      * </p>

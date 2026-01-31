@@ -3,15 +3,15 @@ package io.github.hee9841.excel.example.dto;
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.core.meta.ColumnDataType;
-import io.github.hee9841.excel.strategy.CellTypeStrategy;
-import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
+import io.github.hee9841.excel.mode.CellTypeMode;
+import io.github.hee9841.excel.mode.ColumnIndexMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Excel(
-    columnIndexStrategy = ColumnIndexStrategy.USER_DEFINED,
-    cellTypeStrategy = CellTypeStrategy.AUTO
+    columnIndexMode = ColumnIndexMode.USER_DEFINED,
+    cellTypeMode = CellTypeMode.AUTO
 )
 public class TypeAutoDto {
 

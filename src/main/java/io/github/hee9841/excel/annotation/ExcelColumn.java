@@ -30,9 +30,9 @@ public @interface ExcelColumn {
     /**
      * The index of the column in the Excel sheet (starting from 0).
      * If not specified (default -1), the column index will be determined by the
-     * {@link io.github.hee9841.excel.annotation.Excel#columnIndexStrategy()} specified in the @Excel annotation.
-     * When {@link io.github.hee9841.excel.annotation.Excel#columnIndexStrategy()} is
-     * {@link io.github.hee9841.excel.strategy.ColumnIndexStrategy#USER_DEFINED},
+     * {@link io.github.hee9841.excel.annotation.Excel#columnIndexMode()} specified in the @Excel annotation.
+     * When {@link io.github.hee9841.excel.annotation.Excel#columnIndexMode()} is
+     * {@link io.github.hee9841.excel.mode.ColumnIndexMode#USER_DEFINED},
      * this value must be specified.
      *
      * @return the column index (starting from 0), or -1 if not specified
@@ -44,10 +44,10 @@ public @interface ExcelColumn {
      * This determines how data should be interpreted and formatted in the Excel sheet.
      * <p>
      * If specified (not _NONE), this value takes precedence over
-     * the {@link io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()}
+     * the {@link io.github.hee9841.excel.annotation.Excel#cellTypeMode()}
      * is defined in the @Excel annotation. For example,
-     * if {@link io.github.hee9841.excel.annotation.Excel#cellTypeStrategy()}
-     * {@link io.github.hee9841.excel.strategy.CellTypeStrategy#AUTO} but
+     * if {@link io.github.hee9841.excel.annotation.Excel#cellTypeMode()}
+     * {@link io.github.hee9841.excel.mode.CellTypeMode#AUTO} but
      * this columnCellType is specified, the specified type will be used.
      *
      * @return the cell type for the column
