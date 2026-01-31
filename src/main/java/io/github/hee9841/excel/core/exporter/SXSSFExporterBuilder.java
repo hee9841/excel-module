@@ -1,7 +1,7 @@
 package io.github.hee9841.excel.core.exporter;
 
 import io.github.hee9841.excel.exception.ExcelException;
-import io.github.hee9841.excel.strategy.SheetStrategy;
+import io.github.hee9841.excel.mode.SheetMode;
 import java.util.List;
 
 /**
@@ -11,7 +11,7 @@ import java.util.List;
  *
  * <p>Default configuration:</p>
  * <ul>
- *     <li>Sheet Strategy: MULTI_SHEET</li>
+ *     <li>Sheet Mode: MULTI_SHEET</li>
  *     <li>Max Rows per Sheet: Excel 2007+ maximum - 1</li>
  *     <li>Sheet Name: null (default sheet names will be used)</li>
  * </ul>
@@ -19,7 +19,7 @@ import java.util.List;
  * <p>Example usage (recommended with try-with-resources):</p>
  * <pre>{@code
  * try (ExcelExporter<MyData> exporter = SXSSFExporter.builder(MyData.class, dataList)
- *         .sheetStrategy(SheetStrategy.ONE_SHEET)
+ *         .sheetMode(SheetMode.ONE_SHEET)
  *         .maxRows(10000)
  *         .sheetName("MySheet")
  *         .build()) {
@@ -38,7 +38,7 @@ public class SXSSFExporterBuilder<T> {
     private final int supplyExcelMaxRows;
 
     private int maxRowsPerSheet;
-    private SheetStrategy sheetStrategy;
+    private SheetMode sheetMode;
     private String sheetName;
 
     /**
@@ -57,18 +57,18 @@ public class SXSSFExporterBuilder<T> {
         this.data = data;
         this.supplyExcelMaxRows = supplyExcelMaxRows;
         this.maxRowsPerSheet = supplyExcelMaxRows;
-        this.sheetStrategy = SheetStrategy.MULTI_SHEET;
+        this.sheetMode = SheetMode.MULTI_SHEET;
         this.sheetName = null;
     }
 
     /**
-     * Sets the sheet strategy for the Excel exporter.
+     * Sets the sheet mode for the Excel exporter.
      *
-     * @param sheetStrategy The strategy to use for sheet management (ONE_SHEET or MULTI_SHEET)
+     * @param sheetMode The mode to use for sheet management (ONE_SHEET or MULTI_SHEET)
      * @return This builder instance for method chaining
      */
-    public SXSSFExporterBuilder<T> sheetStrategy(SheetStrategy sheetStrategy) {
-        this.sheetStrategy = sheetStrategy;
+    public SXSSFExporterBuilder<T> sheetMode(SheetMode sheetMode) {
+        this.sheetMode = sheetMode;
         return this;
     }
 
@@ -116,7 +116,7 @@ public class SXSSFExporterBuilder<T> {
         return new SXSSFExporter<T>(
             this.type,
             this.data,
-            this.sheetStrategy,
+            this.sheetMode,
             this.sheetName,
             this.maxRowsPerSheet
         );

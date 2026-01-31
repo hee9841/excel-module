@@ -1,6 +1,6 @@
 package io.github.hee9841.excel.core.meta;
 
-import static io.github.hee9841.excel.strategy.ColumnIndexStrategy.USER_DEFINED;
+import static io.github.hee9841.excel.mode.ColumnIndexMode.USER_DEFINED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -10,9 +10,9 @@ import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.example.dto.TypeAutoDto;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.format.CellFormats;
-import io.github.hee9841.excel.strategy.CellTypeStrategy;
-import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
-import io.github.hee9841.excel.strategy.DataFormatStrategy;
+import io.github.hee9841.excel.mode.CellTypeMode;
+import io.github.hee9841.excel.mode.ColumnIndexMode;
+import io.github.hee9841.excel.mode.DataFormatMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -81,7 +81,7 @@ class ColumnInfoMapperTest {
     @Nested
     class ColumnIndexMappingTest {
 
-        @DisplayName("FIELD_ORDER 전략일 경우, 필드 순서대로 맵핑된다.")
+        @DisplayName("FIELD_ORDER 모드일 경우, 필드 순서대로 맵핑된다.")
         @Test
         void fieldOrder_MappedByFieldOrder() {
             //given
@@ -110,11 +110,11 @@ class ColumnInfoMapperTest {
             assertEquals("secondField", secondCol.getFieldName());
         }
 
-        @DisplayName("USER_DEFINED 전략일 경우, 지정한 Index값으로 맵핑된다.")
+        @DisplayName("USER_DEFINED 모드일 경우, 지정한 Index값으로 맵핑된다.")
         @Test
         void userDefined_MappedByUserDefined() {
             //given
-            @Excel(columnIndexStrategy = USER_DEFINED)
+            @Excel(columnIndexMode = USER_DEFINED)
             class TestExcelDto {
 
                 @ExcelColumn(headerName = "firstHeader", columnIndex = 5)
@@ -140,11 +140,11 @@ class ColumnInfoMapperTest {
         }
 
 
-        @DisplayName("FIELD_ORDER 전략일 경우, 지정한 columnIndex를 무시")
+        @DisplayName("FIELD_ORDER 모드일 경우, 지정한 columnIndex를 무시")
         @Test
         void fieldOrder_Ignore_columnIndexByUserDefined() {
             //given
-            @Excel(columnIndexStrategy = ColumnIndexStrategy.FIELD_ORDER)
+            @Excel(columnIndexMode = ColumnIndexMode.FIELD_ORDER)
             class TestExcelDto {
 
                 @ExcelColumn(headerName = "일", columnIndex = 3)
@@ -172,11 +172,11 @@ class ColumnInfoMapperTest {
         class ColumnIdxMappingException {
 
 
-            @DisplayName("USER_DEFINED 전략일 경우, columnIndex를 지정하지 않는 경우 예외 발생")
+            @DisplayName("USER_DEFINED 모드일 경우, columnIndex를 지정하지 않는 경우 예외 발생")
             @Test
             void userDefined_AndNotSetColumnIndex_Failed_Mapping() {
                 //given
-                @Excel(columnIndexStrategy = USER_DEFINED)
+                @Excel(columnIndexMode = USER_DEFINED)
                 class TestExcelDto {
 
                     @ExcelColumn(headerName = "일")
@@ -198,11 +198,11 @@ class ColumnInfoMapperTest {
             }
 
 
-            @DisplayName("USER_DEFINED 전략일 경우, columnIndex값이 음수일 때 예외 발생")
+            @DisplayName("USER_DEFINED 모드일 경우, columnIndex값이 음수일 때 예외 발생")
             @Test
             void userDefined_AndColumnIndexNegative_Failed_Mapping() {
                 //given
-                @Excel(columnIndexStrategy = USER_DEFINED)
+                @Excel(columnIndexMode = USER_DEFINED)
                 class TestExcelDto {
 
                     @ExcelColumn(headerName = "일", columnIndex = -5)
@@ -224,11 +224,11 @@ class ColumnInfoMapperTest {
 
             }
 
-            @DisplayName("USER_DEFINED 전략일 경우, columnIndex 값이 중복 되면 예외 발생")
+            @DisplayName("USER_DEFINED 모드일 경우, columnIndex 값이 중복 되면 예외 발생")
             @Test
             void userDefined_DuplicateColumnIndex() {
                 //given
-                @Excel(columnIndexStrategy = USER_DEFINED)
+                @Excel(columnIndexMode = USER_DEFINED)
                 class TestExcelDto {
 
                     @ExcelColumn(headerName = "first", columnIndex = 3)
@@ -287,7 +287,7 @@ class ColumnInfoMapperTest {
 
         @DisplayName("AUTO: 필드 타입에 따라 자동으로 또는 사용자가 지정한 타입에 맞게 맵핑된다.")
         @Test
-        void cellTypeStrategyIsAuto_applyAutoType() {
+        void cellTypeModeIsAuto_applyAutoType() {
             //given && when
             List<ColumnInfo> columnInfos = ColumnInfoMapper
                 .of(TypeAutoDto.class, wb).map();
@@ -321,9 +321,9 @@ class ColumnInfoMapperTest {
             }
         }
 
-        @DisplayName("cellType 전략과 columnCellType을 지정하지 않았을 경우, None type으로 지정한다.")
+        @DisplayName("cellType 모드와 columnCellType을 지정하지 않았을 경우, None type으로 지정한다.")
         @Test
-        void cellTypeStrategyAndColumnType_IsNone_applyNoneType() {
+        void cellTypeModeAndColumnType_IsNone_applyNoneType() {
             //given
             @Excel
             class TestDto {
@@ -345,9 +345,9 @@ class ColumnInfoMapperTest {
     @Nested
     class DataFormatMappingTest {
 
-        @DisplayName("dataFormat전략이 None: 각 컬럼에 format을 지정 안하면 none으로, 지정한면 지정한 패턴으로 적용된다.")
+        @DisplayName("dataFormat모드가 None: 각 컬럼에 format을 지정 안하면 none으로, 지정한면 지정한 패턴으로 적용된다.")
         @Test
-        void strategyIsNone_appliedByPattern() {
+        void modeIsNone_appliedByPattern() {
             //given
             @Excel
             class TestDto {
@@ -396,10 +396,10 @@ class ColumnInfoMapperTest {
         }
 
 
-        @DisplayName("dataFormatStrategy: AUTO_BY_CELL_TYPE : 지정한 pattern에 따라 적용되거나, celltype이 지정되면 cellType에 따라 적용된다.")
+        @DisplayName("dataFormatMode: AUTO_BY_CELL_TYPE : 지정한 pattern에 따라 적용되거나, celltype이 지정되면 cellType에 따라 적용된다.")
         @Test
-        void strategyAutoByCellType_AndNoneCellType() {
-            @Excel(dataFormatStrategy = DataFormatStrategy.AUTO_BY_CELL_TYPE)
+        void modeAutoByCellType_AndNoneCellType() {
+            @Excel(dataFormatMode = DataFormatMode.AUTO_BY_CELL_TYPE)
             class TestDto {
 
                 //1. cell type is none and format is none -> is none(general)
@@ -464,13 +464,13 @@ class ColumnInfoMapperTest {
             }
         }
 
-        @DisplayName("dataFormatStrategy: AUTO_BY_CELL_TYPE, CellType Auto : 기본으로 cellType에 따라 적용되고 지정하면 지정한 pattern이 적용된다.")
+        @DisplayName("dataFormatMode: AUTO_BY_CELL_TYPE, CellType Auto : 기본으로 cellType에 따라 적용되고 지정하면 지정한 pattern이 적용된다.")
         @Test
-        void strategyAutoByCellType_AndCellTypeisAuto() {
+        void modeAutoByCellType_AndCellTypeisAuto() {
             //givne
             @Excel(
-                dataFormatStrategy = DataFormatStrategy.AUTO_BY_CELL_TYPE,
-                cellTypeStrategy = CellTypeStrategy.AUTO
+                dataFormatMode = DataFormatMode.AUTO_BY_CELL_TYPE,
+                cellTypeMode = CellTypeMode.AUTO
             )
             class TestDto {
 
@@ -542,7 +542,7 @@ class ColumnInfoMapperTest {
         @Test
         void enumFieldType_shouldBeAllowed() {
             // given
-            @Excel(cellTypeStrategy = CellTypeStrategy.AUTO)
+            @Excel(cellTypeMode = CellTypeMode.AUTO)
             class TestDto {
 
                 @ExcelColumn(headerName = "status")
@@ -564,7 +564,7 @@ class ColumnInfoMapperTest {
         @Test
         void primitiveFieldType_shouldBeAllowed() {
             // given
-            @Excel(cellTypeStrategy = CellTypeStrategy.AUTO)
+            @Excel(cellTypeMode = CellTypeMode.AUTO)
             class TestDto {
 
                 @ExcelColumn(headerName = "intValue")
