@@ -17,9 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
-class ExcelDataFormaterTest {
+class ExcelDataFormatterTest {
 
-    @DisplayName("of 메서드는 DataFormat과 패턴으로 ExcelDataFormater 인스턴스를 생성한다")
+    @DisplayName("of 메서드는 DataFormat과 패턴으로 ExcelDataFormatter 인스턴스를 생성한다")
     @Test
     void create_instance() {
         // given
@@ -27,10 +27,10 @@ class ExcelDataFormaterTest {
         String pattern = "yyyy-MM-dd";
 
         // when
-        ExcelDataFormater formater = ExcelDataFormater.of(dataFormat, pattern);
+        ExcelDataFormatter formatter = ExcelDataFormatter.of(dataFormat, pattern);
 
         // then
-        assertNotNull(formater);
+        assertNotNull(formatter);
     }
 
 
@@ -54,10 +54,10 @@ class ExcelDataFormaterTest {
             short patternShortValue = (short) 1;
             given(dataFormat.getFormat(pattern)).willReturn(patternShortValue);
 
-            ExcelDataFormater formater = ExcelDataFormater.of(dataFormat, pattern);
+            ExcelDataFormatter formatter = ExcelDataFormatter.of(dataFormat, pattern);
 
             // when
-            formater.apply(cellStyle);
+            formatter.apply(cellStyle);
 
             // then
             then(cellStyle).should().setDataFormat(patternShortValue);
@@ -68,10 +68,10 @@ class ExcelDataFormaterTest {
         void not_apply_format_when_pattern_is_none() {
             // given
             String pattern = CellFormats._NONE;
-            ExcelDataFormater formater = ExcelDataFormater.of(dataFormat, pattern);
+            ExcelDataFormatter formatter = ExcelDataFormatter.of(dataFormat, pattern);
 
             // when
-            formater.apply(cellStyle);
+            formatter.apply(cellStyle);
 
             // then
             then(cellStyle).should(never()).setDataFormat(anyShort());
@@ -83,10 +83,10 @@ class ExcelDataFormaterTest {
             // given
             String pattern = null;
 
-            ExcelDataFormater formater = ExcelDataFormater.of(dataFormat, pattern);
+            ExcelDataFormatter formatter = ExcelDataFormatter.of(dataFormat, pattern);
 
             // when
-            formater.apply(cellStyle);
+            formatter.apply(cellStyle);
 
             // then
             then(cellStyle).should(never()).setDataFormat(anyShort());
@@ -97,10 +97,10 @@ class ExcelDataFormaterTest {
         void not_apply_format_when_pattern_is_empty() {
             // given
             String pattern = " ";
-            ExcelDataFormater formater = ExcelDataFormater.of(dataFormat, pattern);
+            ExcelDataFormatter formatter = ExcelDataFormatter.of(dataFormat, pattern);
 
             // when
-            formater.apply(cellStyle);
+            formatter.apply(cellStyle);
 
             // then
             then(cellStyle).should(never()).setDataFormat(anyShort());

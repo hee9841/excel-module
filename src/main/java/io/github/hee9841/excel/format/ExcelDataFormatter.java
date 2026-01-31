@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.DataFormat;
  * A formatter class for applying format patterns to Excel cell styles.
  * Uses Apache POI's DataFormat for applying formatting patterns to cell styles.
  */
-public class ExcelDataFormater {
+public class ExcelDataFormatter {
 
     /**
      * The format pattern string
@@ -19,20 +19,20 @@ public class ExcelDataFormater {
     private final DataFormat dataFormat;
 
 
-    private ExcelDataFormater(DataFormat dataFormat, String pattern) {
+    private ExcelDataFormatter(DataFormat dataFormat, String pattern) {
         this.pattern = pattern;
         this.dataFormat = dataFormat;
     }
 
     /**
-     * Factory method to create a new ExcelDataFormater instance.
+     * Factory method to create a new ExcelDataFormatter instance.
      *
      * @param dataFormat The Apache POI DataFormat object
      * @param pattern    The format pattern string to apply
-     * @return A new ExcelDataFormater instance
+     * @return A new ExcelDataFormatter instance
      */
-    public static ExcelDataFormater of(DataFormat dataFormat, String pattern) {
-        return new ExcelDataFormater(dataFormat, pattern);
+    public static ExcelDataFormatter of(DataFormat dataFormat, String pattern) {
+        return new ExcelDataFormatter(dataFormat, pattern);
     }
 
     /**

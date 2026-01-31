@@ -534,6 +534,106 @@ class ColumnInfoMapperTest {
         }
     }
 
+    @Nested
+    @DisplayName("validateField 테스트")
+    class ValidateFieldTest {
+
+        @DisplayName("enum 타입 필드는 @ExcelColumn으로 사용할 수 있다.")
+        @Test
+        void enumFieldType_shouldBeAllowed() {
+            // given
+            @Excel(cellTypeStrategy = CellTypeStrategy.AUTO)
+            class TestDto {
+
+                @ExcelColumn(headerName = "status")
+                private TestStatus status;
+            }
+
+            ColumnInfoMapper columnInfoMapper = ColumnInfoMapper.of(TestDto.class, wb);
+
+            // when
+            List<ColumnInfo> columnInfos = columnInfoMapper.map();
+
+            // then
+            assertEquals(1, columnInfos.size());
+            assertEquals("status", columnInfos.get(0).getFieldName());
+            assertEquals(ColumnDataType.ENUM, columnInfos.get(0).getColumnType());
+        }
+
+        @DisplayName("primitive 타입 필드는 @ExcelColumn으로 사용할 수 있다.")
+        @Test
+        void primitiveFieldType_shouldBeAllowed() {
+            // given
+            @Excel(cellTypeStrategy = CellTypeStrategy.AUTO)
+            class TestDto {
+
+                @ExcelColumn(headerName = "intValue")
+                private int intValue;
+
+                @ExcelColumn(headerName = "boolValue")
+                private boolean boolValue;
+
+                @ExcelColumn(headerName = "charValue")
+                private char charValue;
+            }
+
+            ColumnInfoMapper columnInfoMapper = ColumnInfoMapper.of(TestDto.class, wb);
+
+            // when
+            List<ColumnInfo> columnInfos = columnInfoMapper.map();
+
+            // then
+            assertEquals(3, columnInfos.size());
+            assertEquals(ColumnDataType.NUMBER, findByIndex(columnInfos, 0).getColumnType());
+            assertEquals(ColumnDataType.BOOLEAN, findByIndex(columnInfos, 1).getColumnType());
+            assertEquals(ColumnDataType.STRING, findByIndex(columnInfos, 2).getColumnType());
+        }
+
+        @DisplayName("배열 타입 필드는 @ExcelColumn으로 사용할 수 없다.")
+        @Test
+        void arrayFieldType_shouldThrowException() {
+            // given
+            @Excel
+            class TestDto {
+
+                @ExcelColumn(headerName = "values")
+                private int[] values;
+            }
+
+            ColumnInfoMapper columnInfoMapper = ColumnInfoMapper.of(TestDto.class, wb);
+
+            // when & then
+            ExcelException exception = assertThrows(
+                ExcelException.class, columnInfoMapper::map);
+
+            assertTrue(exception.getMessage().contains("cannot be applied to array type"));
+        }
+
+        @DisplayName("허용되지 않은 타입 필드는 @ExcelColumn으로 사용할 수 없다.")
+        @Test
+        void notAllowedFieldType_shouldThrowException() {
+            // given
+            @Excel
+            class TestDto {
+
+                @ExcelColumn(headerName = "list")
+                private List<String> list;
+            }
+
+            ColumnInfoMapper columnInfoMapper = ColumnInfoMapper.of(TestDto.class, wb);
+
+            // when & then
+            ExcelException exception = assertThrows(
+                ExcelException.class, columnInfoMapper::map);
+
+            assertTrue(exception.getMessage().contains("can only be applied to allowed types"));
+        }
+
+        enum TestStatus {
+            ACTIVE, INACTIVE
+        }
+    }
+
     private ColumnInfo findByIndex(List<ColumnInfo> columnInfos, int index) {
         return columnInfos.stream()
             .filter(columnInfo -> columnInfo.getIndex() == index)

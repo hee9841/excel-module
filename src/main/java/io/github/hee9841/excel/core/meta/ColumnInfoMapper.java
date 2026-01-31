@@ -9,7 +9,7 @@ import io.github.hee9841.excel.annotation.ExcelColumnStyle;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.exception.ExcelStyleException;
 import io.github.hee9841.excel.format.CellFormats;
-import io.github.hee9841.excel.format.ExcelDataFormater;
+import io.github.hee9841.excel.format.ExcelDataFormatter;
 import io.github.hee9841.excel.strategy.CellTypeStrategy;
 import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
 import io.github.hee9841.excel.strategy.DataFormatStrategy;
@@ -21,9 +21,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -164,7 +164,7 @@ public class ColumnInfoMapper {
     private Optional<List<ColumnInfo>> parsingExcelColumns() {
         int autoColumnIndexCnt = 0;
         List<ColumnInfo> result = new ArrayList<>();
-        Map<Integer, ColumnInfo> indexLookup = new ConcurrentHashMap<>();
+        Map<Integer, ColumnInfo> indexLookup = new HashMap<>();
 
         for (Field field : FieldUtils.getAllFields(type)) {
             if (!field.isAnnotationPresent(ExcelColumn.class)) {
@@ -198,8 +198,9 @@ public class ColumnInfoMapper {
     }
 
     private void validateField(Field field) {
+        Class<?> fieldType = field.getType();
 
-        if (field.getType().isArray()) {
+        if (fieldType.isArray()) {
             throw new ExcelException(
                 String.format("@ExcelColumn cannot be applied to array type: %s",
                     field.getName()),
@@ -207,11 +208,9 @@ public class ColumnInfoMapper {
             );
         }
 
-        if (type.isEnum() || type.isPrimitive()) {
+        if (fieldType.isEnum() || fieldType.isPrimitive()) {
             return;
         }
-
-        Class<?> fieldType = field.getType();
         ALLOWED_FIELD_TYPES.stream()
             .filter(allowedType -> allowedType.isAssignableFrom(fieldType))
             .findFirst()
@@ -273,7 +272,7 @@ public class ColumnInfoMapper {
         String fieldName
     ) {
         //Get cell type for column
-        ColumnDataType columnDataType = getcolumnDataType(excelColumn.columnCellType(), fieldType,
+        ColumnDataType columnDataType = getColumnDataType(excelColumn.columnCellType(), fieldType,
             fieldName);
 
         //Set Cell style
@@ -281,8 +280,8 @@ public class ColumnInfoMapper {
         CellStyle bodyStyle = updateCellStyle(excelColumn.bodyStyle(), defaultBodyStyle);
 
         //Set colum cell(body) format
-        ExcelDataFormater dataFormater = getDataFormater(excelColumn.format(), columnDataType);
-        dataFormater.apply(bodyStyle);
+        ExcelDataFormatter dataFormatter = getDataFormatter(excelColumn.format(), columnDataType);
+        dataFormatter.apply(bodyStyle);
 
         return ColumnInfo.of(
             columnIndex,
@@ -295,16 +294,16 @@ public class ColumnInfoMapper {
     }
 
     /**
-     * Creates a {@link ExcelDataFormater} for a cell based on the format pattern and
+     * Creates a {@link ExcelDataFormatter} for a cell based on the format pattern and
      * {@link ColumnDataType}.
      * Applies automatic formatting if the {@link DataFormatStrategy} is
      * {@link DataFormatStrategy#AUTO_BY_CELL_TYPE} by {@link ColumnDataType}.
      *
      * @param pattern        The format pattern specified in the annotation
      * @param columnDataType The {@link ColumnDataType}
-     * @return An {@link ExcelDataFormater} for the cell
+     * @return An {@link ExcelDataFormatter} for the cell
      */
-    private ExcelDataFormater getDataFormater(String pattern, ColumnDataType columnDataType) {
+    private ExcelDataFormatter getDataFormatter(String pattern, ColumnDataType columnDataType) {
         // When dataFormatStrategy is "AUTO" and format pattern is "isNone"(empty or null),
         // apply auto format pattern.
         if ((dataFormatStrategy.isAutoByColumnDataType() && CellFormats.isNone(pattern))) {
@@ -314,7 +313,7 @@ public class ColumnInfoMapper {
         // When dataFormatStrategy is "AUTO" and format pattern is not "isNone"
         // or dataFormatStrategy is "NONE"(format pattern is "isNone" or any value),
         // apply parameter "pattern" value.
-        return ExcelDataFormater.of(wb.createDataFormat(), pattern);
+        return ExcelDataFormatter.of(wb.createDataFormat(), pattern);
     }
 
     /**
@@ -329,7 +328,7 @@ public class ColumnInfoMapper {
      *                        field
      *                        type
      */
-    private ColumnDataType getcolumnDataType(ColumnDataType columnColumnDataType,
+    private ColumnDataType getColumnDataType(ColumnDataType columnColumnDataType,
         Class<?> fieldType, String fieldName) {
         // When cell type strategy is AUTO and column cell type is not specified
         // or when column cell type is AUTO,
