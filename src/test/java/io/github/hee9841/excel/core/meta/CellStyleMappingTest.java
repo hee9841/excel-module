@@ -23,7 +23,7 @@ import io.github.hee9841.excel.style.color.ExcelColor;
 import io.github.hee9841.excel.style.color.PaletteExcelColor;
 import io.github.hee9841.excel.style.configurer.ExcelCellStyleConfigurer;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
+import java.util.List;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -108,15 +108,16 @@ public class CellStyleMappingTest {
             }
 
             //when
-            Map<Integer, ColumnInfo> resultMap = ColumnInfoMapper
+            List<ColumnInfo> columnInfos = ColumnInfoMapper
                 .of(TestDto.class, wb).map();
 
             //then
-            assertCellStyleEquals(whiteGeneralCenterTopThin, resultMap.get(0).getHeaderStyle());
-            assertCellStyleEquals(blackCenterThin, resultMap.get(0).getBodyStyle());
+            assertCellStyleEquals(whiteGeneralCenterTopThin,
+                findByIndex(columnInfos, 0).getHeaderStyle());
+            assertCellStyleEquals(blackCenterThin, findByIndex(columnInfos, 0).getBodyStyle());
 
-            assertCellStyleEquals(blackCenterThin, resultMap.get(1).getHeaderStyle());
-            assertCellStyleEquals(wb.createCellStyle(), resultMap.get(1).getBodyStyle());
+            assertCellStyleEquals(blackCenterThin, findByIndex(columnInfos, 1).getHeaderStyle());
+            assertCellStyleEquals(wb.createCellStyle(), findByIndex(columnInfos, 1).getBodyStyle());
         }
 
 
@@ -141,15 +142,16 @@ public class CellStyleMappingTest {
             }
 
             //when
-            Map<Integer, ColumnInfo> resultMap = ColumnInfoMapper
+            List<ColumnInfo> columnInfos = ColumnInfoMapper
                 .of(TestDto.class, wb).map();
 
             //then
-            assertCellStyleEquals(whiteGeneralCenterTopThin, resultMap.get(0).getHeaderStyle());
-            assertCellStyleEquals(blackCenterThin, resultMap.get(0).getBodyStyle());
+            assertCellStyleEquals(whiteGeneralCenterTopThin,
+                findByIndex(columnInfos, 0).getHeaderStyle());
+            assertCellStyleEquals(blackCenterThin, findByIndex(columnInfos, 0).getBodyStyle());
 
-            assertCellStyleEquals(blackCenterThin, resultMap.get(1).getHeaderStyle());
-            assertCellStyleEquals(wb.createCellStyle(), resultMap.get(1).getBodyStyle());
+            assertCellStyleEquals(blackCenterThin, findByIndex(columnInfos, 1).getHeaderStyle());
+            assertCellStyleEquals(wb.createCellStyle(), findByIndex(columnInfos, 1).getBodyStyle());
         }
 
 
@@ -169,6 +171,12 @@ public class CellStyleMappingTest {
             assertEquals(expected.getBorderRight(), actual.getBorderRight());
         }
 
+        private ColumnInfo findByIndex(List<ColumnInfo> columnInfos, int index) {
+            return columnInfos.stream()
+                .filter(columnInfo -> columnInfo.getIndex() == index)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Column index not found: " + index));
+        }
 
     }
 

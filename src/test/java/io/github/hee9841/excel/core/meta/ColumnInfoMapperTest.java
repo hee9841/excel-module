@@ -16,7 +16,7 @@ import io.github.hee9841.excel.strategy.DataFormatStrategy;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,14 +98,14 @@ class ColumnInfoMapperTest {
                 .of(TestExcelDto.class, wb);
 
             //when
-            Map<Integer, ColumnInfo> map = columnInfoMapper.map();
+            List<ColumnInfo> columnInfos = columnInfoMapper.map();
 
             //then
-            ColumnInfo firstCol = map.get(0);
+            ColumnInfo firstCol = findByIndex(columnInfos, 0);
             assertEquals("firstHeader", firstCol.getHeaderName());
             assertEquals("firstField", firstCol.getFieldName());
 
-            ColumnInfo secondCol = map.get(1);
+            ColumnInfo secondCol = findByIndex(columnInfos, 1);
             assertEquals("secondHeader", secondCol.getHeaderName());
             assertEquals("secondField", secondCol.getFieldName());
         }
@@ -127,14 +127,14 @@ class ColumnInfoMapperTest {
                 .of(TestExcelDto.class, wb);
 
             //when
-            Map<Integer, ColumnInfo> map = columnInfoMapper.map();
+            List<ColumnInfo> columnInfos = columnInfoMapper.map();
 
             //then
-            ColumnInfo firstCol = map.get(5);
+            ColumnInfo firstCol = findByIndex(columnInfos, 5);
             assertEquals("firstHeader", firstCol.getHeaderName());
             assertEquals("firstField", firstCol.getFieldName());
 
-            ColumnInfo secondCol = map.get(4);
+            ColumnInfo secondCol = findByIndex(columnInfos, 4);
             assertEquals("secondHeader", secondCol.getHeaderName());
             assertEquals("secondField", secondCol.getFieldName());
         }
@@ -159,12 +159,12 @@ class ColumnInfoMapperTest {
                 .of(TestExcelDto.class, wb);
 
             //when
-            Map<Integer, ColumnInfo> map = columnInfoMapper.map();
+            List<ColumnInfo> columnInfos = columnInfoMapper.map();
 
             //then
-            assertEquals("일", map.get(0).getHeaderName());
-            assertEquals("이", map.get(1).getHeaderName());
-            assertEquals("삼", map.get(2).getHeaderName());
+            assertEquals("일", findByIndex(columnInfos, 0).getHeaderName());
+            assertEquals("이", findByIndex(columnInfos, 1).getHeaderName());
+            assertEquals("삼", findByIndex(columnInfos, 2).getHeaderName());
         }
 
         @DisplayName("column index mapping 예외")
@@ -289,15 +289,14 @@ class ColumnInfoMapperTest {
         @Test
         void cellTypeStrategyIsAuto_applyAutoType() {
             //given && when
-            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+            List<ColumnInfo> columnInfos = ColumnInfoMapper
                 .of(TypeAutoDto.class, wb).map();
 
             //then
-            assertEquals("primitiveInt", map.get(0).getFieldName());
-            assertEquals("numberField", map.get(0).getHeaderName());
+            assertEquals("primitiveInt", findByIndex(columnInfos, 0).getFieldName());
+            assertEquals("numberField", findByIndex(columnInfos, 0).getHeaderName());
 
-            for (Integer i : map.keySet()) {
-                ColumnInfo columnInfo = map.get(i);
+            for (ColumnInfo columnInfo : columnInfos) {
 
                 switch (columnInfo.getHeaderName()) {
                     case "numberField":
@@ -334,11 +333,11 @@ class ColumnInfoMapperTest {
             }
 
             //when
-            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+            List<ColumnInfo> columnInfos = ColumnInfoMapper
                 .of(TestDto.class, wb).map();
 
             //then
-            assertEquals(ColumnDataType._NONE, map.get(0).getColumnType());
+            assertEquals(ColumnDataType._NONE, findByIndex(columnInfos, 0).getColumnType());
         }
     }
 
@@ -385,12 +384,11 @@ class ColumnInfoMapperTest {
             }
 
             // && when
-            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+            List<ColumnInfo> columnInfos = ColumnInfoMapper
                 .of(TestDto.class, wb).map();
 
             //then
-            for (Integer key : map.keySet()) {
-                ColumnInfo columnInfo = map.get(key);
+            for (ColumnInfo columnInfo : columnInfos) {
                 String formatString = columnInfo.getBodyStyle().getDataFormatString();
                 assertFormatByHeaderName(columnInfo.getHeaderName(), formatString);
 
@@ -455,12 +453,11 @@ class ColumnInfoMapperTest {
             }
 
             // && when
-            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+            List<ColumnInfo> columnInfos = ColumnInfoMapper
                 .of(TestDto.class, wb).map();
 
             //then
-            for (Integer key : map.keySet()) {
-                ColumnInfo columnInfo = map.get(key);
+            for (ColumnInfo columnInfo : columnInfos) {
                 String formatString = columnInfo.getBodyStyle().getDataFormatString();
                 assertFormatByHeaderName(columnInfo.getHeaderName(), formatString);
 
@@ -501,12 +498,11 @@ class ColumnInfoMapperTest {
             }
 
             // && when
-            Map<Integer, ColumnInfo> map = ColumnInfoMapper
+            List<ColumnInfo> columnInfos = ColumnInfoMapper
                 .of(TestDto.class, wb).map();
 
             //then
-            for (Integer key : map.keySet()) {
-                ColumnInfo columnInfo = map.get(key);
+            for (ColumnInfo columnInfo : columnInfos) {
                 String formatString = columnInfo.getBodyStyle().getDataFormatString();
                 assertFormatByHeaderName(columnInfo.getHeaderName(), formatString);
 
@@ -536,6 +532,13 @@ class ColumnInfoMapperTest {
                     break;
             }
         }
+    }
+
+    private ColumnInfo findByIndex(List<ColumnInfo> columnInfos, int index) {
+        return columnInfos.stream()
+            .filter(columnInfo -> columnInfo.getIndex() == index)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("Column index not found: " + index));
     }
 
 }
