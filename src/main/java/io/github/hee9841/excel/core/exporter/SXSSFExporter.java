@@ -1,7 +1,7 @@
 package io.github.hee9841.excel.core.exporter;
 
 import io.github.hee9841.excel.exception.ExcelException;
-import io.github.hee9841.excel.strategy.SheetStrategy;
+import io.github.hee9841.excel.mode.SheetMode;
 import java.text.MessageFormat;
 import java.util.List;
 import org.apache.poi.ss.SpreadsheetVersion;
@@ -13,7 +13,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
  * for exporting data to Excel files. This class uses the SXSSFWorkbook from Apache POI for
  * efficient handling of large datasets by streaming data to disk.
  *
- * <p>The SXSSFExporter supports two sheet management strategies:</p>
+ * <p>The SXSSFExporter supports two sheet management modes:</p>
  * <ul>
  *     <li>ONE_SHEET - All data is exported to a single sheet (limited by max rows per sheet)</li>
  *     <li>MULTI_SHEET - Data is split across multiple sheets when exceeding max rows per sheet</li>
@@ -26,7 +26,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
  * @see ExcelExporter
  * @see AbstractExcelExporter
  * @see SXSSFExporterBuilder
- * @see SheetStrategy
+ * @see SheetMode
  */
 public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
 
@@ -36,7 +36,7 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
     private final String sheetNamePrefix;
     private final int maxRowsIndexPerSheet;
 
-    private SheetStrategy sheetStrategy;
+    private SheetMode sheetMode;
 
     private Sheet currentSheet;
     private int currentRowIndex = HEADER_ROW_INDEX;
@@ -51,14 +51,14 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
      *
      * @param type            The class type of the data to be exported
      * @param data            The list of data objects to be exported
-     * @param sheetStrategy   The strategy for sheet management (ONE_SHEET or MULTI_SHEET)
+     * @param sheetMode       The mode for sheet management (ONE_SHEET or MULTI_SHEET)
      * @param sheetName       Base name for sheets (null for default names)
      * @param maxRowsPerSheet Maximum number of rows allowed per sheet
      */
     SXSSFExporter(
         Class<T> type,
         List<T> data,
-        SheetStrategy sheetStrategy,
+        SheetMode sheetMode,
         String sheetName,
         int maxRowsPerSheet
     ) {
@@ -68,7 +68,7 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
         this.maxRowsIndexPerSheet = maxRowsPerSheet - 1;
         this.currentSheetIndex = HEADER_ROW_INDEX;
 
-        setSheetStrategy(sheetStrategy);
+        setSheetMode(sheetMode);
         // Initialize column mapping
         this.initialize(type, data);
 
@@ -90,19 +90,19 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
     }
 
     /**
-     * Sets the sheet strategy for this exporter.
+     * Sets the sheet mode for this exporter.
      *
-     * <p>This method also configures the workbook's Zip64 mode based on the selected strategy.</p>
+     * <p>This method also configures the workbook's Zip64 mode based on the selected mode.</p>
      *
-     * @param strategy The sheet strategy to use (ONE_SHEET or MULTI_SHEET)
+     * @param mode The sheet mode to use (ONE_SHEET or MULTI_SHEET)
      */
-    private void setSheetStrategy(SheetStrategy strategy) {
+    private void setSheetMode(SheetMode mode) {
 
-        this.sheetStrategy = strategy;
-        workbook.setZip64Mode(sheetStrategy.getZip64Mode());
+        this.sheetMode = mode;
+        workbook.setZip64Mode(sheetMode.getZip64Mode());
 
-        logger.debug("Set sheet strategy and Zip64Mode - strategy: {}, Zip64Mode: {}.",
-            strategy.name(), sheetStrategy.getZip64Mode().name());
+        logger.debug("Set sheet mode and Zip64Mode - mode: {}, Zip64Mode: {}.",
+            mode.name(), sheetMode.getZip64Mode().name());
     }
 
 
@@ -110,21 +110,21 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
      * Validates the data size against the maximum rows per sheet limit.
      *
      * <p>This method checks if the data size exceeds the maximum allowed rows per sheet
-     * when using ONE_SHEET strategy. If the limit is exceeded, an ExcelException is thrown.</p>
+     * when using ONE_SHEET mode. If the limit is exceeded, an ExcelException is thrown.</p>
      *
      * @param type The class type of the data being validated
      * @param data The list of data objects to be validated
-     * @throws ExcelException if data size exceeds max rows limit with ONE_SHEET strategy
+     * @throws ExcelException if data size exceeds max rows limit with ONE_SHEET mode
      */
     @Override
     protected void validate(Class<?> type, List<T> data) {
-        if (SheetStrategy.isOneSheet(sheetStrategy) && data.size() > maxRowsIndexPerSheet) {
+        if (SheetMode.isOneSheet(sheetMode) && data.size() > maxRowsIndexPerSheet) {
             throw new ExcelException(
                 MessageFormat.format(
                     "The data size exceeds the maximum number of data rows allowed per sheet. "
-                        + "The sheet strategy is set to ONE_SHEET but the data size is larger than "
+                        + "The sheet mode is set to ONE_SHEET but the data size is larger than "
                         + "the maximum data rows per sheet (excluding header) (data size: {0}, maximum data rows: {1}).\n"
-                        + "Please change the sheet strategy to MULTI_SHEET or reduce the data size.",
+                        + "Please change the sheet mode to MULTI_SHEET or reduce the data size.",
                     data.size(), maxRowsIndexPerSheet
                 ), dtoTypeName);
         }
@@ -161,27 +161,27 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
     /**
      * Adds rows to the current sheet for the provided data list.
      *
-     * <p>If the number of rows exceeds the maximum allowed per sheet and the sheet strategy
+     * <p>If the number of rows exceeds the maximum allowed per sheet and the sheet mode
      * is MULTI_SHEET, a new sheet will be created to continue adding rows.</p>
      *
-     * <p>If the sheet strategy is ONE_SHEET and the data size exceeds the remaining rows
+     * <p>If the sheet mode is ONE_SHEET and the data size exceeds the remaining rows
      * in the current sheet, an ExcelException will be thrown.</p>
      *
      * @param data The list of data objects to be added as rows
-     * @throws ExcelException if ONE_SHEET strategy is used and data exceeds max rows limit
+     * @throws ExcelException if ONE_SHEET mode is used and data exceeds max rows limit
      */
     @Override
     protected void doAddRows(List<T> data) {
-        // If sheet strategy ONE_SHEET and ata size exceeds the remaining rows, throw Exception
-        if (SheetStrategy.isOneSheet(sheetStrategy) &&
+        // If sheet mode ONE_SHEET and ata size exceeds the remaining rows, throw Exception
+        if (SheetMode.isOneSheet(sheetMode) &&
             (data.size() > maxRowsIndexPerSheet - currentRowIndex)
         ) {
             throw new ExcelException(
                 MessageFormat.format(
                     "The data size exceeds the remaining data rows in the current sheet. "
-                        + "The sheet strategy is set to ONE_SHEET but the data size is larger than "
+                        + "The sheet mode is set to ONE_SHEET but the data size is larger than "
                         + "the remaining data rows (data size: {0}, remaining data rows: {1}, maximum data rows per sheet (excluding header): {2}).\n"
-                        + "Please change the sheet strategy to MULTI_SHEET or reduce the data size.",
+                        + "Please change the sheet mode to MULTI_SHEET or reduce the data size.",
                     data.size(), (maxRowsIndexPerSheet - currentRowIndex), maxRowsIndexPerSheet),
                 dtoTypeName);
         }

@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
  *     <li>Handles cell styling and data type conversion</li>
  * </ul>
  *
- * <p>This class implements the core functionality while leaving sheet management strategies
- * to be implemented by concrete subclasses.</p>
+ * <p>This class implements the core functionality while leaving sheet management
+ * to be implemented by concrete subclasses based on their configured {@link io.github.hee9841.excel.mode.SheetMode}.</p>
  *
  * <p><b>Thread Safety:</b> This class is NOT thread-safe. A single instance should not be
  * shared across multiple threads. Each thread should create its own exporter instance.</p>
@@ -88,7 +88,7 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
     /**
      * Creates the Excel file with the provided data.
      * This method must be implemented by subclasses to define their specific sheet management
-     * strategy.
+     * based on the configured {@link io.github.hee9841.excel.mode.SheetMode}.
      *
      * @param data The list of data objects to be exported
      */
@@ -110,8 +110,8 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
 
     /**
      * Performs the actual row addition logic.
-     * This method must be implemented by subclasses according to their specific
-     * sheet management strategy and workbook type.
+     * This method must be implemented by subclasses according to their configured
+     * {@link io.github.hee9841.excel.mode.SheetMode} and workbook type.
      *
      * @param data The list of data objects to be added as rows
      */

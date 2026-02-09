@@ -16,10 +16,10 @@ import io.github.hee9841.excel.example.dto.TypeAutoDto;
 import io.github.hee9841.excel.example.style.EnumCellStyleExample;
 import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.format.CellFormats;
-import io.github.hee9841.excel.strategy.CellTypeStrategy;
-import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
-import io.github.hee9841.excel.strategy.DataFormatStrategy;
-import io.github.hee9841.excel.strategy.SheetStrategy;
+import io.github.hee9841.excel.mode.CellTypeMode;
+import io.github.hee9841.excel.mode.ColumnIndexMode;
+import io.github.hee9841.excel.mode.DataFormatMode;
+import io.github.hee9841.excel.mode.SheetMode;
 import io.github.hee9841.excel.style.CustomExcelCellStyle;
 import io.github.hee9841.excel.style.align.DefaultExcelAlign;
 import io.github.hee9841.excel.style.color.ColorPalette;
@@ -94,8 +94,8 @@ class SXSSFExporterByteOutputStreamTest {
         ExcelException exception = assertThrows(ExcelException.class, () ->
             SXSSFExporter.builder(TestDto.class, data)
                 .maxRows(maxRows)
-                .sheetStrategy(
-                    SheetStrategy.ONE_SHEET) // Force ONE_SHEET strategy to ensure exception is thrown
+                .sheetMode(
+                    SheetMode.ONE_SHEET) // Force ONE_SHEET mode to ensure exception is thrown
                 .build()
         );
 
@@ -201,7 +201,7 @@ class SXSSFExporterByteOutputStreamTest {
         //then
         assertEquals(10, memoryAppender.getSize());
         assertTrue(memoryAppender.isPresent(0,
-            "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode: Always.",
+            "Set sheet mode and Zip64Mode - mode: MULTI_SHEET, Zip64Mode: Always.",
             Level.DEBUG));
         assertTrue(memoryAppender.isPresent(1, "Initializing", Level.INFO));
         assertTrue(memoryAppender.isPresent(2, "Mapping", Level.DEBUG));
@@ -283,7 +283,7 @@ class SXSSFExporterByteOutputStreamTest {
 
             assertTrue(memoryAppender
                 .isPresent(
-                    "Set sheet strategy and Zip64Mode - strategy: MULTI_SHEET, Zip64Mode: Always",
+                    "Set sheet mode and Zip64Mode - mode: MULTI_SHEET, Zip64Mode: Always",
                     Level.DEBUG)
             );
             assertEquals(rowCnt, memoryAppender.search("Add rows data", Level.DEBUG).size());
@@ -304,7 +304,7 @@ class SXSSFExporterByteOutputStreamTest {
             ExcelException exception = assertThrows(ExcelException.class,
                 () -> SXSSFExporter.builder(TestDto.class, testData)
                     .maxRows(10)
-                    .sheetStrategy(SheetStrategy.ONE_SHEET)
+                    .sheetMode(SheetMode.ONE_SHEET)
                     .build()
             );
 
@@ -316,7 +316,7 @@ class SXSSFExporterByteOutputStreamTest {
             assertEquals(2, memoryAppender.getSize());
             assertTrue(memoryAppender.isPresent("Initializing", Level.INFO));
             assertTrue(memoryAppender.isPresent(
-                "Set sheet strategy and Zip64Mode - strategy: ONE_SHEET, Zip64Mode: AsNeeded.",
+                "Set sheet mode and Zip64Mode - mode: ONE_SHEET, Zip64Mode: AsNeeded.",
                 Level.DEBUG));
         }
 
@@ -360,7 +360,7 @@ class SXSSFExporterByteOutputStreamTest {
 
         SXSSFExporter<TestDto> exporter = SXSSFExporter.builder(TestDto.class, initialData)
             .maxRows(5)
-            .sheetStrategy(SheetStrategy.ONE_SHEET)
+            .sheetMode(SheetMode.ONE_SHEET)
             .build();
 
         List<TestDto> additionalData = new ArrayList<>();
@@ -564,14 +564,14 @@ class SXSSFExporterByteOutputStreamTest {
 
 
     @Excel(
-        columnIndexStrategy = ColumnIndexStrategy.USER_DEFINED,
+        columnIndexMode = ColumnIndexMode.USER_DEFINED,
         defaultHeaderStyle = @ExcelColumnStyle(
             cellStyleClass = EnumCellStyleExample.class,
             enumName = "GREY_25_PERCENT_CENTER_CENTER_ALL_BORDER_THICK"
         ),
         defaultBodyStyle = @ExcelColumnStyle(cellStyleClass = DefaultBodyStyle.class),
-        cellTypeStrategy = CellTypeStrategy.AUTO,
-        dataFormatStrategy = DataFormatStrategy.AUTO_BY_CELL_TYPE
+        cellTypeMode = CellTypeMode.AUTO,
+        dataFormatMode = DataFormatMode.AUTO_BY_CELL_TYPE
     )
     static class TestDto {
 

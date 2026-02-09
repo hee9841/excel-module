@@ -10,9 +10,9 @@ import io.github.hee9841.excel.exception.ExcelException;
 import io.github.hee9841.excel.exception.ExcelStyleException;
 import io.github.hee9841.excel.format.CellFormats;
 import io.github.hee9841.excel.format.ExcelDataFormatter;
-import io.github.hee9841.excel.strategy.CellTypeStrategy;
-import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
-import io.github.hee9841.excel.strategy.DataFormatStrategy;
+import io.github.hee9841.excel.mode.CellTypeMode;
+import io.github.hee9841.excel.mode.ColumnIndexMode;
+import io.github.hee9841.excel.mode.DataFormatMode;
 import io.github.hee9841.excel.style.ExcelCellStyle;
 import io.github.hee9841.excel.style.NoCellStyle;
 import java.lang.reflect.Field;
@@ -67,17 +67,17 @@ public class ColumnInfoMapper {
     private final CellStyle defaultBodyStyle;
 
     /**
-     * Strategy for determining column indices
+     * Mode for determining column indices
      */
-    private ColumnIndexStrategy columnIndexStrategy;
+    private ColumnIndexMode columnIndexMode;
     /**
-     * Strategy for determining cell types
+     * Mode for determining cell types
      */
-    private CellTypeStrategy cellTypeStrategy;
+    private CellTypeMode cellTypeMode;
     /**
-     * Strategy for determining data formats
+     * Mode for determining data formats
      */
-    private DataFormatStrategy dataFormatStrategy;
+    private DataFormatMode dataFormatMode;
 
 
     private ColumnInfoMapper(Class<?> type, Workbook wb) {
@@ -117,7 +117,7 @@ public class ColumnInfoMapper {
 
     /**
      * Parses the {@link Excel} annotation on the class to determine global settings.
-     * Sets up the column index strategy, cell type strategy, and data format strategy.
+     * Sets up the column index mode, cell type mode, and data format mode.
      * Also applies default styles for headers and bodies.
      *
      * @throws ExcelException If the {@link Excel} annotation is missing
@@ -126,9 +126,9 @@ public class ColumnInfoMapper {
         validateExcelAnnotation(type);
 
         Excel excel = type.getAnnotation(Excel.class);
-        columnIndexStrategy = excel.columnIndexStrategy();
-        cellTypeStrategy = excel.cellTypeStrategy();
-        dataFormatStrategy = excel.dataFormatStrategy();
+        columnIndexMode = excel.columnIndexMode();
+        cellTypeMode = excel.cellTypeMode();
+        dataFormatMode = excel.dataFormatMode();
 
         //set default style
         getExcelCellStyle(excel.defaultHeaderStyle()).apply(defaultHeaderStyle);
@@ -177,7 +177,7 @@ public class ColumnInfoMapper {
             field.setAccessible(true);
 
             //set column index value
-            int columnIndex = columnIndexStrategy.isFieldOrder()
+            int columnIndex = columnIndexMode.isFieldOrder()
                 ? autoColumnIndexCnt++
                 : excelColumn.columnIndex();
             validateColumnIndex(indexLookup, columnIndex, field.getName());
@@ -238,8 +238,8 @@ public class ColumnInfoMapper {
         if (columnIndex < 0) {
             throw new ExcelException(String.format(
                 "Invalid column index : The column index of '%s' field is negative or "
-                    + "column index value was not specified when column index strategy is USER_DEFINED.\n"
-                    + "Please Change index value to non-negative or Use 'FIELD_ORDER' strategy."
+                    + "column index value was not specified when column index mode is USER_DEFINED.\n"
+                    + "Please Change index value to non-negative or Use 'FIELD_ORDER' mode."
                 , fieldName),
                 type.getName()
             );
@@ -296,29 +296,29 @@ public class ColumnInfoMapper {
     /**
      * Creates a {@link ExcelDataFormatter} for a cell based on the format pattern and
      * {@link ColumnDataType}.
-     * Applies automatic formatting if the {@link DataFormatStrategy} is
-     * {@link DataFormatStrategy#AUTO_BY_CELL_TYPE} by {@link ColumnDataType}.
+     * Applies automatic formatting if the {@link DataFormatMode} is
+     * {@link DataFormatMode#AUTO_BY_CELL_TYPE} by {@link ColumnDataType}.
      *
      * @param pattern        The format pattern specified in the annotation
      * @param columnDataType The {@link ColumnDataType}
      * @return An {@link ExcelDataFormatter} for the cell
      */
     private ExcelDataFormatter getDataFormatter(String pattern, ColumnDataType columnDataType) {
-        // When dataFormatStrategy is "AUTO" and format pattern is "isNone"(empty or null),
+        // When dataFormatMode is "AUTO" and format pattern is "isNone"(empty or null),
         // apply auto format pattern.
-        if ((dataFormatStrategy.isAutoByColumnDataType() && CellFormats.isNone(pattern))) {
+        if ((dataFormatMode.isAutoByColumnDataType() && CellFormats.isNone(pattern))) {
             pattern = columnDataType.getDataFormatPattern();
         }
 
-        // When dataFormatStrategy is "AUTO" and format pattern is not "isNone"
-        // or dataFormatStrategy is "NONE"(format pattern is "isNone" or any value),
+        // When dataFormatMode is "AUTO" and format pattern is not "isNone"
+        // or dataFormatMode is "NONE"(format pattern is "isNone" or any value),
         // apply parameter "pattern" value.
         return ExcelDataFormatter.of(wb.createDataFormat(), pattern);
     }
 
     /**
      * Determines the appropriate {@link ColumnDataType} for a field based on the column cell type
-     * and the {@link CellTypeStrategy}.
+     * and the {@link CellTypeMode}.
      *
      * @param columnColumnDataType The {@link ColumnDataType} specified in the annotation
      * @param fieldType            The type of the field
@@ -330,10 +330,10 @@ public class ColumnInfoMapper {
      */
     private ColumnDataType getColumnDataType(ColumnDataType columnColumnDataType,
         Class<?> fieldType, String fieldName) {
-        // When cell type strategy is AUTO and column cell type is not specified
+        // When cell type mode is AUTO and column cell type is not specified
         // or when column cell type is AUTO,
         // the column's cell type is automatically determined based on the field type.
-        if ((cellTypeStrategy.isAuto() && columnColumnDataType.isNone())
+        if ((cellTypeMode.isAuto() && columnColumnDataType.isNone())
             || columnColumnDataType.isAuto()) {
             return ColumnDataType.from(fieldType);
         }

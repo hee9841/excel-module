@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 
 /**
  * Interface defining color behavior for Excel cell backgrounds.
- * Implementations of this interface provide different strategies for
+ * Implementations of this interface provide different approaches for
  * applying background colors to Excel cell styles.
  *
  * @see PaletteExcelColor

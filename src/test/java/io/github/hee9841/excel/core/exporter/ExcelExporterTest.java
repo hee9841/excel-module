@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
-import io.github.hee9841.excel.strategy.CellTypeStrategy;
-import io.github.hee9841.excel.strategy.ColumnIndexStrategy;
+import io.github.hee9841.excel.mode.CellTypeMode;
+import io.github.hee9841.excel.mode.ColumnIndexMode;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -58,8 +58,8 @@ class ExcelExporterTest {
     }
 
     @Excel(
-        columnIndexStrategy = ColumnIndexStrategy.USER_DEFINED,
-        cellTypeStrategy = CellTypeStrategy.AUTO
+        columnIndexMode = ColumnIndexMode.USER_DEFINED,
+        cellTypeMode = CellTypeMode.AUTO
     )
     static class TestDto {
         @ExcelColumn(headerName = "name", columnIndex = 0)
