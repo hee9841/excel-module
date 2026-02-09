@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractExcelExporter<T, W extends Workbook> implements ExcelExporter<T> {
 
+    // ========== Fields ==========
+
     protected static final Logger logger = LoggerFactory.getLogger(AbstractExcelExporter.class);
 
     protected W workbook;
@@ -46,6 +48,8 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
     protected String dtoTypeName;
 
     private volatile boolean closed = false;
+
+    // ========== Constructor ==========
 
     /**
      * Constructs a new AbstractExcelExporter with the provided workbook instance.
@@ -57,6 +61,73 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
         this.workbook = workbook;
     }
 
+    // ========== Public API ==========
+
+    /**
+     * Adds additional rows to the existing Excel file.
+     * This method checks if the exporter is still open before delegating to
+     * the subclass implementation.
+     *
+     * @param data The list of data objects to be added as rows
+     * @throws IllegalStateException if the exporter has already been closed
+     */
+    @Override
+    public final void addRows(List<T> data) {
+        ensureOpen();
+        doAddRows(data);
+    }
+
+    /**
+     * Writes the Excel file content to the specified output stream.
+     * After this method is called, the exporter is closed and cannot be reused.
+     *
+     * @param stream The output stream to write the Excel file to
+     * @throws IOException if an I/O error occurs during writing
+     * @throws IllegalArgumentException if stream is null
+     * @throws IllegalStateException if the exporter has already been closed
+     */
+    @Override
+    public final void write(OutputStream stream) throws IOException {
+        ensureOpen();
+
+        if (stream == null) {
+            throw new IllegalArgumentException("Output stream must not be null.");
+        }
+        logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
+
+        try {
+            workbook.write(stream);
+            logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
+        } finally {
+            close();
+        }
+    }
+
+
+    /**
+     * Closes the exporter and releases any resources associated with it.
+     * This method is idempotent - calling it multiple times has no additional effect.
+     *
+     * <p>For {@code SXSSFWorkbook}, this also cleans up temporary files created during
+     * the streaming process.</p>
+     */
+    @Override
+    public final void close() {
+        if (closed) {
+            return;
+        }
+        try {
+            workbook.close();
+            logger.debug("Workbook closed for DTO class({}.java).", dtoTypeName);
+        } catch (IOException e) {
+            logger.warn("Failed to close workbook for DTO class({}.java).", dtoTypeName, e);
+        } finally {
+            closed = true;
+        }
+    }
+
+    // ========== Template Methods ==========
+
     /**
      * Initializes the Excel file with the specified type and data.
      * This method performs validation and sets up column mapping information.
@@ -65,6 +136,13 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
      * @param data The list of data objects to be exported
      */
     protected final void initialize(Class<?> type, List<T> data) {
+        if (type == null) {
+            throw new IllegalArgumentException("Type must not be null.");
+        }
+        if (data == null) {
+            throw new IllegalArgumentException("Data must not be null.");
+        }
+
         this.dtoTypeName = type.getName();
         logger.info("Initializing Excel file for DTO: {}.java.", dtoTypeName);
 
@@ -75,6 +153,7 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
         this.columnsMappingInfos = ColumnInfoMapper.of(type, workbook).map();
     }
 
+    // ========== Abstract Methods (to be implemented by subclasses) ==========
 
     /**
      * Validates the provided data and type.
@@ -95,20 +174,6 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
     protected abstract void createExcel(List<T> data);
 
     /**
-     * Adds additional rows to the existing Excel file.
-     * This method checks if the exporter is still open before delegating to
-     * the subclass implementation.
-     *
-     * @param data The list of data objects to be added as rows
-     * @throws IllegalStateException if the exporter has already been closed
-     */
-    @Override
-    public final void addRows(List<T> data) {
-        ensureOpen();
-        doAddRows(data);
-    }
-
-    /**
      * Performs the actual row addition logic.
      * This method must be implemented by subclasses according to their configured
      * {@link io.github.hee9841.excel.mode.SheetMode} and workbook type.
@@ -117,8 +182,7 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
      */
     protected abstract void doAddRows(List<T> data);
 
-
-
+    // ========== Helper Methods ==========
 
     /**
      * Creates a new sheet.
@@ -197,6 +261,7 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
         }
     }
 
+    // ========== Private Methods ==========
 
     /**
      * Ensures that the exporter is still open and can be used.
@@ -207,54 +272,6 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
         if (closed) {
             throw new IllegalStateException(
                 "Exporter is already closed. Cannot reuse after write().");
-        }
-    }
-
-    /**
-     * Writes the Excel file content to the specified output stream.
-     * After this method is called, the exporter is closed and cannot be reused.
-     *
-     * @param stream The output stream to write the Excel file to
-     * @throws IOException if an I/O error occurs during writing
-     * @throws IllegalArgumentException if stream is null
-     * @throws IllegalStateException if the exporter has already been closed
-     */
-    @Override
-    public final void write(OutputStream stream) throws IOException {
-        ensureOpen();
-
-        if (stream == null) {
-            throw new IllegalArgumentException("Output stream must not be null.");
-        }
-        logger.info("Start to write Excel file for DTO class({}.java).", dtoTypeName);
-
-        try {
-            workbook.write(stream);
-            logger.info("Successfully wrote Excel file for DTO class({}.java).", dtoTypeName);
-        } finally {
-            close();
-        }
-    }
-
-    /**
-     * Closes the exporter and releases any resources associated with it.
-     * This method is idempotent - calling it multiple times has no additional effect.
-     *
-     * <p>For {@code SXSSFWorkbook}, this also cleans up temporary files created during
-     * the streaming process.</p>
-     */
-    @Override
-    public void close() {
-        if (closed) {
-            return;
-        }
-        try {
-            workbook.close();
-            logger.debug("Workbook closed for DTO class({}.java).", dtoTypeName);
-        } catch (IOException e) {
-            logger.warn("Failed to close workbook for DTO class({}.java).", dtoTypeName, e);
-        } finally {
-            closed = true;
         }
     }
 
