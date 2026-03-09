@@ -119,38 +119,11 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
         try {
             workbook.close();
             logger.debug("Workbook closed for DTO class({}.java).", dtoTypeName);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn("Failed to close workbook for DTO class({}.java).", dtoTypeName, e);
         } finally {
             closed = true;
         }
-    }
-
-    // ========== Template Methods ==========
-
-    /**
-     * Initializes the Excel file with the specified type and data.
-     * This method performs validation and sets up column mapping information.
-     *
-     * @param type The class type of the data to be exported
-     * @param data The list of data objects to be exported
-     */
-    protected final void initialize(Class<?> type, List<T> data) {
-        if (type == null) {
-            throw new IllegalArgumentException("Type must not be null.");
-        }
-        if (data == null) {
-            throw new IllegalArgumentException("Data must not be null.");
-        }
-
-        this.dtoTypeName = type.getName();
-        logger.info("Initializing Excel file for DTO: {}.java.", dtoTypeName);
-
-        validate(type, data);
-
-        logger.debug("Mapping DTO to Excel data - DTO class({}).", dtoTypeName);
-        //Map DTO to Excel data
-        this.columnsMappingInfos = ColumnInfoMapper.of(type, workbook).map();
     }
 
     // ========== Abstract Methods (to be implemented by subclasses) ==========
@@ -164,14 +137,6 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
      */
     protected abstract void validate(Class<?> type, List<T> data);
 
-    /**
-     * Creates the Excel file with the provided data.
-     * This method must be implemented by subclasses to define their specific sheet management
-     * based on the configured {@link io.github.hee9841.excel.mode.SheetMode}.
-     *
-     * @param data The list of data objects to be exported
-     */
-    protected abstract void createExcel(List<T> data);
 
     /**
      * Performs the actual row addition logic.
@@ -183,6 +148,31 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
     protected abstract void doAddRows(List<T> data);
 
     // ========== Helper Methods ==========
+
+
+    /**
+     * Initializes the Excel file with the specified type and data.
+     * This method performs validation and sets up column mapping information.
+     *
+     * @param type The class type of the data to be exported
+     * @param data The list of data objects to be exported
+     */
+    protected final void initialize(Class<?> type, List<T> data) {
+        try {
+            validate(type, data);
+
+            this.dtoTypeName = type.getName();
+            logger.info("Initializing Excel file for DTO: {}.java.", dtoTypeName);
+
+            logger.debug("Mapping DTO to Excel data - DTO class({}).", dtoTypeName);
+            //Map DTO to Excel data
+            this.columnsMappingInfos = ColumnInfoMapper.of(type, workbook).map();
+
+        } catch (Exception e) {
+            close();
+            throw e;
+        }
+    }
 
     /**
      * Creates a new sheet.

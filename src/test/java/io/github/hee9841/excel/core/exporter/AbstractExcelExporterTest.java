@@ -152,9 +152,7 @@ class AbstractExcelExporterTest {
         protected void validate(Class<?> type, List<Object> data) {
         }
 
-        @Override
-        protected void createExcel(List<Object> data) {
-        }
+
 
         @Override
         protected void doAddRows(List<Object> data) {
