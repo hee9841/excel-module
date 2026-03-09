@@ -104,12 +104,20 @@ List<Product> products = Arrays.asList(
     new Product(3L, "Headphones", 249.99, LocalDateTime.now())
 );
 
-// 3. Export to Excel (recommended: use try-with-resources)
-try (ExcelExporter<Product> exporter = SXSSFExporter.builder(Product.class, products)
+// 3. Export to Excel
+
+// Simple case: When you don't need to add more data after building
+SXSSFExporter.builder(Product.class, products)
         .sheetMode(SheetMode.MULTI_SHEET) // Optional, MULTI_SHEET is default
         .maxRows(100)   // Optional, Max row of SpreadsheetVersion.EXCEL2007 is default
         .sheetName("Products") // Optional, if not specified sheets will be named Sheet0, Sheet1, etc.
-        .build()) {
+        .build()
+        .write(outputStream);
+
+// Advanced case: When you need to add more data using addRows()
+try (ExcelExporter<Product> exporter = SXSSFExporter.builder(Product.class, products)
+         .sheetName("Products")
+         .build()) {
 
     // Add more data if needed
     exporter.addRows(moreProducts);
@@ -328,7 +336,12 @@ A: No. The exporters and underlying Apache POI `Workbook`/`CellStyle` objects ar
 Create a new exporter per thread/request and do not share exporter instances across threads.
 
 **Q: Should I use try-with-resources with the exporter?**
-A: Yes, it is recommended. The exporter implements `AutoCloseable` and uses temporary files internally (especially `SXSSFWorkbook`). Using try-with-resources ensures proper cleanup even if an exception occurs:
+A: It depends on your use case:
+- **Simple case**: If you don't need `addRows()`, you can chain `build().write()` directly. The `write()` method automatically closes the exporter internally.
+```java
+SXSSFExporter.builder(MyData.class, data).build().write(outputStream);
+```
+- **Advanced case**: If you need to call `addRows()` after building, use try-with-resources with the exporter:
 ```java
 try (ExcelExporter<MyData> exporter = SXSSFExporter.builder(MyData.class, data).build()) {
     exporter.addRows(moreData);
