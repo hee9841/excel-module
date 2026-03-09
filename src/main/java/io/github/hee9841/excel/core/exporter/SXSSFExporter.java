@@ -71,9 +71,8 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
         setSheetMode(sheetMode);
         // Initialize column mapping
         this.initialize(type, data);
-
         //create Excel
-        this.createExcel(data);
+        this.buildExcel(data);
     }
 
 
@@ -118,6 +117,13 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
      */
     @Override
     protected void validate(Class<?> type, List<T> data) {
+        if (type == null) {
+            throw new IllegalArgumentException("Type must not be null.");
+        }
+        if (data == null) {
+            throw new IllegalArgumentException("Data must not be null.");
+        }
+
         if (SheetMode.isOneSheet(sheetMode) && data.size() > maxRowsIndexPerSheet) {
             throw new ExcelException(
                 MessageFormat.format(
@@ -129,34 +135,6 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
                 ), dtoTypeName);
         }
     }
-
-    /**
-     * Creates the Excel(workBook) with the provided data.
-     *
-     * <p>This method handles the creation of sheets and rows based on the data:</p>
-     * <ul>
-     *   <li>If the data is empty, it creates a sheet with headers only</li>
-     *   <li>Otherwise, it creates a sheet with headers and adds all data rows</li>
-     * </ul>
-     *
-     * @param data The list of data objects to be exported
-     */
-    @Override
-    protected void createExcel(List<T> data) {
-        // Initialize first sheet with headers
-        initializeNewSheet();
-
-        // 1. If data is empty, create createHeader only.
-        if (data.isEmpty()) {
-            logger.warn("Empty data provided - Excel file will be created with headers only.");
-            return;
-        }
-
-        //2. Add Rows
-        doAddRows(data);
-
-    }
-
 
     /**
      * Adds rows to the current sheet for the provided data list.
@@ -195,10 +173,45 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
         }
     }
 
+
     private void initializeNewSheet() {
         currentSheet = createSheet(sheetNamePrefix, currentSheetIndex++);
         currentRowIndex = HEADER_ROW_INDEX;
         createHeader(currentSheet, currentRowIndex);
     }
+
+    /**
+     * Creates the first Excel(workBook) with the provided data.
+     *
+     * <p>This method handles the creation of sheets and rows based on the data:</p>
+     * <ul>
+     *   <li>If the data is empty, it creates a sheet with headers only</li>
+     *   <li>Otherwise, it creates a sheet with headers and adds all data rows</li>
+     * </ul>
+     *
+     * @param data The list of data objects to be exported
+     */
+    private void buildExcel(List<T> data) {
+        try {
+            // Initialize first sheet with headers
+            initializeNewSheet();
+
+            // 1. If data is empty, create createHeader only.
+            if (data.isEmpty()) {
+                logger.warn("Empty data provided - Excel file will be created with headers only.");
+                return;
+            }
+
+            //2. Add Rows
+            doAddRows(data);
+        } catch (Exception e) {
+            close();
+            throw e;
+        }
+    }
+
+
+
+
 
 }

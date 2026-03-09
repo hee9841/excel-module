@@ -97,24 +97,29 @@ public class Product {
     // Constructors, getters, and setters
 }
 
-// 2. Create some data
+// 2. Prepare data as a List
 List<Product> products = Arrays.asList(
     new Product(1L, "Laptop", 1299.99, LocalDateTime.now()),
     new Product(2L, "Smartphone", 899.99, LocalDateTime.now()),
     new Product(3L, "Headphones", 249.99, LocalDateTime.now())
 );
 
-// 3. Export to Excel (recommended: use try-with-resources)
-try (ExcelExporter<Product> exporter = SXSSFExporter.builder(Product.class, products)
+// 3. Export to Excel
+
+// Simple case: When you don't need to add more data after building
+SXSSFExporter.builder(Product.class, products)
         .sheetMode(SheetMode.MULTI_SHEET) // Optional, MULTI_SHEET is default
-        .maxRows(100)   // Optional, Max row of SpreadsheetVersion.EXCEL2007 is default
-        .sheetName("Products") // Optional, if not specified sheets will be named Sheet0, Sheet1, etc.
-        .build()) {
+        .maxRows(100)                     // Optional, Max row of SpreadsheetVersion.EXCEL2007 is default
+        .sheetName("Products")           // Optional, if not specified sheets will be named Sheet0, Sheet1, etc.
+        .build()
+        .write(outputStream);
+
+// Advanced case: When you need to add more data using addRows()
+try (ExcelExporter<Product> exporter = SXSSFExporter.builder(Product.class, products)
+        .sheetName("Products").build()) {
 
     // Add more data if needed
     exporter.addRows(moreProducts);
-
-    // Write to file or stream
     exporter.write(outputStream);
 }  // Resources are automatically cleaned up
 ```
@@ -134,7 +139,7 @@ This library provides several key features and specifications to help you work w
 - `@ExcelColumn` - Field level mapping
 - `@ExcelColumnStyle` - Cell styling configuration
 
-### Custom Cell Styling Options**
+### **Custom Cell Styling Options**
 - Enum-based cell styles
 - Custom style classes
 - Pre-defined styles and formats
@@ -328,7 +333,13 @@ A: No. The exporters and underlying Apache POI `Workbook`/`CellStyle` objects ar
 Create a new exporter per thread/request and do not share exporter instances across threads.
 
 **Q: Should I use try-with-resources with the exporter?**
-A: Yes, it is recommended. The exporter implements `AutoCloseable` and uses temporary files internally (especially `SXSSFWorkbook`). Using try-with-resources ensures proper cleanup even if an exception occurs:
+A: It depends on whether you need `addRows()`:
+
+- **If you don't need `addRows()`**: You can chain `build().write()` directly. The `write()` method guarantees `close()` internally via `finally`, so resources are always cleaned up:
+```java
+SXSSFExporter.builder(MyData.class, data).build().write(outputStream);
+```
+- **If you need `addRows()`**: Use try-with-resources. This is required, not just recommended — if `addRows()` throws before `write()` is called, resources will not be released:
 ```java
 try (ExcelExporter<MyData> exporter = SXSSFExporter.builder(MyData.class, data).build()) {
     exporter.addRows(moreData);

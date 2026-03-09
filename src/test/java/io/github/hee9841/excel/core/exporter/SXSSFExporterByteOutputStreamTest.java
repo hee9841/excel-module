@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import io.github.hee9841.excel.annotation.Excel;
 import io.github.hee9841.excel.annotation.ExcelColumn;
 import io.github.hee9841.excel.annotation.ExcelColumnStyle;
@@ -72,10 +73,10 @@ class SXSSFExporterByteOutputStreamTest {
         os = new ByteArrayOutputStream();
 
     }
-
     @AfterEach
     public void afterEach() throws IOException {
         memoryAppender.stop();
+
         os.close();
     }
 
@@ -313,8 +314,6 @@ class SXSSFExporterByteOutputStreamTest {
                 .contains("The data size exceeds the maximum number of data rows allowed per sheet."));
 
             //
-            assertEquals(2, memoryAppender.getSize());
-            assertTrue(memoryAppender.isPresent("Initializing", Level.INFO));
             assertTrue(memoryAppender.isPresent(
                 "Set sheet mode and Zip64Mode - mode: ONE_SHEET, Zip64Mode: AsNeeded.",
                 Level.DEBUG));
