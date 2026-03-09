@@ -135,7 +135,7 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
      * @param type The class of the data type
      * @param data The list of data objects to be exported
      */
-    protected abstract void validate(Class<?> type, List<T> data);
+    protected abstract void validate(Class<T> type, List<T> data);
 
 
     /**
@@ -157,7 +157,7 @@ public abstract class AbstractExcelExporter<T, W extends Workbook> implements Ex
      * @param type The class type of the data to be exported
      * @param data The list of data objects to be exported
      */
-    protected final void initialize(Class<?> type, List<T> data) {
+    protected final void initialize(Class<T> type, List<T> data) {
         try {
             validate(type, data);
 

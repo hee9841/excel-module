@@ -116,7 +116,7 @@ public class SXSSFExporter<T> extends AbstractExcelExporter<T, SXSSFWorkbook> {
      * @throws ExcelException if data size exceeds max rows limit with ONE_SHEET mode
      */
     @Override
-    protected void validate(Class<?> type, List<T> data) {
+    protected void validate(Class<T> type, List<T> data) {
         if (type == null) {
             throw new IllegalArgumentException("Type must not be null.");
         }

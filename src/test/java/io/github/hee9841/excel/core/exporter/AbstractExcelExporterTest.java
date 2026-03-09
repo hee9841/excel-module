@@ -8,6 +8,7 @@ import io.github.hee9841.excel.exception.ExcelException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 @DisplayName("AbstractExcelExporter 테스트")
 class AbstractExcelExporterTest {
+
 
     @DisplayName("워크북이 null이면 예외를 발생한다.")
     @Test
@@ -135,27 +137,25 @@ class AbstractExcelExporterTest {
     @Test
     void canBeUsedWithTryWithResources() throws IOException {
         try (TestExporter testExporter = new TestExporter(new XSSFWorkbook());
-             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             testExporter.write(outputStream);
             assertThat(outputStream.toByteArray().length).isGreaterThan(0);
         }
         // 예외 없이 정상 종료
     }
-
-    private static class TestExporter extends AbstractExcelExporter<Object, Workbook> {
+    private static class TestExporter extends AbstractExcelExporter<T, Workbook> {
 
         private TestExporter(Workbook workbook) {
             super(workbook);
         }
 
         @Override
-        protected void validate(Class<?> type, List<Object> data) {
+        protected void validate(Class<T> type, List<T> data) {
         }
 
 
-
         @Override
-        protected void doAddRows(List<Object> data) {
+        protected void doAddRows(List<T> data) {
         }
     }
 }

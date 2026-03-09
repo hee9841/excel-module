@@ -13,11 +13,26 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("ExcelExporter interface 테스트")
 class ExcelExporterTest {
+
+    ByteArrayOutputStream os;
+
+    @BeforeEach
+    void setUp() {
+        os = new ByteArrayOutputStream();
+    }
+
+    @AfterEach
+    void tearDown() throws IOException {
+        os.close();
+    }
+
 
     @DisplayName("인터페이스 타입으로 addRows 후 write가 정상 동작한다.")
     @Test
@@ -35,26 +50,26 @@ class ExcelExporterTest {
         // when
         exporter.addRows(List.of(new TestDto("gamma", 3)));
 
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            exporter.write(os);
 
-            // then
-            try (Workbook workbook = WorkbookFactory.create(
-                new ByteArrayInputStream(os.toByteArray()))) {
-                Sheet sheet = workbook.getSheetAt(0);
-                assertEquals("name", sheet.getRow(0).getCell(0).getStringCellValue());
-                assertEquals("number", sheet.getRow(0).getCell(1).getStringCellValue());
+        exporter.write(os);
 
-                assertEquals("alpha", sheet.getRow(1).getCell(0).getStringCellValue());
-                assertEquals(1, (int) sheet.getRow(1).getCell(1).getNumericCellValue());
+        // then
+        try (Workbook workbook = WorkbookFactory.create(
+            new ByteArrayInputStream(os.toByteArray()))) {
+            Sheet sheet = workbook.getSheetAt(0);
+            assertEquals("name", sheet.getRow(0).getCell(0).getStringCellValue());
+            assertEquals("number", sheet.getRow(0).getCell(1).getStringCellValue());
 
-                assertEquals("beta", sheet.getRow(2).getCell(0).getStringCellValue());
-                assertEquals(2, (int) sheet.getRow(2).getCell(1).getNumericCellValue());
+            assertEquals("alpha", sheet.getRow(1).getCell(0).getStringCellValue());
+            assertEquals(1, (int) sheet.getRow(1).getCell(1).getNumericCellValue());
 
-                assertEquals("gamma", sheet.getRow(3).getCell(0).getStringCellValue());
-                assertEquals(3, (int) sheet.getRow(3).getCell(1).getNumericCellValue());
-            }
+            assertEquals("beta", sheet.getRow(2).getCell(0).getStringCellValue());
+            assertEquals(2, (int) sheet.getRow(2).getCell(1).getNumericCellValue());
+
+            assertEquals("gamma", sheet.getRow(3).getCell(0).getStringCellValue());
+            assertEquals(3, (int) sheet.getRow(3).getCell(1).getNumericCellValue());
         }
+
     }
 
     @Excel(
